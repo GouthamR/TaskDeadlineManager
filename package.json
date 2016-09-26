@@ -14,5 +14,8 @@
   "bugs": {
     "url": "https://github.com/GouthamR/TaskDeadlineManager/issues"
   },
-  "homepage": "https://github.com/GouthamR/TaskDeadlineManager#readme"
+  "homepage": "https://github.com/GouthamR/TaskDeadlineManager#readme",
+  "dependencies": {
+    "express": "^4.14.0"
+  }
 }
