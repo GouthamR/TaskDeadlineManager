@@ -2,7 +2,7 @@
   "name": "taskdeadlinemanager",
   "version": "1.0.0",
   "description": "An app to help manage associated tasks and deadlines.",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
