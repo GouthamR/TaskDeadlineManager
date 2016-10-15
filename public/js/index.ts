@@ -1,7 +1,5 @@
 /// <reference path="jquery.d.ts" />
 
-import { flatpickr } from "./flatpickr.min.js";
-
 class Item
 {
     private title: string;
@@ -127,16 +125,9 @@ function loadDeadlinesFromDB(): Deadline[]
 
 class ItemEditor
 {
-    // NOTE: CANNOT EDIT MULTIPLE ELEMENTS AT ONCE since there will be multiple identical "flatpickr-start" and "flatpickr-end" ids.
-
-    private li: JQuery;
     private item: Item;
+    private li: JQuery;
     private titleInput: JQuery;
-    private currStart: Date;
-    private currEnd: Date;
-    private startTimePickr: JQuery;
-    private endTimePickr: JQuery;
-    private allDayInput: JQuery;
     private doneCallback: (li: JQuery, item: Item)=>void;
 
     public constructor(item: Item, li: JQuery, doneCallback: (li: JQuery, item: Item)=>void)
@@ -149,28 +140,6 @@ class ItemEditor
         this.titleInput = $("<input>", {type: "text", value: this.item.getTitle()});
         this.li.append(this.titleInput);
 
-        this.currStart = this.item.getStart();
-        let startArray: JQuery[] = this.appendFlatPickr("flatpickr-start", this.currStart,
-                                                        this.setCurrStartDate.bind(this), this.setCurrStartTime.bind(this));
-        this.startTimePickr = startArray[1];
-        if(this.item instanceof Task)
-        {
-            let task: Task = this.item as Task;
-            this.currEnd = task.getEnd();
-            let endArray: JQuery[] = this.appendFlatPickr("flatpickr-end", this.currEnd,
-                                                            this.setCurrEndDate.bind(this), this.setCurrEndTime.bind(this));
-            this.endTimePickr = endArray[1];
-        }
-        else
-        {
-            this.currEnd = null;
-            this.endTimePickr = null;
-        }
-
-        this.allDayInput = $("<input>", {type: "checkbox", checked: item.getIsAllDay()});
-        this.li.append(this.allDayInput);
-        this.allDayInput.click(this.allDayInputChanged.bind(this));
-
         let doneButton: JQuery = $("<input>", {type: "button", value: "Done"});
         doneButton.click(this.doneButtonClickFn.bind(this));
         this.li.append(doneButton);
@@ -178,90 +147,9 @@ class ItemEditor
         this.doneCallback = doneCallback;
     }
 
-    private static setDateOnly(date: Date, newDate: Date): void
-    {
-        date.setFullYear(newDate.getFullYear());
-        date.setMonth(newDate.getMonth());
-        date.setDate(newDate.getDate());
-    }
-
-    private setCurrStartDate(dateOnly: Date): void
-    {
-        ItemEditor.setDateOnly(this.currStart, dateOnly);
-    }
-
-    private setCurrEndDate(dateOnly: Date): void
-    {
-        ItemEditor.setDateOnly(this.currEnd, dateOnly);
-    }
-
-    private static setTimeOnly(date: Date, newTime: Date): void
-    {
-        date.setHours(newTime.getHours());
-        date.setMinutes(newTime.getMinutes());
-        date.setSeconds(newTime.getSeconds());
-        date.setMilliseconds(newTime.getMilliseconds());
-    }
-
-    private setCurrStartTime(timeOnly: Date): void
-    {
-        ItemEditor.setTimeOnly(this.currStart, timeOnly);
-    }
-
-    private setCurrEndTime(timeOnly: Date): void
-    {
-        ItemEditor.setTimeOnly(this.currEnd, timeOnly);
-    }
-
-    private allDayInputChanged(): void
-    {
-        let isChecked: boolean = this.allDayInput.prop("checked");
-        $(this.startTimePickr).prop("disabled", isChecked);
-        if(this.item instanceof Task)
-        {
-            $(this.endTimePickr).prop("disabled", isChecked);
-        }
-    }
-
-    private appendFlatPickr(idPrefix: string, date: Date, onChangeDateFn: (d: Date)=>void, onChangeTimeFn: (d: Date)=>void): JQuery[]
-    {
-        let dateId: string = idPrefix + "-date";
-        let timeId: string = idPrefix + "-time";
-
-        let flatPickrDateEl: JQuery = $("<input>",
-            {id: dateId,
-                "data-defaultDate": date,
-                "data-dateFormat": "F j, Y"});
-        let flatPickrTimeEl: JQuery = $("<input>",
-            {id: timeId,
-                "data-defaultDate": date,
-                "data-enabletime": true,
-                "data-nocalendar": true});
-
-        this.li.append(flatPickrDateEl);
-        this.li.append(flatPickrTimeEl);
-
-        flatpickr("#" + dateId, {onChange: onChangeDateFn});
-        flatpickr("#" + timeId, {onChange: onChangeTimeFn});
-
-        if (this.item.getIsAllDay())
-        {
-            $(flatPickrTimeEl).prop("disabled", true);
-        }
-
-        return [flatPickrDateEl, flatPickrTimeEl];
-    }
-
     private doneButtonClickFn(): void
     {
         this.item.setTitle(this.titleInput.val());
-        this.item.setIsAllDay(this.allDayInput.prop("checked"));
-        this.item.setStart(this.currStart);
-        if(this.item instanceof Task)
-        {
-            let task: Task = this.item as Task;
-            task.setEnd(this.currEnd);
-        }
         this.li.empty();
         console.log(this.item);
         this.doneCallback(this.li, this.item);
