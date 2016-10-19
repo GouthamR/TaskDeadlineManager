@@ -1,71 +1,8 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /// <reference path="jquery.d.ts" />
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var Item = (function () {
-    function Item(title, start, isAllDay) {
-        this.title = title;
-        this.start = start;
-        this.isAllDay = isAllDay;
-    }
-    Item.prototype.getDayTimeString = function () {
-        // stub:
-        var allDayEnding;
-        if (this.getIsAllDay()) {
-            allDayEnding = '_ALL_DAY';
-        }
-        else {
-            allDayEnding = '';
-        }
-        return this.getStart().toString() + allDayEnding;
-    };
-    Item.prototype.getTitle = function () { return this.title; };
-    Item.prototype.getStart = function () { return this.start; };
-    Item.prototype.getIsAllDay = function () { return this.isAllDay; };
-    Item.prototype.setTitle = function (title) {
-        this.title = title;
-    };
-    Item.prototype.setStart = function (start) {
-        this.start = start;
-    };
-    Item.prototype.setIsAllDay = function (isAllDay) {
-        this.isAllDay = isAllDay;
-    };
-    return Item;
-}());
-var Task = (function (_super) {
-    __extends(Task, _super);
-    function Task(title, start, end, isAllDay) {
-        _super.call(this, title, start, isAllDay);
-        this.end = end;
-    }
-    Task.prototype.getEnd = function () { return this.end; };
-    Task.prototype.setEnd = function (end) {
-        this.end = end;
-    };
-    Task.prototype.getDayTimeString = function () {
-        // stub:
-        var allDayEnding;
-        if (this.getIsAllDay()) {
-            allDayEnding = '_ALL_DAY';
-        }
-        else {
-            allDayEnding = '';
-        }
-        return this.getStart().toString() + " - " + this.getEnd().toString() + allDayEnding;
-    };
-    return Task;
-}(Item));
-var Deadline = (function (_super) {
-    __extends(Deadline, _super);
-    function Deadline(title, start, isAllDay) {
-        _super.call(this, title, start, isAllDay);
-    }
-    return Deadline;
-}(Item));
+"use strict";
+var item_1 = require("./item");
+var item_2 = require("./item");
 function loadTasksFromDB(day) {
     // stub:
     function getTodayAtTime(hours, minutes) {
@@ -78,21 +15,21 @@ function loadTasksFromDB(day) {
         var date = new Date();
         return date;
     }
-    return [new Task("Clean Room", getTodayAtTime(8, 0), getTodayAtTime(8, 45), false),
-        new Task("Math HW", getTodayAtTime(10, 0), getTodayAtTime(10, 30), false),
-        new Task("Lunch", getTodayAtTime(12, 30), getTodayAtTime(13, 30), false),
-        new Task("End Poverty", getTodayAllDay(), getTodayAllDay(), true),
-        new Task("Game of Thrones Marathon", getTodayAtTime(18, 0), getTodayAtTime(23, 30), false),
-        new Task("Solve the Water Stagnation Problem", getTodayAllDay(), getTodayAllDay(), true),
-        new Task("Dinner", getTodayAtTime(19, 30), getTodayAtTime(20, 30), false)];
+    return [new item_1.Task("Clean Room", getTodayAtTime(8, 0), getTodayAtTime(8, 45), false),
+        new item_1.Task("Math HW", getTodayAtTime(10, 0), getTodayAtTime(10, 30), false),
+        new item_1.Task("Lunch", getTodayAtTime(12, 30), getTodayAtTime(13, 30), false),
+        new item_1.Task("End Poverty", getTodayAllDay(), getTodayAllDay(), true),
+        new item_1.Task("Game of Thrones Marathon", getTodayAtTime(18, 0), getTodayAtTime(23, 30), false),
+        new item_1.Task("Solve the Water Stagnation Problem", getTodayAllDay(), getTodayAllDay(), true),
+        new item_1.Task("Dinner", getTodayAtTime(19, 30), getTodayAtTime(20, 30), false)];
 }
 function loadDeadlinesFromDB() {
     // stub
-    return [new Deadline("English Paper", new Date(2016, 2, 10, 23, 59), false),
-        new Deadline("Game of Thrones Seasons 1-8 Due", new Date(2016, 4, 12, 12, 0), false),
-        new Deadline("Math HW Due", new Date(2016, 9, 20), true),
-        new Deadline("Cure to Cancer Due", new Date(2016, 11, 25), true),
-        new Deadline("Spaces vs Tabs Rant Post Deadline", new Date(2017, 0, 2), true)];
+    return [new item_2.Deadline("English Paper", new Date(2016, 2, 10, 23, 59), false),
+        new item_2.Deadline("Game of Thrones Seasons 1-8 Due", new Date(2016, 4, 12, 12, 0), false),
+        new item_2.Deadline("Math HW Due", new Date(2016, 9, 20), true),
+        new item_2.Deadline("Cure to Cancer Due", new Date(2016, 11, 25), true),
+        new item_2.Deadline("Spaces vs Tabs Rant Post Deadline", new Date(2017, 0, 2), true)];
 }
 var ItemEditor = (function () {
     function ItemEditor(item, li, doneCallback) {
@@ -163,5 +100,77 @@ function main() {
     view.removeLoading("#deadline-container");
 }
 $(document).ready(main);
+
+},{"./item":2}],2:[function(require,module,exports){
+"use strict";
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var Item = (function () {
+    function Item(title, start, isAllDay) {
+        this.title = title;
+        this.start = start;
+        this.isAllDay = isAllDay;
+    }
+    Item.prototype.getDayTimeString = function () {
+        // stub:
+        var allDayEnding;
+        if (this.getIsAllDay()) {
+            allDayEnding = '_ALL_DAY';
+        }
+        else {
+            allDayEnding = '';
+        }
+        return this.getStart().toString() + allDayEnding;
+    };
+    Item.prototype.getTitle = function () { return this.title; };
+    Item.prototype.getStart = function () { return this.start; };
+    Item.prototype.getIsAllDay = function () { return this.isAllDay; };
+    Item.prototype.setTitle = function (title) {
+        this.title = title;
+    };
+    Item.prototype.setStart = function (start) {
+        this.start = start;
+    };
+    Item.prototype.setIsAllDay = function (isAllDay) {
+        this.isAllDay = isAllDay;
+    };
+    return Item;
+}());
+exports.Item = Item;
+var Task = (function (_super) {
+    __extends(Task, _super);
+    function Task(title, start, end, isAllDay) {
+        _super.call(this, title, start, isAllDay);
+        this.end = end;
+    }
+    Task.prototype.getEnd = function () { return this.end; };
+    Task.prototype.setEnd = function (end) {
+        this.end = end;
+    };
+    Task.prototype.getDayTimeString = function () {
+        // stub:
+        var allDayEnding;
+        if (this.getIsAllDay()) {
+            allDayEnding = '_ALL_DAY';
+        }
+        else {
+            allDayEnding = '';
+        }
+        return this.getStart().toString() + " - " + this.getEnd().toString() + allDayEnding;
+    };
+    return Task;
+}(Item));
+exports.Task = Task;
+var Deadline = (function (_super) {
+    __extends(Deadline, _super);
+    function Deadline(title, start, isAllDay) {
+        _super.call(this, title, start, isAllDay);
+    }
+    return Deadline;
+}(Item));
+exports.Deadline = Deadline;
 
 },{}]},{},[1]);
