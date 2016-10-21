@@ -17,7 +17,7 @@ app.get('/', function(req, res)
 
 app.get('/calendar', function(req, res)
 {
-	res.render("calendar");
+	res.render("calendar", {layout: null});
 });
 
 app.use(function(req, res)
