@@ -8,10 +8,57 @@ $(document).ready(function () {
             right: 'month,basicWeek,agendaDay'
         },
         defaultDate: '2016-09-12',
-        // navLinks: true, // can click day/week names to navigate views
+        navLinks: true,
         editable: true,
-        // eventLimit: true, // allow "more" link when too many events
         events: [
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
             {
                 title: 'All Day Event',
                 start: '2016-09-01'

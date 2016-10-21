@@ -88,6 +88,7 @@ declare namespace FullCalendar {
 
         // Clicking & Hovering - http://fullcalendar.io/docs/mouse/
 
+        navLinks?: boolean;
         dayClick?: (date: Date, allDay: boolean, jsEvent: MouseEvent, view: ViewObject) => void;
         eventClick?: (event: EventObject, jsEvent: MouseEvent, view: ViewObject) => any; // return type boolean or void
         eventMouseover?: (event: EventObject, jsEvent: MouseEvent, view: ViewObject) => void;
