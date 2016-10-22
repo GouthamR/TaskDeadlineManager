@@ -2,7 +2,22 @@ var express = require("express");
 
 var app = express();
 
-var handlebars = require('express-handlebars').create({ defaultLayout:'main' });
+var handlebars = require('express-handlebars').create(
+{
+	defaultLayout:'main',
+	helpers:
+	{
+		section: function(name, options)
+		{
+            if(!this._sections)
+            {
+                this._sections = {};
+            }
+            this._sections[name] = options.fn(this);
+            return null;
+        }
+	}
+});
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 
@@ -12,12 +27,12 @@ app.set("port", process.env.PORT || 3000);
 
 app.get('/', function(req, res)
 {
-	res.render("index", {layout: null});
+	res.render("index");
 });
 
 app.get('/calendar', function(req, res)
 {
-	res.render("calendar", {layout: null});
+	res.render("calendar");
 });
 
 app.use(function(req, res)
