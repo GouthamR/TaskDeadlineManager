@@ -45,11 +45,17 @@ export class Item
     }
 }
 
+interface JSONSerializer<T>
+{
+    toJSON(obj: T): Object;
+    fromJSON(json: Object): T;
+}
+
 export class Task extends Item
 {
     private end: Date;
 
-    public constructor (title: string, start: Date, end: Date, isAllDay: boolean)
+    public constructor(title: string, start: Date, end: Date, isAllDay: boolean)
     {
         super(title, start, isAllDay);
         this.end = end;
@@ -79,10 +85,71 @@ export class Task extends Item
     }
 }
 
+interface TaskJSON
+{
+    // string representations of all:
+    title: string;
+    startEpochMillis: string;
+    endEpochMillis: string;
+    isAllDay: string;
+}
+
+export class TaskSerializer implements JSONSerializer<Task>
+{
+    toJSON(obj: Task): Object
+    {
+        let json: TaskJSON =
+        {
+            title: obj.getTitle(),
+            startEpochMillis: obj.getStart().getTime().toString(),
+            endEpochMillis: obj.getEnd().getTime().toString(),
+            isAllDay: obj.getIsAllDay().toString()
+        };
+        return json;
+    }
+    fromJSON(json: Object): Task
+    {
+        let taskJson: TaskJSON = <TaskJSON> json;
+        return new Task(taskJson.title, 
+                        new Date(parseInt(taskJson.startEpochMillis)),
+                        new Date(parseInt(taskJson.endEpochMillis)), 
+                        taskJson.isAllDay == "true");
+    }
+}
+
 export class Deadline extends Item
 {
-    public constructor (title: string, start: Date, isAllDay: boolean)
+    public constructor(title: string, start: Date, isAllDay: boolean)
     {
         super(title, start, isAllDay);
+    }
+}
+
+interface DeadlineJSON
+{
+    // string representations of all:
+    title: string;
+    startEpochMillis: string;
+    isAllDay: string;
+}
+
+export class DeadlineSerializer implements JSONSerializer<Deadline>
+{
+    toJSON(obj: Deadline): Object
+    {
+        let json: DeadlineJSON =
+        {
+            title: obj.getTitle(),
+            startEpochMillis: obj.getStart().getTime().toString(),
+            isAllDay: obj.getIsAllDay().toString()
+        };
+        return json;
+    }
+    fromJSON(json: Object): Deadline
+    {
+        let deadlineJson: DeadlineJSON = <DeadlineJSON> json;
+        return new Deadline(deadlineJson.title, 
+                            new Date(parseInt(deadlineJson.startEpochMillis)),
+                            deadlineJson.isAllDay == "true");
     }
 }

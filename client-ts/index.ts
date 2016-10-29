@@ -2,40 +2,24 @@
 
 import { Item } from "./item";
 import { Task } from "./item";
+import { TaskSerializer } from "./item";
 import { Deadline } from "./item";
+import { DeadlineSerializer } from "./item";
 
-function loadTasksFromDB(day: Date): Task[]
+function loadTasksFromDB(day: Date, callback: (data) => void): void
 {
-    // stub:
-    function getTodayAtTime(hours: number, minutes: number): Date
+    $.getJSON("/load-tasks", function(data, textStatus: string, jqXHR: JQueryXHR)
     {
-        let date: Date = new Date();
-        date.setHours(hours);
-        date.setMinutes(minutes);
-        return date;
-    }
-    function getTodayAllDay(): Date
-    {
-        let date: Date = new Date();
-        return date;
-    }
-    return [new Task("Clean Room", getTodayAtTime(8, 0), getTodayAtTime(8, 45), false),
-            new Task("Math HW", getTodayAtTime(10, 0), getTodayAtTime(10, 30), false),
-            new Task("Lunch", getTodayAtTime(12, 30), getTodayAtTime(13, 30), false),
-            new Task("End Poverty", getTodayAllDay(), getTodayAllDay(), true),
-            new Task("Game of Thrones Marathon", getTodayAtTime(18, 0), getTodayAtTime(23, 30), false),
-            new Task("Solve the Water Stagnation Problem", getTodayAllDay(), getTodayAllDay(), true),
-            new Task("Dinner", getTodayAtTime(19, 30), getTodayAtTime(20, 30), false)];
+        callback(data);
+    });
 }
 
-function loadDeadlinesFromDB(): Deadline[]
+function loadDeadlinesFromDB(callback: (data) => void): void
 {
-    // stub
-    return [new Deadline("English Paper", new Date(2016, 2, 10, 23, 59), false),
-            new Deadline("Game of Thrones Seasons 1-8 Due", new Date(2016, 4, 12, 12, 0), false),
-            new Deadline("Math HW Due", new Date(2016, 9, 20), true),
-            new Deadline("Cure to Cancer Due", new Date(2016, 11, 25), true),
-            new Deadline("Spaces vs Tabs Rant Post Deadline", new Date(2017, 0, 2), true)];
+    $.getJSON("/load-deadlines", function(data, textStatus: string, jqXHR: JQueryXHR)
+    {
+        callback(data);
+    });
 }
 
 class ItemEditor
@@ -123,13 +107,8 @@ class View
     }
 }
 
-function main(): void
+function loadView(tasks: Task[], deadlines: Deadline[])
 {
-    "use strict";
-
-    let tasks: Task[] = loadTasksFromDB(new Date());
-    let deadlines: Deadline[] = loadDeadlinesFromDB();
-
     let view: View = new View();
 
     for (let i: number = 0; i < tasks.length; i++)
@@ -143,6 +122,40 @@ function main(): void
 
     view.removeLoading("#task-container");
     view.removeLoading("#deadline-container");
+}
+
+function main(): void
+{
+    "use strict";
+
+    let tasks: Task[] = [];
+    let deadlines: Deadline[] = [];
+
+    function onLoadDeadlines(data): void
+    {
+        let deadlineSerializer: DeadlineSerializer = new DeadlineSerializer();
+        for(let i of data)
+        {
+            deadlines.push(deadlineSerializer.fromJSON(i));
+        }
+        console.log(deadlines);
+
+        loadView(tasks, deadlines);
+    }
+
+    function onLoadTasks(data): void
+    {
+        let taskSerializer: TaskSerializer = new TaskSerializer();
+        for(let i of data)
+        {
+            tasks.push(taskSerializer.fromJSON(i));
+        }
+        console.log(tasks);
+
+        loadDeadlinesFromDB(onLoadDeadlines);
+    }
+
+    loadTasksFromDB(new Date(), onLoadTasks);
 }
 
 $(document).ready(main);

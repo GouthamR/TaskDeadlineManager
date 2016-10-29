@@ -3,33 +3,15 @@
 "use strict";
 var item_1 = require("./item");
 var item_2 = require("./item");
-function loadTasksFromDB(day) {
-    // stub:
-    function getTodayAtTime(hours, minutes) {
-        var date = new Date();
-        date.setHours(hours);
-        date.setMinutes(minutes);
-        return date;
-    }
-    function getTodayAllDay() {
-        var date = new Date();
-        return date;
-    }
-    return [new item_1.Task("Clean Room", getTodayAtTime(8, 0), getTodayAtTime(8, 45), false),
-        new item_1.Task("Math HW", getTodayAtTime(10, 0), getTodayAtTime(10, 30), false),
-        new item_1.Task("Lunch", getTodayAtTime(12, 30), getTodayAtTime(13, 30), false),
-        new item_1.Task("End Poverty", getTodayAllDay(), getTodayAllDay(), true),
-        new item_1.Task("Game of Thrones Marathon", getTodayAtTime(18, 0), getTodayAtTime(23, 30), false),
-        new item_1.Task("Solve the Water Stagnation Problem", getTodayAllDay(), getTodayAllDay(), true),
-        new item_1.Task("Dinner", getTodayAtTime(19, 30), getTodayAtTime(20, 30), false)];
+function loadTasksFromDB(day, callback) {
+    $.getJSON("/load-tasks", function (data, textStatus, jqXHR) {
+        callback(data);
+    });
 }
-function loadDeadlinesFromDB() {
-    // stub
-    return [new item_2.Deadline("English Paper", new Date(2016, 2, 10, 23, 59), false),
-        new item_2.Deadline("Game of Thrones Seasons 1-8 Due", new Date(2016, 4, 12, 12, 0), false),
-        new item_2.Deadline("Math HW Due", new Date(2016, 9, 20), true),
-        new item_2.Deadline("Cure to Cancer Due", new Date(2016, 11, 25), true),
-        new item_2.Deadline("Spaces vs Tabs Rant Post Deadline", new Date(2017, 0, 2), true)];
+function loadDeadlinesFromDB(callback) {
+    $.getJSON("/load-deadlines", function (data, textStatus, jqXHR) {
+        callback(data);
+    });
 }
 var ItemEditor = (function () {
     function ItemEditor(item, li, doneCallback) {
@@ -85,10 +67,7 @@ var View = (function () {
     };
     return View;
 }());
-function main() {
-    "use strict";
-    var tasks = loadTasksFromDB(new Date());
-    var deadlines = loadDeadlinesFromDB();
+function loadView(tasks, deadlines) {
     var view = new View();
     for (var i = 0; i < tasks.length; i++) {
         view.appendLi("#task-container", tasks[i]);
@@ -98,6 +77,30 @@ function main() {
     }
     view.removeLoading("#task-container");
     view.removeLoading("#deadline-container");
+}
+function main() {
+    "use strict";
+    var tasks = [];
+    var deadlines = [];
+    function onLoadDeadlines(data) {
+        var deadlineSerializer = new item_2.DeadlineSerializer();
+        for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
+            var i = data_1[_i];
+            deadlines.push(deadlineSerializer.fromJSON(i));
+        }
+        console.log(deadlines);
+        loadView(tasks, deadlines);
+    }
+    function onLoadTasks(data) {
+        var taskSerializer = new item_1.TaskSerializer();
+        for (var _i = 0, data_2 = data; _i < data_2.length; _i++) {
+            var i = data_2[_i];
+            tasks.push(taskSerializer.fromJSON(i));
+        }
+        console.log(tasks);
+        loadDeadlinesFromDB(onLoadDeadlines);
+    }
+    loadTasksFromDB(new Date(), onLoadTasks);
 }
 $(document).ready(main);
 
@@ -164,6 +167,25 @@ var Task = (function (_super) {
     return Task;
 }(Item));
 exports.Task = Task;
+var TaskSerializer = (function () {
+    function TaskSerializer() {
+    }
+    TaskSerializer.prototype.toJSON = function (obj) {
+        var json = {
+            title: obj.getTitle(),
+            startEpochMillis: obj.getStart().getTime().toString(),
+            endEpochMillis: obj.getEnd().getTime().toString(),
+            isAllDay: obj.getIsAllDay().toString()
+        };
+        return json;
+    };
+    TaskSerializer.prototype.fromJSON = function (json) {
+        var taskJson = json;
+        return new Task(taskJson.title, new Date(parseInt(taskJson.startEpochMillis)), new Date(parseInt(taskJson.endEpochMillis)), taskJson.isAllDay == "true");
+    };
+    return TaskSerializer;
+}());
+exports.TaskSerializer = TaskSerializer;
 var Deadline = (function (_super) {
     __extends(Deadline, _super);
     function Deadline(title, start, isAllDay) {
@@ -172,5 +194,23 @@ var Deadline = (function (_super) {
     return Deadline;
 }(Item));
 exports.Deadline = Deadline;
+var DeadlineSerializer = (function () {
+    function DeadlineSerializer() {
+    }
+    DeadlineSerializer.prototype.toJSON = function (obj) {
+        var json = {
+            title: obj.getTitle(),
+            startEpochMillis: obj.getStart().getTime().toString(),
+            isAllDay: obj.getIsAllDay().toString()
+        };
+        return json;
+    };
+    DeadlineSerializer.prototype.fromJSON = function (json) {
+        var deadlineJson = json;
+        return new Deadline(deadlineJson.title, new Date(parseInt(deadlineJson.startEpochMillis)), deadlineJson.isAllDay == "true");
+    };
+    return DeadlineSerializer;
+}());
+exports.DeadlineSerializer = DeadlineSerializer;
 
 },{}]},{},[1]);
