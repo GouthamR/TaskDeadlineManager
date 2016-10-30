@@ -6,20 +6,35 @@ import { TaskSerializer } from "./item";
 import { Deadline } from "./item";
 import { DeadlineSerializer } from "./item";
 
-function loadTasksFromDB(day: Date, callback: (data) => void): void
+function loadItemsFromServer(route: string, errorPrefix: string, callback: (data) => void): void
 {
-    $.getJSON("/load-tasks", function(data, textStatus: string, jqXHR: JQueryXHR)
+    $.getJSON(route)
+    .done(function(data, textStatus: string, jqXHR: JQueryXHR)
     {
         callback(data);
+    })
+    .fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
+    {
+        let errorDetails: string = textStatus + ", " + error;
+        showLoadErrorInView(errorPrefix, errorDetails);
+        console.log(errorDetails);
     });
 }
 
-function loadDeadlinesFromDB(callback: (data) => void): void
+function loadTasksFromServer(callback: (data) => void): void
 {
-    $.getJSON("/load-deadlines", function(data, textStatus: string, jqXHR: JQueryXHR)
-    {
-        callback(data);
-    });
+    loadItemsFromServer("/load-tasks", "Error: failed to load tasks.", callback);
+}
+
+function loadDeadlinesFromServer(callback: (data) => void): void
+{
+    loadItemsFromServer("/load-deadlines", "Error: failed to load deadlines.", callback);
+}
+
+function showLoadErrorInView(errorPrefix: string, errorDetails: string): void
+{
+    let errorMessage: string = errorPrefix + "\nDetails: " + errorDetails;
+    new View().showLoadError(errorMessage);
 }
 
 class ItemEditor
@@ -105,6 +120,14 @@ class View
     {
         $(container_name + " .loading").remove();
     }
+
+    public showLoadError(errorMessage: string)
+    {
+        this.removeLoading("#task-container");
+        this.removeLoading("#deadline-container");
+        $("#error-container").append($("<p>").html(errorMessage));
+        $("#error-container").removeClass("hidden");
+    }
 }
 
 function loadView(tasks: Task[], deadlines: Deadline[])
@@ -152,10 +175,10 @@ function main(): void
         }
         console.log(tasks);
 
-        loadDeadlinesFromDB(onLoadDeadlines);
+        loadDeadlinesFromServer(onLoadDeadlines);
     }
 
-    loadTasksFromDB(new Date(), onLoadTasks);
+    loadTasksFromServer(onLoadTasks);
 }
 
 $(document).ready(main);

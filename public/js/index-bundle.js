@@ -3,15 +3,26 @@
 "use strict";
 var item_1 = require("./item");
 var item_2 = require("./item");
-function loadTasksFromDB(day, callback) {
-    $.getJSON("/load-tasks", function (data, textStatus, jqXHR) {
+function loadItemsFromServer(route, errorPrefix, callback) {
+    $.getJSON(route)
+        .done(function (data, textStatus, jqXHR) {
         callback(data);
+    })
+        .fail(function (jqXHR, textStatus, error) {
+        var errorDetails = textStatus + ", " + error;
+        showLoadErrorInView(errorPrefix, errorDetails);
+        console.log(errorDetails);
     });
 }
-function loadDeadlinesFromDB(callback) {
-    $.getJSON("/load-deadlines", function (data, textStatus, jqXHR) {
-        callback(data);
-    });
+function loadTasksFromServer(callback) {
+    loadItemsFromServer("/load-tasks", "Error: failed to load tasks.", callback);
+}
+function loadDeadlinesFromServer(callback) {
+    loadItemsFromServer("/load-deadlines", "Error: failed to load deadlines.", callback);
+}
+function showLoadErrorInView(errorPrefix, errorDetails) {
+    var errorMessage = errorPrefix + "\nDetails: " + errorDetails;
+    new View().showLoadError(errorMessage);
 }
 var ItemEditor = (function () {
     function ItemEditor(item, li, doneCallback) {
@@ -65,6 +76,12 @@ var View = (function () {
     View.prototype.removeLoading = function (container_name) {
         $(container_name + " .loading").remove();
     };
+    View.prototype.showLoadError = function (errorMessage) {
+        this.removeLoading("#task-container");
+        this.removeLoading("#deadline-container");
+        $("#error-container").append($("<p>").html(errorMessage));
+        $("#error-container").removeClass("hidden");
+    };
     return View;
 }());
 function loadView(tasks, deadlines) {
@@ -98,9 +115,9 @@ function main() {
             tasks.push(taskSerializer.fromJSON(i));
         }
         console.log(tasks);
-        loadDeadlinesFromDB(onLoadDeadlines);
+        loadDeadlinesFromServer(onLoadDeadlines);
     }
-    loadTasksFromDB(new Date(), onLoadTasks);
+    loadTasksFromServer(onLoadTasks);
 }
 $(document).ready(main);
 

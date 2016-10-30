@@ -19,6 +19,17 @@ h4 {
     margin-top: .25em;
 }
 
+#error-container {
+    background-color: #FFB6C1;
+    text-align: center;
+    padding: 1em;
+}
+
+.hidden
+{
+    display: none;
+}
+
 #taskdeadline-container {
     background-color: white;
     min-height: 30em;
