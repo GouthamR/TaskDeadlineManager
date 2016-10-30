@@ -91,6 +91,7 @@ $(document).ready(function () {
             }
         ]
     });
+    $(".loading").remove();
 });
 
 },{}]},{},[1]);
