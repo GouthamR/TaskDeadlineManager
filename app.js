@@ -37,14 +37,12 @@ app.get('/calendar', function(req, res)
 
 app.get('/load-tasks', function(req, res)
 {
-	// STUB:
 	var tasks = require("./tasks.json");
 	res.json(tasks);
 });
 
 app.get('/load-deadlines', function(req, res)
 {
-	// STUB:
 	var deadlines = require("./deadlines.json");
 	res.json(deadlines);
 });
