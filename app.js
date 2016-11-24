@@ -25,6 +25,8 @@ app.use(express.static(__dirname + '/public'));
 
 app.set("port", process.env.PORT || 3000);
 
+app.use(require('body-parser').urlencoded({ extended: true }));
+
 app.get('/', function(req, res)
 {
 	res.render("index");
@@ -33,6 +35,11 @@ app.get('/', function(req, res)
 app.get('/calendar', function(req, res)
 {
 	res.render("calendar");
+});
+
+app.get('/add-task', function(req, res)
+{
+	res.render("add-task");
 });
 
 app.get('/load-tasks', function(req, res)
@@ -45,6 +52,13 @@ app.get('/load-deadlines', function(req, res)
 {
 	var deadlines = require("./deadlines.json");
 	res.json(deadlines);
+});
+
+app.post('/add-task', function(req, res)
+{
+	// STUB:
+	console.log(req.body);
+	res.redirect(303, '/');
 });
 
 app.use(function(req, res)
