@@ -7,15 +7,25 @@ var handlebars = require('express-handlebars').create(
 	defaultLayout:'main',
 	helpers:
 	{
+		// Implements sections in handlebars - for injecting content into
+		// non-body areas of the template
 		section: function(name, options)
 		{
-            if(!this._sections)
-            {
-                this._sections = {};
-            }
-            this._sections[name] = options.fn(this);
-            return null;
-        }
+			if(!this._sections)
+			{
+				this._sections = {};
+			}
+
+			if(!this._sections[name])
+			{
+				this._sections[name] = options.fn(this);
+			}
+			else
+			{
+				this._sections[name] += options.fn(this);
+			}
+			return null;
+		}
 	}
 });
 app.engine('handlebars', handlebars.engine);
