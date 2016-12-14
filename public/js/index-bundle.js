@@ -3,123 +3,127 @@
 "use strict";
 var item_1 = require("./item");
 var item_2 = require("./item");
-function loadItemsFromServer(route, errorPrefix, callback) {
-    $.getJSON(route)
-        .done(function (data, textStatus, jqXHR) {
-        callback(data);
-    })
-        .fail(function (jqXHR, textStatus, error) {
-        var errorDetails = textStatus + ", " + error;
-        showLoadErrorInView(errorPrefix, errorDetails);
-        console.log(errorDetails);
-    });
-}
-function loadTasksFromServer(callback) {
-    loadItemsFromServer("/load-tasks", "Error: failed to load tasks.", callback);
-}
-function loadDeadlinesFromServer(callback) {
-    loadItemsFromServer("/load-deadlines", "Error: failed to load deadlines.", callback);
-}
-function showLoadErrorInView(errorPrefix, errorDetails) {
-    var errorMessage = errorPrefix + "\nDetails: " + errorDetails;
-    new View().showLoadError(errorMessage);
-}
-var ItemEditor = (function () {
-    function ItemEditor(item, li, doneCallback) {
-        this.item = item;
-        this.li = li;
-        this.li.empty();
-        this.titleInput = $("<input>", { type: "text", value: this.item.getTitle() });
-        this.li.append(this.titleInput);
-        var doneButton = $("<input>", { type: "button", value: "Done" });
-        doneButton.click(this.doneButtonClickFn.bind(this));
-        this.li.append(doneButton);
-        this.doneCallback = doneCallback;
+var index;
+(function (index) {
+    function loadItemsFromServer(route, errorPrefix, callback) {
+        $.getJSON(route)
+            .done(function (data, textStatus, jqXHR) {
+            callback(data);
+        })
+            .fail(function (jqXHR, textStatus, error) {
+            var errorDetails = textStatus + ", " + error;
+            showLoadErrorInView(errorPrefix, errorDetails);
+            console.log(errorDetails);
+        });
     }
-    ItemEditor.prototype.doneButtonClickFn = function () {
-        this.item.setTitle(this.titleInput.val());
-        this.li.empty();
-        console.log(this.item);
-        this.doneCallback(this.li, this.item);
-    };
-    return ItemEditor;
-}());
-var View = (function () {
-    function View() {
+    function loadTasksFromServer(callback) {
+        loadItemsFromServer("/load-tasks", "Error: failed to load tasks.", callback);
     }
-    View.prototype.markItemDone = function (item, li) {
-        // stub
-        console.log(item.getTitle() + " removed");
-        li.slideUp();
-    };
-    View.prototype.fillLi = function (li, item) {
-        var middle = $("<div>", { class: "item-middle" });
-        middle.append($("<p>").html(item.getTitle()), $("<p>").html(item.getDayTimeString()));
-        var check = $("<img>", { class: "td-check", src: "img/check.png" });
-        var settings = $("<img>", { class: "td-settings", src: "img/gear.png" });
-        check.click(this.markItemDone.bind(this, item, li));
-        settings.click(this.openSettings.bind(this, item, li));
-        li.append(check, middle, settings);
-    };
-    View.prototype.openSettings = function (item, li) {
-        new ItemEditor(item, li, this.fillLi.bind(this));
-    };
-    View.prototype.createLi = function (item) {
-        var li = $("<li>");
-        this.fillLi(li, item);
-        return li;
-    };
-    View.prototype.appendLi = function (container_name, item) {
-        var li = this.createLi(item);
-        $(container_name + " ul").append(li);
-    };
-    View.prototype.removeLoading = function (container_name) {
-        $(container_name + " .loading").remove();
-    };
-    View.prototype.showLoadError = function (errorMessage) {
-        this.removeLoading("#task-container");
-        this.removeLoading("#deadline-container");
-        $("#error-container").append($("<p>").html(errorMessage));
-        $("#error-container").removeClass("hidden");
-    };
-    return View;
-}());
-function loadView(tasks, deadlines) {
-    var view = new View();
-    for (var i = 0; i < tasks.length; i++) {
-        view.appendLi("#task-container", tasks[i]);
+    function loadDeadlinesFromServer(callback) {
+        loadItemsFromServer("/load-deadlines", "Error: failed to load deadlines.", callback);
     }
-    for (var i = 0; i < deadlines.length; i++) {
-        view.appendLi("#deadline-container", deadlines[i]);
+    function showLoadErrorInView(errorPrefix, errorDetails) {
+        var errorMessage = errorPrefix + "\nDetails: " + errorDetails;
+        new View().showLoadError(errorMessage);
     }
-    view.removeLoading("#task-container");
-    view.removeLoading("#deadline-container");
-}
-function main() {
-    "use strict";
-    var tasks = [];
-    var deadlines = [];
-    function onLoadDeadlines(data) {
-        var deadlineSerializer = new item_2.DeadlineSerializer();
-        for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
-            var i = data_1[_i];
-            deadlines.push(deadlineSerializer.fromJSON(i));
+    var ItemEditor = (function () {
+        function ItemEditor(item, li, doneCallback) {
+            this.item = item;
+            this.li = li;
+            this.li.empty();
+            this.titleInput = $("<input>", { type: "text", value: this.item.getTitle() });
+            this.li.append(this.titleInput);
+            var doneButton = $("<input>", { type: "button", value: "Done" });
+            doneButton.click(this.doneButtonClickFn.bind(this));
+            this.li.append(doneButton);
+            this.doneCallback = doneCallback;
         }
-        console.log(deadlines);
-        loadView(tasks, deadlines);
-    }
-    function onLoadTasks(data) {
-        var taskSerializer = new item_1.TaskSerializer();
-        for (var _i = 0, data_2 = data; _i < data_2.length; _i++) {
-            var i = data_2[_i];
-            tasks.push(taskSerializer.fromJSON(i));
+        ItemEditor.prototype.doneButtonClickFn = function () {
+            this.item.setTitle(this.titleInput.val());
+            this.li.empty();
+            console.log(this.item);
+            this.doneCallback(this.li, this.item);
+        };
+        return ItemEditor;
+    }());
+    var View = (function () {
+        function View() {
         }
-        console.log(tasks);
-        loadDeadlinesFromServer(onLoadDeadlines);
+        View.prototype.markItemDone = function (item, li) {
+            // stub
+            console.log(item.getTitle() + " removed");
+            li.slideUp();
+        };
+        View.prototype.fillLi = function (li, item) {
+            var middle = $("<div>", { class: "item-middle" });
+            middle.append($("<p>").html(item.getTitle()), $("<p>").html(item.getDayTimeString()));
+            var check = $("<img>", { class: "td-check", src: "img/check.png" });
+            var settings = $("<img>", { class: "td-settings", src: "img/gear.png" });
+            check.click(this.markItemDone.bind(this, item, li));
+            settings.click(this.openSettings.bind(this, item, li));
+            li.append(check, middle, settings);
+        };
+        View.prototype.openSettings = function (item, li) {
+            new ItemEditor(item, li, this.fillLi.bind(this));
+        };
+        View.prototype.createLi = function (item) {
+            var li = $("<li>");
+            this.fillLi(li, item);
+            return li;
+        };
+        View.prototype.appendLi = function (container_name, item) {
+            var li = this.createLi(item);
+            $(container_name + " ul").append(li);
+        };
+        View.prototype.removeLoading = function (container_name) {
+            $(container_name + " .loading").remove();
+        };
+        View.prototype.showLoadError = function (errorMessage) {
+            this.removeLoading("#task-container");
+            this.removeLoading("#deadline-container");
+            $("#error-container").append($("<p>").html(errorMessage));
+            $("#error-container").removeClass("hidden");
+        };
+        return View;
+    }());
+    function loadView(tasks, deadlines) {
+        var view = new View();
+        for (var i = 0; i < tasks.length; i++) {
+            view.appendLi("#task-container", tasks[i]);
+        }
+        for (var i = 0; i < deadlines.length; i++) {
+            view.appendLi("#deadline-container", deadlines[i]);
+        }
+        view.removeLoading("#task-container");
+        view.removeLoading("#deadline-container");
     }
-    loadTasksFromServer(onLoadTasks);
-}
-$(document).ready(main);
+    function main() {
+        "use strict";
+        var tasks = [];
+        var deadlines = [];
+        function onLoadDeadlines(data) {
+            var deadlineSerializer = new item_2.DeadlineSerializer();
+            for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
+                var i = data_1[_i];
+                deadlines.push(deadlineSerializer.fromJSON(i));
+            }
+            console.log(deadlines);
+            loadView(tasks, deadlines);
+        }
+        function onLoadTasks(data) {
+            var taskSerializer = new item_1.TaskSerializer();
+            for (var _i = 0, data_2 = data; _i < data_2.length; _i++) {
+                var i = data_2[_i];
+                tasks.push(taskSerializer.fromJSON(i));
+            }
+            console.log(tasks);
+            loadDeadlinesFromServer(onLoadDeadlines);
+        }
+        loadTasksFromServer(onLoadTasks);
+    }
+    index.main = main;
+})(index || (index = {}));
+$(document).ready(index.main);
 
 },{"./item":2}],2:[function(require,module,exports){
 "use strict";
