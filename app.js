@@ -39,7 +39,7 @@ app.use(require('body-parser').urlencoded({ extended: true }));
 
 app.get('/', function(req, res)
 {
-	res.render("index");
+	res.render("main");
 });
 
 app.get('/calendar', function(req, res)
