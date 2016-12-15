@@ -28,6 +28,8 @@ var AddTask;
             alert("ERROR: Add Task failed.\nDetails: " + errorDetails);
             console.log(errorDetails);
         });
+        $("#index").removeClass("hidden");
+        $("#add-task").addClass("hidden");
     }
     function main() {
         "use strict";

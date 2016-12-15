@@ -1,0 +1,21 @@
+{{#section 'links'}}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js"></script>
+{{/section}}
+
+<!-- body: -->
+<div id="add-task" class="hidden">
+	<h1>Add Task</h1>
+	<form class="add-task-form" action="/add-task" method="post">
+		<label for="task-title">Title</label>
+		<input type="text" id="task-title" name="title" autofocus = "true">
+		<label for="task-start-date">Start</label>
+		<input type="date" id="task-start-date" name="start-date">
+		<input type="time" id="task-start-time" name="start-time">
+		<label for="task-end-date">End</label>
+		<input type="date" id="task-end-date" name="end-date">
+		<input type="time" id="task-end-time" name="end-time">
+		<input type="submit" value="Done">
+	</form>
+</div>
+<script src="js/add-task-bundle.js"></script>

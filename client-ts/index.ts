@@ -76,7 +76,13 @@ namespace index
     {
         public constructor()
         {
+            $("#task-container > a").click((event: JQueryEventObject) => this.onAddTaskClicked(event));
+        }
 
+        private onAddTaskClicked(event: JQueryEventObject): void
+        {
+            $("#index").addClass("hidden");
+            $("#add-task").removeClass("hidden");
         }
 
         private markItemDone(item: Item, li: JQuery): void

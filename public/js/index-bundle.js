@@ -48,7 +48,13 @@ var index;
     }());
     var View = (function () {
         function View() {
+            var _this = this;
+            $("#task-container > a").click(function (event) { return _this.onAddTaskClicked(event); });
         }
+        View.prototype.onAddTaskClicked = function (event) {
+            $("#index").addClass("hidden");
+            $("#add-task").removeClass("hidden");
+        };
         View.prototype.markItemDone = function (item, li) {
             // stub
             console.log(item.getTitle() + " removed");

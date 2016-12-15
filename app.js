@@ -47,11 +47,6 @@ app.get('/calendar', function(req, res)
 	res.render("calendar");
 });
 
-app.get('/add-task', function(req, res)
-{
-	res.render("add-task");
-});
-
 app.get('/load-tasks', function(req, res)
 {
 	var tasks = require("./tasks.json");
