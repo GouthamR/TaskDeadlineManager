@@ -26,7 +26,7 @@ function onAddTaskSubmit(event) {
         alert("ERROR: Add Task failed.\nDetails: " + errorDetails);
         console.log(errorDetails);
     });
-    $("#index").removeClass("hidden");
+    $(".index").removeClass("hidden");
     $("#add-task").addClass("hidden");
 }
 function main() {
@@ -85,10 +85,10 @@ var ItemEditor = (function () {
 var View = (function () {
     function View() {
         var _this = this;
-        $("#task-container > a").click(function (event) { return _this.onAddTaskClicked(event); });
+        $(".index-task-container > a").click(function (event) { return _this.onAddTaskClicked(event); });
     }
     View.prototype.onAddTaskClicked = function (event) {
-        $("#index").addClass("hidden");
+        $(".index").addClass("hidden");
         $("#add-task").removeClass("hidden");
     };
     View.prototype.markItemDone = function (item, li) {
@@ -118,26 +118,27 @@ var View = (function () {
         $(container_name + " ul").append(li);
     };
     View.prototype.removeLoading = function (container_name) {
-        $(container_name + " .loading").remove();
+        $(container_name + " .index-loading").remove();
     };
     View.prototype.showLoadError = function (errorMessage) {
-        this.removeLoading("#task-container");
-        this.removeLoading("#deadline-container");
-        $("#error-container").append($("<p>").html(errorMessage));
-        $("#error-container").removeClass("hidden");
+        console.log("loadError!");
+        this.removeLoading(".index-task-container");
+        this.removeLoading(".index-deadline-container");
+        $(".index-error-container").append($("<p>").html(errorMessage));
+        $(".index-error-container").removeClass("hidden");
     };
     return View;
 }());
 function loadView(tasks, deadlines) {
     var view = new View();
     for (var i = 0; i < tasks.length; i++) {
-        view.appendLi("#task-container", tasks[i]);
+        view.appendLi(".index-task-container", tasks[i]);
     }
     for (var i = 0; i < deadlines.length; i++) {
-        view.appendLi("#deadline-container", deadlines[i]);
+        view.appendLi(".index-deadline-container", deadlines[i]);
     }
-    view.removeLoading("#task-container");
-    view.removeLoading("#deadline-container");
+    view.removeLoading(".index-task-container");
+    view.removeLoading(".index-deadline-container");
 }
 function main() {
     "use strict";

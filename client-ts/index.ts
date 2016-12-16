@@ -74,12 +74,12 @@ class View
 {
     public constructor()
     {
-        $("#task-container > a").click((event: JQueryEventObject) => this.onAddTaskClicked(event));
+        $(".index-task-container > a").click((event: JQueryEventObject) => this.onAddTaskClicked(event));
     }
 
     private onAddTaskClicked(event: JQueryEventObject): void
     {
-        $("#index").addClass("hidden");
+        $(".index").addClass("hidden");
         $("#add-task").removeClass("hidden");
     }
 
@@ -124,15 +124,16 @@ class View
 
     public removeLoading(container_name: string): void
     {
-        $(container_name + " .loading").remove();
+        $(container_name + " .index-loading").remove();
     }
 
     public showLoadError(errorMessage: string)
     {
-        this.removeLoading("#task-container");
-        this.removeLoading("#deadline-container");
-        $("#error-container").append($("<p>").html(errorMessage));
-        $("#error-container").removeClass("hidden");
+        console.log("loadError!");
+        this.removeLoading(".index-task-container");
+        this.removeLoading(".index-deadline-container");
+        $(".index-error-container").append($("<p>").html(errorMessage));
+        $(".index-error-container").removeClass("hidden");
     }
 }
 
@@ -142,15 +143,15 @@ function loadView(tasks: Task[], deadlines: Deadline[])
 
     for (let i: number = 0; i < tasks.length; i++)
     {
-        view.appendLi("#task-container", tasks[i]);
+        view.appendLi(".index-task-container", tasks[i]);
     }
     for (let i: number = 0; i < deadlines.length; i++)
     {
-        view.appendLi("#deadline-container", deadlines[i]);
+        view.appendLi(".index-deadline-container", deadlines[i]);
     }
 
-    view.removeLoading("#task-container");
-    view.removeLoading("#deadline-container");
+    view.removeLoading(".index-task-container");
+    view.removeLoading(".index-deadline-container");
 }
 
 export function main(): void

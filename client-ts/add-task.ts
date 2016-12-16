@@ -37,7 +37,7 @@ function onAddTaskSubmit(event: JQueryEventObject)
         console.log(errorDetails);
     });
 
-    $("#index").removeClass("hidden");
+    $(".index").removeClass("hidden");
     $("#add-task").addClass("hidden");
 }
 
