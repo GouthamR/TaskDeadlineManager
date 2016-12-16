@@ -295,7 +295,7 @@ function main() {
     var MOBILE_MAX_WIDTH = 768; // pixels
     var ANIM_TIME = 350; // milliseconds
     var isOpen = false;
-    $("#pull").on("click", function (event) {
+    $(".nav-pull-link").on("click", function (event) {
         var animDirection = isOpen ? "-" : "+";
         $("nav").animate({ left: (animDirection + '=' + $("nav").width()) }, ANIM_TIME);
         isOpen = !isOpen;

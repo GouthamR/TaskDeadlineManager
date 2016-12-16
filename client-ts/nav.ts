@@ -9,7 +9,7 @@ export function main(): void
 
     let isOpen: boolean = false;
 
-    $("#pull").on("click", function (event: JQueryEventObject)
+    $(".nav-pull-link").on("click", function (event: JQueryEventObject)
     {
         let animDirection: string = isOpen ? "-" : "+";
         $("nav").animate({ left: (animDirection + '=' + $("nav").width()) }, ANIM_TIME);

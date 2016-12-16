@@ -21,35 +21,35 @@ nav ul li a {
     text-decoration: none;
 }
 
-#scheduler a {
+.nav-scheduler-button a {
     font-size: 2.5em;
 }
 
-#scheduler {
+.nav-scheduler-button {
     width: 17%;
 }
 
-#tasks {
+.nav-tasks-button {
     margin-left: 8%;
 }
 
-#tasks, #deadlines, #calendar {
+.nav-tasks-button, .nav-deadlines-button, .nav-calendar-button {
     width: 16.667%;
 }
 
-#tasks a, #deadlines a, #calendar a {
+.nav-tasks-button a, .nav-deadlines-button a, .nav-calendar-button a {
     font-size: 1.7em;
 }
 
-#settings {
+.nav-settings-button {
     margin-left: 5%;
 }
 
-#settings, #logout {
+.nav-settings-button, .nav-logout-button {
     width: 10%;
 }
 
-#settings a, #logout a{
+.nav-settings-button a, .nav-logout-button a{
     font-size: 1.5em;
 }
 
@@ -61,7 +61,7 @@ nav ul li a:hover {
     color: white;
 }
 
-#pull {
+.nav-pull-link {
     display: none;
 }
 
@@ -93,7 +93,7 @@ nav ul li a:hover {
         text-align: left;
     }
 
-    #scheduler, #tasks, #deadlines, #calendar, #settings, #logout {
+    .nav-scheduler-button, .nav-tasks-button, .nav-deadlines-button, .nav-calendar-button, .nav-settings-button, .nav-logout-button {
         width: 100%;
         height: 3.5em;
         line-height: 3.5em;
@@ -101,7 +101,7 @@ nav ul li a:hover {
         font-size: 1em;
     }
 
-    #pull {
+    .nav-pull-link {
         position: fixed;
         z-index: 2;
         background-color: #0F51AD;
@@ -110,7 +110,7 @@ nav ul li a:hover {
         width: 100%;
     }
 
-    #pull:after {
+    .nav-pull-link:after {
         content: "";
         background: url('../img/nav-ham.png') no-repeat;
         background-size: 3.5em 3em;
