@@ -27,7 +27,7 @@ function onAddTaskSubmit(event) {
         console.log(errorDetails);
     });
     $(".index").removeClass("hidden");
-    $("#add-task").addClass("hidden");
+    $(".add-task").addClass("hidden");
 }
 function main() {
     "use strict";
@@ -89,7 +89,7 @@ var View = (function () {
     }
     View.prototype.onAddTaskClicked = function (event) {
         $(".index").addClass("hidden");
-        $("#add-task").removeClass("hidden");
+        $(".add-task").removeClass("hidden");
     };
     View.prototype.markItemDone = function (item, li) {
         // stub

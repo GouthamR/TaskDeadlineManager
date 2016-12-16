@@ -80,7 +80,7 @@ class View
     private onAddTaskClicked(event: JQueryEventObject): void
     {
         $(".index").addClass("hidden");
-        $("#add-task").removeClass("hidden");
+        $(".add-task").removeClass("hidden");
     }
 
     private markItemDone(item: Item, li: JQuery): void

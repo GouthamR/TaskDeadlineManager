@@ -38,7 +38,7 @@ function onAddTaskSubmit(event: JQueryEventObject)
     });
 
     $(".index").removeClass("hidden");
-    $("#add-task").addClass("hidden");
+    $(".add-task").addClass("hidden");
 }
 
 export function main(): void
