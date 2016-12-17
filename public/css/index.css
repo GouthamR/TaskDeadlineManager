@@ -51,12 +51,13 @@
     background-color: white;
     min-height: 30em;
     border: solid #1a6fe6 .15em;
-    margin-left: 5em;
-    margin-right: 5em;
+    margin-left: 2em;
+    margin-right: 2em;
+    display: flex;
 }
 
 .index .index-taskdeadline-container > div {
-    width: 41%;
+    width: 50%;
     height: 27em;
     margin-top: 1.5em;
     margin-bottom: 1.5em;
@@ -64,15 +65,13 @@
 }
 
 .index .index-task-container {
-    float: left;
-    margin-left: 6%;
-    margin-right: 3%;
+    margin-left: 1em;
+    margin-right: 0.5em;
 }
 
 .index .index-deadline-container {
-    float: right;
-    margin-left: 3%;
-    margin-right: 6%;
+    margin-left: 0.5em;
+    margin-right: 1em;
 }
 
 .index .index-taskdeadline-container > div > div {
@@ -152,11 +151,10 @@
         margin-left: 1em;
         margin-right: 1em;
         min-height: 60em;
+        flex-direction: column;
     }
 
     .index .index-taskdeadline-container > div {
-        display: block;
-        float: none;
         width: 96%;
         margin-top: 1em;
         margin-bottom: 3em;
@@ -167,13 +165,8 @@
         width: 90%;
     }
 
-    .index .index-task-container {
-        margin-left: 2%;
-        margin-right: 2%;
-
-    }
-
-    .index .index-deadline-container {
+    /* need to explicitly specify individually to override individual selectors above: */
+    .index .index-task-container, .index .index-deadline-container {
         margin-left: 2%;
         margin-right: 2%;
     }
