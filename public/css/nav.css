@@ -1,11 +1,32 @@
-nav {
+/* ============================ RESET ============================ */
+
+.nav div, .nav h1, .nav h2, .nav h3, .nav h4, .nav h5, .nav h6, 
+.nav p, .nav a, .nav img, .nav ol, .nav ul, .nav li, .nav nav {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+.nav nav {
+    display: block;
+}
+.nav ol, .nav ul {
+    list-style: none;
+}
+
+/* ========================== END RESET ========================== */
+
+.nav nav {
     position: fixed;
     z-index: 1;
     width: 100%;
     background-color: #0F51AD;
 }
 
-nav ul li {
+.nav nav ul li {
     display: inline-block;
     /*height and line height must be equal for vertical alignment:*/
     height: 3.5em;
@@ -16,62 +37,66 @@ nav ul li {
     cursor: pointer;
 }
 
-nav ul li a {
+.nav nav ul li a {
     color: white;
     text-decoration: none;
 }
 
-.nav-scheduler-button a {
+.nav .nav-scheduler-button a {
     font-size: 2.5em;
 }
 
-.nav-scheduler-button {
+.nav .nav-scheduler-button {
     width: 17%;
 }
 
-.nav-tasks-button {
+.nav .nav-tasks-button {
     margin-left: 8%;
 }
 
-.nav-tasks-button, .nav-deadlines-button, .nav-calendar-button {
+.nav .nav-tasks-button, .nav .nav-deadlines-button, .nav .nav-calendar-button {
     width: 16.667%;
 }
 
-.nav-tasks-button a, .nav-deadlines-button a, .nav-calendar-button a {
+.nav .nav-tasks-button a, .nav .nav-deadlines-button a, .nav .nav-calendar-button a {
     font-size: 1.7em;
 }
 
-.nav-settings-button {
-    margin-left: 5%;
+.nav .nav-settings-button {
+    margin-left: 2%;
 }
 
-.nav-settings-button, .nav-logout-button {
+.nav .nav-logout-button {
+    margin-left: 3%;
+}
+
+.nav .nav-settings-button, .nav .nav-logout-button {
     width: 10%;
 }
 
-.nav-settings-button a, .nav-logout-button a{
+.nav .nav-settings-button a, .nav .nav-logout-button a{
     font-size: 1.5em;
 }
 
-nav ul li:hover {
+.nav nav ul li:hover {
     background-color: #5781bc;
 }
 
-nav ul li a:hover {
+.nav nav ul li a:hover {
     color: white;
 }
 
-.nav-pull-link {
+.nav .nav-pull-link {
     display: none;
 }
 
-#top-space {
+.nav .nav-top-space {
     width: 100%;
     height: 3.5em;
 }
 
 @media (max-width: 768px) {
-    nav {
+    .nav nav {
         position: fixed;
         z-index: 1;
         display: inline-block;
@@ -80,20 +105,22 @@ nav ul li a:hover {
         left:-15em;
     }
 
-    nav:before {
+    .nav nav:before {
         content: "";
         height: 3.5em;
         width: 100%;
         display: inline-block;
     }
 
-    nav ul li {
+    .nav nav ul li {
         display: block;
         width: 15em;
         text-align: left;
     }
 
-    .nav-scheduler-button, .nav-tasks-button, .nav-deadlines-button, .nav-calendar-button, .nav-settings-button, .nav-logout-button {
+    /* need to explicitly specify individually to override individual selectors above: */
+    .nav .nav-scheduler-button, .nav .nav-tasks-button, .nav .nav-deadlines-button, 
+    .nav .nav-calendar-button, .nav .nav-settings-button, .nav .nav-logout-button {
         width: 100%;
         height: 3.5em;
         line-height: 3.5em;
@@ -101,7 +128,7 @@ nav ul li a:hover {
         font-size: 1em;
     }
 
-    .nav-pull-link {
+    .nav .nav-pull-link {
         position: fixed;
         z-index: 2;
         background-color: #0F51AD;
@@ -110,7 +137,7 @@ nav ul li a:hover {
         width: 100%;
     }
 
-    .nav-pull-link:after {
+    .nav .nav-pull-link:after {
         content: "";
         background: url('../img/nav-ham.png') no-repeat;
         background-size: 3.5em 3em;
@@ -122,7 +149,7 @@ nav ul li a:hover {
     }
 
     @media (max-height: 25em) {
-        nav {
+        .nav nav {
             overflow: scroll;
         }
     }

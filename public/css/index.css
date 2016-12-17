@@ -1,36 +1,53 @@
-h3 {
+/* ============================ RESET ============================ */
+
+.index div, .index h1, .index h2, .index h3, .index h4, .index h5, .index h6,
+.index p, .index a, .index img, .index ol, .index ul, .index li {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+.index ol, .index ul {
+    list-style: none;
+}
+.index table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* ========================== END RESET ========================== */
+
+
+.index h3 {
     font-size: 3em;
     margin-top: 0;
     margin-bottom: 0;
     text-align: center;
 }
 
-h2 {
+.index h2 {
     font-size: 4em;
     margin-top: 0;
     margin-bottom: .15em;
     text-align: center;
 }
 
-h4 {
+.index h4 {
     text-align: center;
     color: #1a6fe6;
     font-size: 2.5em;
     margin-top: .25em;
 }
 
-.index-error-container {
+.index .index-error-container {
     background-color: #FFB6C1;
     text-align: center;
     padding: 1em;
 }
 
-.hidden
-{
-    display: none;
-}
-
-.index-taskdeadline-container {
+.index .index-taskdeadline-container {
     background-color: white;
     min-height: 30em;
     border: solid #1a6fe6 .15em;
@@ -38,7 +55,7 @@ h4 {
     margin-right: 5em;
 }
 
-.index-taskdeadline-container > div {
+.index .index-taskdeadline-container > div {
     width: 41%;
     height: 27em;
     margin-top: 1.5em;
@@ -46,24 +63,24 @@ h4 {
     background-color: #ebf0f3;
 }
 
-.index-task-container {
+.index .index-task-container {
     float: left;
     margin-left: 6%;
     margin-right: 3%;
 }
 
-.index-deadline-container {
+.index .index-deadline-container {
     float: right;
     margin-left: 3%;
     margin-right: 6%;
 }
 
-.index-taskdeadline-container > div > div {
+.index .index-taskdeadline-container > div > div {
     height: 20em;
     overflow-y: scroll;
 }
 
-.index-taskdeadline-container > div > a {
+.index .index-taskdeadline-container > div > a {
     color: white;
     text-decoration: none;
     background: #1a6fe6;
@@ -80,7 +97,7 @@ h4 {
     cursor: pointer;
 }
 
-.index-taskdeadline-container li {
+.index .index-taskdeadline-container li {
     position: relative; /*for positioning img icons relative to this*/
     display: block;
     width: 90%;
@@ -92,16 +109,16 @@ h4 {
     border: solid darkgray .1em;
 }
 
-.index-taskdeadline-container li p:nth-child(1) {
+.index .index-taskdeadline-container li p:nth-child(1) {
     font-size: 1.5em;
 }
 
-.index-taskdeadline-container li p:nth-child(2) {
+.index .index-taskdeadline-container li p:nth-child(2) {
     display: inline;
     font-size: 1em;
 }
 
-.index-taskdeadline-container li img {
+.index .index-taskdeadline-container li img {
     position: absolute;
     width: 2em;
     height: 2em;
@@ -110,34 +127,34 @@ h4 {
     margin-top: -1em; /*half of height*/
 }
 
-.td-check {
+.index .td-check {
     cursor: pointer;
     /* horizontally center element in allotted space */
     right: 10%;
     margin-right: -1em; /*half of width*/
 }
 
-.td-settings {
+.index .td-settings {
     cursor: pointer;
     /* horizontally center element in allotted space */
     left: 10%;
     margin-left: -1em; /*half of width*/
 }
 
-.item-middle {
+.index .item-middle {
     width: 60%;
     margin-right: 20%;
     margin-left: 20%;
 }
 
 @media (max-width: 768px) {
-    .index-taskdeadline-container {
+    .index .index-taskdeadline-container {
         margin-left: 1em;
         margin-right: 1em;
         min-height: 60em;
     }
 
-    .index-taskdeadline-container > div {
+    .index .index-taskdeadline-container > div {
         display: block;
         float: none;
         width: 96%;
@@ -146,16 +163,17 @@ h4 {
         height: 26em;
     }
 
-    .index-taskdeadline-container li {
+    .index .index-taskdeadline-container li {
         width: 90%;
     }
 
-    .index-task-container {
+    .index .index-task-container {
         margin-left: 2%;
         margin-right: 2%;
+
     }
 
-    .index-deadline-container {
+    .index .index-deadline-container {
         margin-left: 2%;
         margin-right: 2%;
     }
