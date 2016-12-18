@@ -16,22 +16,29 @@ function toTaskJSON(formArray) {
     var json = new item_2.TaskSerializer().toJSON(task);
     return json;
 }
-function onAddTaskSubmit(event) {
+// Side effect: event.preventDefault(), to prevent form POST request
+function getFormAsJSON(event) {
     event.preventDefault();
     var formArray = $(this).serializeArray();
-    var json = toTaskJSON(formArray);
+    return toTaskJSON(formArray);
+}
+function postFormJSON(json) {
     $.post("add-task", json)
         .fail(function (jqXHR, textStatus, error) {
         var errorDetails = textStatus + ", " + error;
         alert("ERROR: Add Task failed.\nDetails: " + errorDetails);
         console.log(errorDetails);
     });
-    $(".index").removeClass("hidden");
-    $(".add-task").addClass("hidden");
 }
-function main() {
+function processForm(event) {
+    var json = getFormAsJSON(event);
+    postFormJSON(json);
+}
+exports.processForm = processForm;
+function main($targetContainer, onAddTaskSubmit) {
     "use strict";
-    $(".add-task-form").on("submit", onAddTaskSubmit);
+    var $navContainer = $targetContainer.find(".nav");
+    $navContainer.find(".add-task-form").on("submit", onAddTaskSubmit);
 }
 exports.main = main;
 ;
@@ -41,26 +48,26 @@ exports.main = main;
 "use strict";
 var item_1 = require("./item");
 var item_2 = require("./item");
-function loadItemsFromServer(route, errorPrefix, callback) {
+function loadItemsFromServer(view, route, errorPrefix, callback) {
     $.getJSON(route)
         .done(function (data, textStatus, jqXHR) {
-        callback(data);
+        callback(view, data);
     })
         .fail(function (jqXHR, textStatus, error) {
         var errorDetails = textStatus + ", " + error;
-        showLoadErrorInView(errorPrefix, errorDetails);
+        showLoadErrorInView(view, errorPrefix, errorDetails);
         console.log(errorDetails);
     });
 }
-function loadTasksFromServer(callback) {
-    loadItemsFromServer("/load-tasks", "Error: failed to load tasks.", callback);
+function loadTasksFromServer(view, callback) {
+    loadItemsFromServer(view, "/load-tasks", "Error: failed to load tasks.", callback);
 }
-function loadDeadlinesFromServer(callback) {
-    loadItemsFromServer("/load-deadlines", "Error: failed to load deadlines.", callback);
+function loadDeadlinesFromServer(view, callback) {
+    loadItemsFromServer(view, "/load-deadlines", "Error: failed to load deadlines.", callback);
 }
-function showLoadErrorInView(errorPrefix, errorDetails) {
+function showLoadErrorInView(view, errorPrefix, errorDetails) {
     var errorMessage = errorPrefix + "\nDetails: " + errorDetails;
-    new View().showLoadError(errorMessage);
+    view.showLoadError(errorMessage);
 }
 var ItemEditor = (function () {
     function ItemEditor(item, li, doneCallback) {
@@ -83,14 +90,11 @@ var ItemEditor = (function () {
     return ItemEditor;
 }());
 var View = (function () {
-    function View() {
-        var _this = this;
-        $(".index-task-container > a").click(function (event) { return _this.onAddTaskClicked(event); });
+    function View($targetContainer, onAddTaskClicked) {
+        this.$indexContainer = $targetContainer.find(".index");
+        var $addTaskButton = this.$indexContainer.find(".index-task-container > a");
+        $addTaskButton.click(onAddTaskClicked);
     }
-    View.prototype.onAddTaskClicked = function (event) {
-        $(".index").addClass("hidden");
-        $(".add-task").removeClass("hidden");
-    };
     View.prototype.markItemDone = function (item, li) {
         // stub
         console.log(item.getTitle() + " removed");
@@ -115,22 +119,22 @@ var View = (function () {
     };
     View.prototype.appendLi = function (container_name, item) {
         var li = this.createLi(item);
-        $(container_name + " ul").append(li);
+        this.$indexContainer.find(container_name).find("ul").append(li);
     };
     View.prototype.removeLoading = function (container_name) {
-        $(container_name + " .index-loading").remove();
+        this.$indexContainer.find(container_name).find(".index-loading").remove();
     };
     View.prototype.showLoadError = function (errorMessage) {
         console.log("loadError!");
         this.removeLoading(".index-task-container");
         this.removeLoading(".index-deadline-container");
-        $(".index-error-container").append($("<p>").html(errorMessage));
-        $(".index-error-container").removeClass("hidden");
+        var $indexErrorContainer = this.$indexContainer.find(".index-error-container");
+        $indexErrorContainer.append($("<p>").html(errorMessage));
+        $indexErrorContainer.removeClass("hidden");
     };
     return View;
 }());
-function loadView(tasks, deadlines) {
-    var view = new View();
+function loadView(view, tasks, deadlines) {
     for (var i = 0; i < tasks.length; i++) {
         view.appendLi(".index-task-container", tasks[i]);
     }
@@ -140,29 +144,30 @@ function loadView(tasks, deadlines) {
     view.removeLoading(".index-task-container");
     view.removeLoading(".index-deadline-container");
 }
-function main() {
+function main($targetContainer, onAddTaskClicked) {
     "use strict";
+    var view = new View($targetContainer, onAddTaskClicked);
     var tasks = [];
     var deadlines = [];
-    function onLoadDeadlines(data) {
+    function onLoadDeadlines(view, data) {
         var deadlineSerializer = new item_2.DeadlineSerializer();
         for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
             var i = data_1[_i];
             deadlines.push(deadlineSerializer.fromJSON(i));
         }
         console.log(deadlines);
-        loadView(tasks, deadlines);
+        loadView(view, tasks, deadlines);
     }
-    function onLoadTasks(data) {
+    function onLoadTasks(view, data) {
         var taskSerializer = new item_1.TaskSerializer();
         for (var _i = 0, data_2 = data; _i < data_2.length; _i++) {
             var i = data_2[_i];
             tasks.push(taskSerializer.fromJSON(i));
         }
         console.log(tasks);
-        loadDeadlinesFromServer(onLoadDeadlines);
+        loadDeadlinesFromServer(view, onLoadDeadlines);
     }
-    loadTasksFromServer(onLoadTasks);
+    loadTasksFromServer(view, onLoadTasks);
 }
 exports.main = main;
 
@@ -280,36 +285,72 @@ exports.DeadlineSerializer = DeadlineSerializer;
 var AddTask = require("./add-task");
 var index = require("./index");
 var nav = require("./nav");
+var View;
+(function (View) {
+    View[View["Index"] = 0] = "Index";
+    View[View["AddTask"] = 1] = "AddTask";
+})(View || (View = {}));
+function setVisibility(elementClass, isVisible) {
+    var HIDING_CLASS_NAME = "hidden";
+    if (isVisible) {
+        $(elementClass).removeClass(HIDING_CLASS_NAME);
+    }
+    else {
+        $(elementClass).addClass(HIDING_CLASS_NAME);
+    }
+}
+function switchToView(view) {
+    var index, addtask;
+    index = addtask = false;
+    if (view == View.Index) {
+        index = true;
+    }
+    else if (view == View.AddTask) {
+        addtask = true;
+    }
+    setVisibility(".main-index", index);
+    setVisibility(".main-add-task", addtask);
+}
+function onIndexAddTaskClicked(event) {
+    switchToView(View.AddTask);
+}
+function onAddTaskSubmit(event) {
+    switchToView(View.Index);
+    AddTask.processForm(event);
+}
 function main() {
-    AddTask.main();
-    index.main();
-    nav.main();
+    switchToView(View.Index);
+    AddTask.main($(".main-add-task"), onAddTaskSubmit);
+    index.main($(".main-index"), onIndexAddTaskClicked);
+    nav.main($(".main-nav"));
 }
 $(document).ready(main);
 
 },{"./add-task":1,"./index":2,"./nav":5}],5:[function(require,module,exports){
 /// <reference path="jquery.d.ts" />
 "use strict";
-function main() {
+function main($targetContainer) {
     "use strict";
     var MOBILE_MAX_WIDTH = 768; // pixels
     var ANIM_TIME = 350; // milliseconds
+    var $navContainer = $targetContainer.find(".nav");
     var isOpen = false;
-    $(".nav-pull-link").on("click", function (event) {
+    var $nav = $navContainer.find("nav");
+    $navContainer.find(".nav-pull-link").on("click", function (event) {
         var animDirection = isOpen ? "-" : "+";
-        $("nav").animate({ left: (animDirection + '=' + $("nav").width()) }, ANIM_TIME);
+        $nav.animate({ left: (animDirection + '=' + $nav.width()) }, ANIM_TIME);
         isOpen = !isOpen;
     });
     $(window).resize(function (event) {
         var switchToTop = $(window).width() > MOBILE_MAX_WIDTH;
-        if (switchToTop && $("nav").position().left < 0) {
+        if (switchToTop && $nav.position().left < 0) {
             isOpen = true;
-            $("nav").css({ left: 0 }); // horizontally center nav (in case collapsed in mobile view)
+            $nav.css({ left: 0 }); // horizontally center nav (in case collapsed in mobile view)
         }
         else if (!switchToTop) {
             // hide nav:
             isOpen = false;
-            $("nav").css({ left: -$("nav").width() });
+            $nav.css({ left: -$nav.width() });
         }
     });
 }

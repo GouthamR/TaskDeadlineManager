@@ -22,13 +22,17 @@ function toTaskJSON(formArray: Object): Object
     return json;
 }
 
-function onAddTaskSubmit(event: JQueryEventObject)
+// Side effect: event.preventDefault(), to prevent form POST request
+function getFormAsJSON(event: JQueryEventObject)
 {
     event.preventDefault();
 
     let formArray = $(this).serializeArray();
-    let json = toTaskJSON(formArray);
-    
+    return toTaskJSON(formArray);
+}
+
+function postFormJSON(json: Object)
+{
     $.post("add-task", json)
     .fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
     {
@@ -36,14 +40,19 @@ function onAddTaskSubmit(event: JQueryEventObject)
         alert("ERROR: Add Task failed.\nDetails: " + errorDetails);
         console.log(errorDetails);
     });
-
-    $(".index").removeClass("hidden");
-    $(".add-task").addClass("hidden");
 }
 
-export function main(): void
+export function processForm(event: JQueryEventObject)
+{
+    let json: Object = getFormAsJSON(event);
+    postFormJSON(json);
+}
+
+export function main($targetContainer: JQuery, onAddTaskSubmit: (event: JQueryEventObject) => void): void
 {
     "use strict";
 
-    $(".add-task-form").on("submit", onAddTaskSubmit);
+    let $navContainer: JQuery = $targetContainer.find(".nav");
+
+    $navContainer.find(".add-task-form").on("submit", onAddTaskSubmit);
 };

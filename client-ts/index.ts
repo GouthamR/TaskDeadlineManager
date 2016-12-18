@@ -6,35 +6,35 @@ import { TaskSerializer } from "./item";
 import { Deadline } from "./item";
 import { DeadlineSerializer } from "./item";
 
-function loadItemsFromServer(route: string, errorPrefix: string, callback: (data) => void): void
+function loadItemsFromServer(view: View, route: string, errorPrefix: string, callback: (view: View, data) => void): void
 {
     $.getJSON(route)
     .done(function(data, textStatus: string, jqXHR: JQueryXHR)
     {
-        callback(data);
+        callback(view, data);
     })
     .fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
     {
         let errorDetails: string = textStatus + ", " + error;
-        showLoadErrorInView(errorPrefix, errorDetails);
+        showLoadErrorInView(view, errorPrefix, errorDetails);
         console.log(errorDetails);
     });
 }
 
-function loadTasksFromServer(callback: (data) => void): void
+function loadTasksFromServer(view: View, callback: (view: View, data) => void): void
 {
-    loadItemsFromServer("/load-tasks", "Error: failed to load tasks.", callback);
+    loadItemsFromServer(view, "/load-tasks", "Error: failed to load tasks.", callback);
 }
 
-function loadDeadlinesFromServer(callback: (data) => void): void
+function loadDeadlinesFromServer(view: View, callback: (view: View, data) => void): void
 {
-    loadItemsFromServer("/load-deadlines", "Error: failed to load deadlines.", callback);
+    loadItemsFromServer(view, "/load-deadlines", "Error: failed to load deadlines.", callback);
 }
 
-function showLoadErrorInView(errorPrefix: string, errorDetails: string): void
+function showLoadErrorInView(view: View, errorPrefix: string, errorDetails: string): void
 {
     let errorMessage: string = errorPrefix + "\nDetails: " + errorDetails;
-    new View().showLoadError(errorMessage);
+    view.showLoadError(errorMessage);
 }
 
 class ItemEditor
@@ -72,15 +72,14 @@ class ItemEditor
 
 class View
 {
-    public constructor()
-    {
-        $(".index-task-container > a").click((event: JQueryEventObject) => this.onAddTaskClicked(event));
-    }
+    private $indexContainer: JQuery;
 
-    private onAddTaskClicked(event: JQueryEventObject): void
+    public constructor($targetContainer: JQuery, onAddTaskClicked: (event: JQueryEventObject) => void)
     {
-        $(".index").addClass("hidden");
-        $(".add-task").removeClass("hidden");
+        this.$indexContainer = $targetContainer.find(".index");
+        
+        let $addTaskButton: JQuery = this.$indexContainer.find(".index-task-container > a");
+        $addTaskButton.click(onAddTaskClicked);
     }
 
     private markItemDone(item: Item, li: JQuery): void
@@ -94,7 +93,7 @@ class View
     {
         let middle: JQuery = $("<div>", {class: "item-middle"});
         middle.append($("<p>").html(item.getTitle()),
-            $("<p>").html(item.getDayTimeString()));
+                        $("<p>").html(item.getDayTimeString()));
         let check: JQuery = $("<img>", {class: "td-check", src: "img/check.png"});
         let settings: JQuery = $("<img>", {class: "td-settings", src: "img/gear.png"});
 
@@ -119,12 +118,12 @@ class View
     public appendLi(container_name: string, item: Item): void
     {
         let li: JQuery = this.createLi(item);
-        $(container_name + " ul").append(li);
+        this.$indexContainer.find(container_name).find("ul").append(li);
     }
 
     public removeLoading(container_name: string): void
     {
-        $(container_name + " .index-loading").remove();
+        this.$indexContainer.find(container_name).find(".index-loading").remove();
     }
 
     public showLoadError(errorMessage: string)
@@ -132,15 +131,14 @@ class View
         console.log("loadError!");
         this.removeLoading(".index-task-container");
         this.removeLoading(".index-deadline-container");
-        $(".index-error-container").append($("<p>").html(errorMessage));
-        $(".index-error-container").removeClass("hidden");
+        let $indexErrorContainer = this.$indexContainer.find(".index-error-container");
+        $indexErrorContainer.append($("<p>").html(errorMessage));
+        $indexErrorContainer.removeClass("hidden");
     }
 }
 
-function loadView(tasks: Task[], deadlines: Deadline[])
+function loadView(view: View, tasks: Task[], deadlines: Deadline[])
 {
-    let view: View = new View();
-
     for (let i: number = 0; i < tasks.length; i++)
     {
         view.appendLi(".index-task-container", tasks[i]);
@@ -154,14 +152,16 @@ function loadView(tasks: Task[], deadlines: Deadline[])
     view.removeLoading(".index-deadline-container");
 }
 
-export function main(): void
+export function main($targetContainer: JQuery, onAddTaskClicked: (event: JQueryEventObject) => void): void
 {
     "use strict";
+
+    let view: View = new View($targetContainer, onAddTaskClicked);
 
     let tasks: Task[] = [];
     let deadlines: Deadline[] = [];
 
-    function onLoadDeadlines(data): void
+    function onLoadDeadlines(view: View, data): void
     {
         let deadlineSerializer: DeadlineSerializer = new DeadlineSerializer();
         for(let i of data)
@@ -170,10 +170,10 @@ export function main(): void
         }
         console.log(deadlines);
 
-        loadView(tasks, deadlines);
+        loadView(view, tasks, deadlines);
     }
 
-    function onLoadTasks(data): void
+    function onLoadTasks(view: View, data): void
     {
         let taskSerializer: TaskSerializer = new TaskSerializer();
         for(let i of data)
@@ -182,8 +182,8 @@ export function main(): void
         }
         console.log(tasks);
 
-        loadDeadlinesFromServer(onLoadDeadlines);
+        loadDeadlinesFromServer(view, onLoadDeadlines);
     }
 
-    loadTasksFromServer(onLoadTasks);
+    loadTasksFromServer(view, onLoadTasks);
 }
