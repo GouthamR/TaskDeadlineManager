@@ -22,19 +22,7 @@ function getFormAsJSON(event) {
     var formArray = $(this).serializeArray();
     return toTaskJSON(formArray);
 }
-function postFormJSON(json) {
-    $.post("add-task", json)
-        .fail(function (jqXHR, textStatus, error) {
-        var errorDetails = textStatus + ", " + error;
-        alert("ERROR: Add Task failed.\nDetails: " + errorDetails);
-        console.log(errorDetails);
-    });
-}
-function processForm(event) {
-    var json = getFormAsJSON(event);
-    postFormJSON(json);
-}
-exports.processForm = processForm;
+exports.getFormAsJSON = getFormAsJSON;
 function main($targetContainer, onAddTaskSubmit) {
     "use strict";
     var $navContainer = $targetContainer.find(".nav");
@@ -46,29 +34,6 @@ exports.main = main;
 },{"./item":3}],2:[function(require,module,exports){
 /// <reference path="jquery.d.ts" />
 "use strict";
-var item_1 = require("./item");
-var item_2 = require("./item");
-function loadItemsFromServer(view, route, errorPrefix, callback) {
-    $.getJSON(route)
-        .done(function (data, textStatus, jqXHR) {
-        callback(view, data);
-    })
-        .fail(function (jqXHR, textStatus, error) {
-        var errorDetails = textStatus + ", " + error;
-        showLoadErrorInView(view, errorPrefix, errorDetails);
-        console.log(errorDetails);
-    });
-}
-function loadTasksFromServer(view, callback) {
-    loadItemsFromServer(view, "/load-tasks", "Error: failed to load tasks.", callback);
-}
-function loadDeadlinesFromServer(view, callback) {
-    loadItemsFromServer(view, "/load-deadlines", "Error: failed to load deadlines.", callback);
-}
-function showLoadErrorInView(view, errorPrefix, errorDetails) {
-    var errorMessage = errorPrefix + "\nDetails: " + errorDetails;
-    view.showLoadError(errorMessage);
-}
 var ItemEditor = (function () {
     function ItemEditor(item, li, doneCallback) {
         this.item = item;
@@ -134,7 +99,9 @@ var View = (function () {
     };
     return View;
 }());
-function loadView(view, tasks, deadlines) {
+// module-scope variables:
+var view;
+function loadView(tasks, deadlines) {
     for (var i = 0; i < tasks.length; i++) {
         view.appendLi(".index-task-container", tasks[i]);
     }
@@ -144,34 +111,18 @@ function loadView(view, tasks, deadlines) {
     view.removeLoading(".index-task-container");
     view.removeLoading(".index-deadline-container");
 }
+exports.loadView = loadView;
+function showLoadError(errorMessage) {
+    view.showLoadError(errorMessage);
+}
+exports.showLoadError = showLoadError;
 function main($targetContainer, onAddTaskClicked) {
     "use strict";
-    var view = new View($targetContainer, onAddTaskClicked);
-    var tasks = [];
-    var deadlines = [];
-    function onLoadDeadlines(view, data) {
-        var deadlineSerializer = new item_2.DeadlineSerializer();
-        for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
-            var i = data_1[_i];
-            deadlines.push(deadlineSerializer.fromJSON(i));
-        }
-        console.log(deadlines);
-        loadView(view, tasks, deadlines);
-    }
-    function onLoadTasks(view, data) {
-        var taskSerializer = new item_1.TaskSerializer();
-        for (var _i = 0, data_2 = data; _i < data_2.length; _i++) {
-            var i = data_2[_i];
-            tasks.push(taskSerializer.fromJSON(i));
-        }
-        console.log(tasks);
-        loadDeadlinesFromServer(view, onLoadDeadlines);
-    }
-    loadTasksFromServer(view, onLoadTasks);
+    view = new View($targetContainer, onAddTaskClicked);
 }
 exports.main = main;
 
-},{"./item":3}],3:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -285,6 +236,8 @@ exports.DeadlineSerializer = DeadlineSerializer;
 var AddTask = require("./add-task");
 var index = require("./index");
 var nav = require("./nav");
+var item_1 = require("./item");
+var item_2 = require("./item");
 var View;
 (function (View) {
     View[View["Index"] = 0] = "Index";
@@ -314,19 +267,93 @@ function switchToView(view) {
 function onIndexAddTaskClicked(event) {
     switchToView(View.AddTask);
 }
+function postFormJSON(json) {
+    $.post("add-task", json)
+        .fail(function (jqXHR, textStatus, error) {
+        var errorDetails = textStatus + ", " + error;
+        alert("ERROR: Add Task failed.\nDetails: " + errorDetails);
+        console.log(errorDetails);
+    });
+}
 function onAddTaskSubmit(event) {
     switchToView(View.Index);
-    AddTask.processForm(event);
+    var json = AddTask.getFormAsJSON(event);
+    postFormJSON(json);
+}
+function loadItemDataFromServer(route, onSuccess, onFailure) {
+    $.getJSON(route)
+        .done(function (data, textStatus, jqXHR) {
+        onSuccess(data);
+    })
+        .fail(function (jqXHR, textStatus, error) {
+        var errorDetails = textStatus + ", " + error;
+        onFailure(errorDetails);
+    });
+}
+function loadTasksFromServer(onSuccess, onFailure) {
+    function onLoadSuccess(data) {
+        var tasks = [];
+        var taskSerializer = new item_1.TaskSerializer();
+        for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
+            var i = data_1[_i];
+            tasks.push(taskSerializer.fromJSON(i));
+        }
+        console.log(tasks);
+        onSuccess(tasks);
+    }
+    loadItemDataFromServer("/load-tasks", onLoadSuccess, onFailure);
+}
+function loadDeadlinesFromServer(onSuccess, onFailure) {
+    function onLoadSuccess(data) {
+        var deadlines = [];
+        var deadlineSerializer = new item_2.DeadlineSerializer();
+        for (var _i = 0, data_2 = data; _i < data_2.length; _i++) {
+            var i = data_2[_i];
+            deadlines.push(deadlineSerializer.fromJSON(i));
+        }
+        console.log(deadlines);
+        onSuccess(deadlines);
+    }
+    loadItemDataFromServer("/load-deadlines", onLoadSuccess, onFailure);
+}
+function loadTasksAndDeadlinesFromServer(onSuccess, onFailure) {
+    var isTasksLoaded = false;
+    var isDeadlinesLoaded = false;
+    var tasks = [];
+    var deadlines = [];
+    function onTasksLoaded(loadedTasks) {
+        tasks = loadedTasks;
+        isTasksLoaded = true;
+        if (isDeadlinesLoaded) {
+            onSuccess(tasks, deadlines);
+        }
+    }
+    function onDeadlinesLoaded(loadedDeadlines) {
+        deadlines = loadedDeadlines;
+        isDeadlinesLoaded = true;
+        if (isTasksLoaded) {
+            onSuccess(tasks, deadlines);
+        }
+    }
+    function onTasksFailure(errorDetails) {
+        onFailure("Error loading tasks. Details: " + errorDetails);
+    }
+    function onDeadlinesFailure(errorDetails) {
+        onFailure("Error loading deadlines. Details: " + errorDetails);
+    }
+    loadTasksFromServer(onTasksLoaded, onTasksFailure);
+    loadDeadlinesFromServer(onDeadlinesLoaded, onDeadlinesFailure);
 }
 function main() {
     switchToView(View.Index);
     AddTask.main($(".main-add-task"), onAddTaskSubmit);
     index.main($(".main-index"), onIndexAddTaskClicked);
     nav.main($(".main-nav"));
+    loadTasksAndDeadlinesFromServer(index.loadView, index.showLoadError);
 }
 $(document).ready(main);
 
-},{"./add-task":1,"./index":2,"./nav":5}],5:[function(require,module,exports){
+},{"./add-task":1,"./index":2,"./item":3,"./nav":5}],5:[function(require,module,exports){
 /// <reference path="jquery.d.ts" />
 "use strict";
 function main($targetContainer) {

@@ -2,40 +2,7 @@
 
 import { Item } from "./item";
 import { Task } from "./item";
-import { TaskSerializer } from "./item";
 import { Deadline } from "./item";
-import { DeadlineSerializer } from "./item";
-
-function loadItemsFromServer(view: View, route: string, errorPrefix: string, callback: (view: View, data) => void): void
-{
-    $.getJSON(route)
-    .done(function(data, textStatus: string, jqXHR: JQueryXHR)
-    {
-        callback(view, data);
-    })
-    .fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
-    {
-        let errorDetails: string = textStatus + ", " + error;
-        showLoadErrorInView(view, errorPrefix, errorDetails);
-        console.log(errorDetails);
-    });
-}
-
-function loadTasksFromServer(view: View, callback: (view: View, data) => void): void
-{
-    loadItemsFromServer(view, "/load-tasks", "Error: failed to load tasks.", callback);
-}
-
-function loadDeadlinesFromServer(view: View, callback: (view: View, data) => void): void
-{
-    loadItemsFromServer(view, "/load-deadlines", "Error: failed to load deadlines.", callback);
-}
-
-function showLoadErrorInView(view: View, errorPrefix: string, errorDetails: string): void
-{
-    let errorMessage: string = errorPrefix + "\nDetails: " + errorDetails;
-    view.showLoadError(errorMessage);
-}
 
 class ItemEditor
 {
@@ -137,7 +104,10 @@ class View
     }
 }
 
-function loadView(view: View, tasks: Task[], deadlines: Deadline[])
+// module-scope variables:
+let view: View;
+
+export function loadView(tasks: Task[], deadlines: Deadline[]): void
 {
     for (let i: number = 0; i < tasks.length; i++)
     {
@@ -152,38 +122,14 @@ function loadView(view: View, tasks: Task[], deadlines: Deadline[])
     view.removeLoading(".index-deadline-container");
 }
 
+export function showLoadError(errorMessage: string): void
+{
+    view.showLoadError(errorMessage);
+}
+
 export function main($targetContainer: JQuery, onAddTaskClicked: (event: JQueryEventObject) => void): void
 {
     "use strict";
 
-    let view: View = new View($targetContainer, onAddTaskClicked);
-
-    let tasks: Task[] = [];
-    let deadlines: Deadline[] = [];
-
-    function onLoadDeadlines(view: View, data): void
-    {
-        let deadlineSerializer: DeadlineSerializer = new DeadlineSerializer();
-        for(let i of data)
-        {
-            deadlines.push(deadlineSerializer.fromJSON(i));
-        }
-        console.log(deadlines);
-
-        loadView(view, tasks, deadlines);
-    }
-
-    function onLoadTasks(view: View, data): void
-    {
-        let taskSerializer: TaskSerializer = new TaskSerializer();
-        for(let i of data)
-        {
-            tasks.push(taskSerializer.fromJSON(i));
-        }
-        console.log(tasks);
-
-        loadDeadlinesFromServer(view, onLoadDeadlines);
-    }
-
-    loadTasksFromServer(view, onLoadTasks);
+    view = new View($targetContainer, onAddTaskClicked);
 }
