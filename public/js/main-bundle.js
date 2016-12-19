@@ -89,6 +89,7 @@ var View = (function () {
     View.prototype.removeLoading = function (container_name) {
         this.$indexContainer.find(container_name).find(".index-loading").remove();
     };
+    // Note: appends error after any existing errors.
     View.prototype.showLoadError = function (errorMessage) {
         console.log("loadError!");
         this.removeLoading(".index-task-container");
@@ -264,92 +265,101 @@ function switchToView(view) {
     setVisibility(".main-index", index);
     setVisibility(".main-add-task", addtask);
 }
-function onIndexAddTaskClicked(event) {
-    switchToView(View.AddTask);
-}
-function postFormJSON(json) {
-    $.post("add-task", json)
-        .fail(function (jqXHR, textStatus, error) {
-        var errorDetails = textStatus + ", " + error;
-        alert("ERROR: Add Task failed.\nDetails: " + errorDetails);
-        console.log(errorDetails);
-    });
-}
-function onAddTaskSubmit(event) {
-    switchToView(View.Index);
-    var json = AddTask.getFormAsJSON(event);
-    postFormJSON(json);
-}
-function loadItemDataFromServer(route, onSuccess, onFailure) {
-    $.getJSON(route)
-        .done(function (data, textStatus, jqXHR) {
-        onSuccess(data);
-    })
-        .fail(function (jqXHR, textStatus, error) {
-        var errorDetails = textStatus + ", " + error;
-        onFailure(errorDetails);
-    });
-}
-function loadTasksFromServer(onSuccess, onFailure) {
-    function onLoadSuccess(data) {
+var IndexFunctions;
+(function (IndexFunctions) {
+    function onIndexAddTaskClicked(event) {
+        switchToView(View.AddTask);
+    }
+    IndexFunctions.onIndexAddTaskClicked = onIndexAddTaskClicked;
+    function loadItemDataFromServer(route, onSuccess, onFailure) {
+        $.getJSON(route)
+            .done(function (data, textStatus, jqXHR) {
+            onSuccess(data);
+        })
+            .fail(function (jqXHR, textStatus, error) {
+            var errorDetails = textStatus + ", " + error;
+            onFailure(errorDetails);
+        });
+    }
+    function loadTasksFromServer(onSuccess, onFailure) {
+        function onLoadSuccess(data) {
+            var tasks = [];
+            var taskSerializer = new item_1.TaskSerializer();
+            for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
+                var i = data_1[_i];
+                tasks.push(taskSerializer.fromJSON(i));
+            }
+            console.log(tasks);
+            onSuccess(tasks);
+        }
+        loadItemDataFromServer("/load-tasks", onLoadSuccess, onFailure);
+    }
+    function loadDeadlinesFromServer(onSuccess, onFailure) {
+        function onLoadSuccess(data) {
+            var deadlines = [];
+            var deadlineSerializer = new item_2.DeadlineSerializer();
+            for (var _i = 0, data_2 = data; _i < data_2.length; _i++) {
+                var i = data_2[_i];
+                deadlines.push(deadlineSerializer.fromJSON(i));
+            }
+            console.log(deadlines);
+            onSuccess(deadlines);
+        }
+        loadItemDataFromServer("/load-deadlines", onLoadSuccess, onFailure);
+    }
+    function loadTasksAndDeadlinesFromServer(onSuccess, onFailure) {
+        var isTasksLoaded = false;
+        var isDeadlinesLoaded = false;
         var tasks = [];
-        var taskSerializer = new item_1.TaskSerializer();
-        for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
-            var i = data_1[_i];
-            tasks.push(taskSerializer.fromJSON(i));
-        }
-        console.log(tasks);
-        onSuccess(tasks);
-    }
-    loadItemDataFromServer("/load-tasks", onLoadSuccess, onFailure);
-}
-function loadDeadlinesFromServer(onSuccess, onFailure) {
-    function onLoadSuccess(data) {
         var deadlines = [];
-        var deadlineSerializer = new item_2.DeadlineSerializer();
-        for (var _i = 0, data_2 = data; _i < data_2.length; _i++) {
-            var i = data_2[_i];
-            deadlines.push(deadlineSerializer.fromJSON(i));
+        function onTasksLoaded(loadedTasks) {
+            tasks = loadedTasks;
+            isTasksLoaded = true;
+            if (isDeadlinesLoaded) {
+                onSuccess(tasks, deadlines);
+            }
         }
-        console.log(deadlines);
-        onSuccess(deadlines);
-    }
-    loadItemDataFromServer("/load-deadlines", onLoadSuccess, onFailure);
-}
-function loadTasksAndDeadlinesFromServer(onSuccess, onFailure) {
-    var isTasksLoaded = false;
-    var isDeadlinesLoaded = false;
-    var tasks = [];
-    var deadlines = [];
-    function onTasksLoaded(loadedTasks) {
-        tasks = loadedTasks;
-        isTasksLoaded = true;
-        if (isDeadlinesLoaded) {
-            onSuccess(tasks, deadlines);
+        function onDeadlinesLoaded(loadedDeadlines) {
+            deadlines = loadedDeadlines;
+            isDeadlinesLoaded = true;
+            if (isTasksLoaded) {
+                onSuccess(tasks, deadlines);
+            }
         }
-    }
-    function onDeadlinesLoaded(loadedDeadlines) {
-        deadlines = loadedDeadlines;
-        isDeadlinesLoaded = true;
-        if (isTasksLoaded) {
-            onSuccess(tasks, deadlines);
+        function onTasksFailure(errorDetails) {
+            onFailure("Error loading tasks. Details: " + errorDetails);
         }
+        function onDeadlinesFailure(errorDetails) {
+            onFailure("Error loading deadlines. Details: " + errorDetails);
+        }
+        loadTasksFromServer(onTasksLoaded, onTasksFailure);
+        loadDeadlinesFromServer(onDeadlinesLoaded, onDeadlinesFailure);
     }
-    function onTasksFailure(errorDetails) {
-        onFailure("Error loading tasks. Details: " + errorDetails);
+    IndexFunctions.loadTasksAndDeadlinesFromServer = loadTasksAndDeadlinesFromServer;
+})(IndexFunctions || (IndexFunctions = {}));
+var AddTaskFunctions;
+(function (AddTaskFunctions) {
+    function postFormJSON(json) {
+        $.post("add-task", json)
+            .fail(function (jqXHR, textStatus, error) {
+            var errorDetails = textStatus + ", " + error;
+            alert("ERROR: Add Task failed.\nDetails: " + errorDetails);
+            console.log(errorDetails);
+        });
     }
-    function onDeadlinesFailure(errorDetails) {
-        onFailure("Error loading deadlines. Details: " + errorDetails);
+    function onAddTaskSubmit(event) {
+        switchToView(View.Index);
+        var json = AddTask.getFormAsJSON(event);
+        postFormJSON(json);
     }
-    loadTasksFromServer(onTasksLoaded, onTasksFailure);
-    loadDeadlinesFromServer(onDeadlinesLoaded, onDeadlinesFailure);
-}
+    AddTaskFunctions.onAddTaskSubmit = onAddTaskSubmit;
+})(AddTaskFunctions || (AddTaskFunctions = {}));
 function main() {
     switchToView(View.Index);
-    AddTask.main($(".main-add-task"), onAddTaskSubmit);
-    index.main($(".main-index"), onIndexAddTaskClicked);
+    AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
+    index.main($(".main-index"), IndexFunctions.onIndexAddTaskClicked);
     nav.main($(".main-nav"));
-    loadTasksAndDeadlinesFromServer(index.loadView, index.showLoadError);
+    IndexFunctions.loadTasksAndDeadlinesFromServer(index.loadView, index.showLoadError);
 }
 $(document).ready(main);
 

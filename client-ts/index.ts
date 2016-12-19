@@ -93,6 +93,7 @@ class View
         this.$indexContainer.find(container_name).find(".index-loading").remove();
     }
 
+    // Note: appends error after any existing errors.
     public showLoadError(errorMessage: string)
     {
         console.log("loadError!");
