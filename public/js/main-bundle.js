@@ -1,6 +1,7 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-/// <reference path="jquery.d.ts" />
 /// <reference path="moment.d.ts" />
+// Uses a copy of moment.d.ts separate from node_modules/moment/moment.d.ts because the latter is not compatible.
+// Does not import moment from node_modules; uses script from cdn instead.
 "use strict";
 var item_1 = require("./item");
 var item_2 = require("./item");
@@ -32,7 +33,6 @@ exports.main = main;
 ;
 
 },{"./item":3}],2:[function(require,module,exports){
-/// <reference path="jquery.d.ts" />
 "use strict";
 var ItemEditor = (function () {
     function ItemEditor(item, li, doneCallback) {
@@ -364,7 +364,6 @@ function main() {
 $(document).ready(main);
 
 },{"./add-task":1,"./index":2,"./item":3,"./nav":5}],5:[function(require,module,exports){
-/// <reference path="jquery.d.ts" />
 "use strict";
 function main($targetContainer) {
     "use strict";

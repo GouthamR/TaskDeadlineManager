@@ -1,5 +1,3 @@
-/// <reference path="jquery.d.ts" />
-
 import { Item } from "./item";
 import { Task } from "./item";
 import { Deadline } from "./item";

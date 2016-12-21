@@ -1,5 +1,3 @@
-/// <reference path="jquery.d.ts" />
-
 export function main($targetContainer: JQuery): void
 {
     "use strict";

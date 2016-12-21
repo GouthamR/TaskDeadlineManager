@@ -1,6 +1,3 @@
-/// <reference path="jquery.d.ts"/>
-/// <reference path="fullCalendar.d.ts"/>
-
 namespace calendar
 {
 	function initFullCalendar()

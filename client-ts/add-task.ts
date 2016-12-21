@@ -1,5 +1,6 @@
-/// <reference path="jquery.d.ts" />
 /// <reference path="moment.d.ts" />
+// Uses a copy of moment.d.ts separate from node_modules/moment/moment.d.ts because the latter is not compatible.
+// Does not import moment from node_modules; uses script from cdn instead.
 
 import { Task } from "./item";
 import { TaskSerializer } from "./item";
