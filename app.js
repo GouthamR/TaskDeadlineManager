@@ -1,4 +1,5 @@
 var express = require("express");
+var routes = require("./routes");
 
 var app = express();
 
@@ -33,38 +34,9 @@ app.set('view engine', 'handlebars');
 
 app.use(express.static(__dirname + '/public'));
 
-app.set("port", process.env.PORT || 3000);
-
 app.use(require('body-parser').urlencoded({ extended: true }));
 
-app.get('/', function(req, res)
-{
-	res.render("main");
-});
-
-app.get('/calendar', function(req, res)
-{
-	res.render("calendar");
-});
-
-app.get('/load-tasks', function(req, res)
-{
-	var tasks = require("./tasks.json");
-	res.json(tasks);
-});
-
-app.get('/load-deadlines', function(req, res)
-{
-	var deadlines = require("./deadlines.json");
-	res.json(deadlines);
-});
-
-app.post('/add-task', function(req, res)
-{
-	// STUB:
-	console.log(req.body);
-	res.redirect(303, '/');
-});
+routes.config(app);
 
 app.use(function(req, res)
 {
@@ -78,6 +50,8 @@ app.use(function(err, req, res, next)
 	res.status(500);
 	res.render("500");
 });
+
+app.set("port", process.env.PORT || 3000);
 
 var server = app.listen(app.get("port"), function()
 {
