@@ -86,6 +86,16 @@ class View
         this.$indexContainer.find(container_name).find("ul").append(li);
     }
 
+    public clearAndShowLoading(container_name: string): void
+    {
+        let $ul: JQuery = this.$indexContainer.find(container_name).find("ul");
+        
+        $ul.empty();
+        
+        let $loading: JQuery = $("<p>", {class: "index-loading"}).html("Loading...");
+        $ul.append($loading);
+    }
+
     public removeLoading(container_name: string): void
     {
         this.$indexContainer.find(container_name).find(".index-loading").remove();
@@ -108,6 +118,8 @@ let view: View;
 
 export function loadView(tasks: Task[], deadlines: Deadline[]): void
 {
+    clearViewAndShowLoading();
+
     for (let i: number = 0; i < tasks.length; i++)
     {
         view.appendLi(".index-task-container", tasks[i]);
@@ -124,6 +136,13 @@ export function loadView(tasks: Task[], deadlines: Deadline[]): void
 export function showLoadError(errorMessage: string): void
 {
     view.showLoadError(errorMessage);
+}
+
+export function clearViewAndShowLoading(): void
+{
+    console.log("clearViewAndShowLoading");
+    view.clearAndShowLoading(".index-task-container");
+    view.clearAndShowLoading(".index-deadline-container");
 }
 
 export function main($targetContainer: JQuery, onAddTaskClicked: (event: JQueryEventObject) => void): void

@@ -86,6 +86,12 @@ var View = (function () {
         var li = this.createLi(item);
         this.$indexContainer.find(container_name).find("ul").append(li);
     };
+    View.prototype.clearAndShowLoading = function (container_name) {
+        var $ul = this.$indexContainer.find(container_name).find("ul");
+        $ul.empty();
+        var $loading = $("<p>", { class: "index-loading" }).html("Loading...");
+        $ul.append($loading);
+    };
     View.prototype.removeLoading = function (container_name) {
         this.$indexContainer.find(container_name).find(".index-loading").remove();
     };
@@ -103,6 +109,7 @@ var View = (function () {
 // module-scope variables:
 var view;
 function loadView(tasks, deadlines) {
+    clearViewAndShowLoading();
     for (var i = 0; i < tasks.length; i++) {
         view.appendLi(".index-task-container", tasks[i]);
     }
@@ -117,6 +124,12 @@ function showLoadError(errorMessage) {
     view.showLoadError(errorMessage);
 }
 exports.showLoadError = showLoadError;
+function clearViewAndShowLoading() {
+    console.log("clearViewAndShowLoading");
+    view.clearAndShowLoading(".index-task-container");
+    view.clearAndShowLoading(".index-deadline-container");
+}
+exports.clearViewAndShowLoading = clearViewAndShowLoading;
 function main($targetContainer, onAddTaskClicked) {
     "use strict";
     view = new View($targetContainer, onAddTaskClicked);
@@ -307,7 +320,7 @@ var IndexFunctions;
         }
         loadItemDataFromServer("/load-deadlines", onLoadSuccess, onFailure);
     }
-    function loadTasksAndDeadlinesFromServer(onSuccess, onFailure) {
+    function loadTasksAndDeadlinesFromServer() {
         var isTasksLoaded = false;
         var isDeadlinesLoaded = false;
         var tasks = [];
@@ -316,22 +329,23 @@ var IndexFunctions;
             tasks = loadedTasks;
             isTasksLoaded = true;
             if (isDeadlinesLoaded) {
-                onSuccess(tasks, deadlines);
+                index.loadView(tasks, deadlines);
             }
         }
         function onDeadlinesLoaded(loadedDeadlines) {
             deadlines = loadedDeadlines;
             isDeadlinesLoaded = true;
             if (isTasksLoaded) {
-                onSuccess(tasks, deadlines);
+                index.loadView(tasks, deadlines);
             }
         }
         function onTasksFailure(errorDetails) {
-            onFailure("Error loading tasks. Details: " + errorDetails);
+            index.showLoadError("Error loading tasks. Details: " + errorDetails);
         }
         function onDeadlinesFailure(errorDetails) {
-            onFailure("Error loading deadlines. Details: " + errorDetails);
+            index.showLoadError("Error loading deadlines. Details: " + errorDetails);
         }
+        index.clearViewAndShowLoading();
         loadTasksFromServer(onTasksLoaded, onTasksFailure);
         loadDeadlinesFromServer(onDeadlinesLoaded, onDeadlinesFailure);
     }
@@ -344,6 +358,7 @@ var AddTaskFunctions;
             .done(function (data, textStatus, jqXHR) {
             console.log("Add Task success:");
             console.log(data);
+            IndexFunctions.loadTasksAndDeadlinesFromServer();
         })
             .fail(function (jqXHR, textStatus, error) {
             var errorDetails = textStatus + ", " + error;
@@ -364,7 +379,7 @@ function main() {
     AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
     index.main($(".main-index"), IndexFunctions.onIndexAddTaskClicked);
     nav.main($(".main-nav"));
-    IndexFunctions.loadTasksAndDeadlinesFromServer(index.loadView, index.showLoadError);
+    IndexFunctions.loadTasksAndDeadlinesFromServer();
 }
 $(document).ready(main);
 

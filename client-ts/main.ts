@@ -101,8 +101,7 @@ namespace IndexFunctions
 		loadItemDataFromServer("/load-deadlines", onLoadSuccess, onFailure);
 	}
 
-	export function loadTasksAndDeadlinesFromServer(onSuccess: (tasks: Task[], deadlines: Deadline[]) => void,
-												onFailure: (errorMessage: string) => void): void
+	export function loadTasksAndDeadlinesFromServer(): void
 	{
 		let isTasksLoaded: boolean = false;
 		let isDeadlinesLoaded: boolean = false;
@@ -117,7 +116,7 @@ namespace IndexFunctions
 
 			if(isDeadlinesLoaded)
 			{
-				onSuccess(tasks, deadlines);
+				index.loadView(tasks, deadlines);
 			}
 		}
 
@@ -128,20 +127,21 @@ namespace IndexFunctions
 
 			if(isTasksLoaded)
 			{
-				onSuccess(tasks, deadlines);
+				index.loadView(tasks, deadlines);
 			}
 		}
 
 		function onTasksFailure(errorDetails: string)
 		{
-			onFailure("Error loading tasks. Details: " + errorDetails);
+			index.showLoadError("Error loading tasks. Details: " + errorDetails);
 		}
 
 		function onDeadlinesFailure(errorDetails: string)
 		{
-			onFailure("Error loading deadlines. Details: " + errorDetails);
+			index.showLoadError("Error loading deadlines. Details: " + errorDetails);
 		}
 
+		index.clearViewAndShowLoading();
 		loadTasksFromServer(onTasksLoaded, onTasksFailure);
 		loadDeadlinesFromServer(onDeadlinesLoaded, onDeadlinesFailure);
 	}
@@ -156,6 +156,7 @@ namespace AddTaskFunctions
 		{
 			console.log("Add Task success:");
 			console.log(data);
+			IndexFunctions.loadTasksAndDeadlinesFromServer();
 		})
 		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
 		{
@@ -184,7 +185,7 @@ function main(): void
 	index.main($(".main-index"), IndexFunctions.onIndexAddTaskClicked);
 	nav.main($(".main-nav"));
 
-	IndexFunctions.loadTasksAndDeadlinesFromServer(index.loadView, index.showLoadError);
+	IndexFunctions.loadTasksAndDeadlinesFromServer();
 }
 
 $(document).ready(main);
