@@ -1,32 +1,41 @@
-var config = function(app)
+var config = function(app, db)
 {
-	app.get('/', function(req, res)
+	app.get('/', function(request, response)
 	{
-		res.render("main");
+		response.render("main");
 	});
 
-	app.get('/calendar', function(req, res)
+	app.get('/calendar', function(request, response)
 	{
-		res.render("calendar");
+		response.render("calendar");
 	});
 
-	app.get('/load-tasks', function(req, res)
+	app.get('/load-tasks', function(request, response)
 	{
-		var tasks = require("./tasks.json");
-		res.json(tasks);
+		db.collection("tasks", function(collection_error, collection)
+		{
+			collection.find().toArray(function(array_error, documents)
+			{
+				console.log("Loaded tasks:");
+				console.log(documents);
+				response.json(documents);
+			});
+		});
 	});
 
-	app.get('/load-deadlines', function(req, res)
+	app.get('/load-deadlines', function(request, response)
 	{
 		var deadlines = require("./deadlines.json");
-		res.json(deadlines);
+		response.json(deadlines);
 	});
 
-	app.post('/add-task', function(req, res)
+	app.post('/add-task', function(request, response)
 	{
 		// STUB:
-		console.log(req.body);
-		res.redirect(303, '/');
+		var taskObject = request.body;
+		console.log("Task to add: ")
+		console.log(taskObject);
+		response.redirect(303, '/');
 	});
 };
 

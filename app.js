@@ -1,4 +1,6 @@
 var express = require("express");
+var mongodb = require('mongodb');
+
 var routes = require("./routes");
 
 var app = express();
@@ -36,7 +38,15 @@ app.use(express.static(__dirname + '/public'));
 
 app.use(require('body-parser').urlencoded({ extended: true }));
 
-routes.config(app);
+var dbConfig = require('./dbConfig.json');
+var mongoServer = new mongodb.Server(dbConfig.url, parseInt(dbConfig.port));
+var db = new mongodb.Db(dbConfig.name, mongoServer, { w: 1 });
+db.open(function()
+{
+	console.log("Connected to db");
+});
+
+routes.config(app, db);
 
 app.use(function(req, res)
 {
