@@ -151,20 +151,27 @@ namespace AddTaskFunctions
 {
 	function postFormJSON(json: Object)
 	{
-	    $.post("add-task", json)
-	    .fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
-	    {
-	        let errorDetails: string = textStatus + ", " + error;
-	        alert("ERROR: Add Task failed.\nDetails: " + errorDetails);
-	        console.log(errorDetails);
-	    });
+		$.post("add-task", json)
+		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
+		{
+			console.log("Add Task success:");
+			console.log(data);
+		})
+		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
+		{
+			let errorDetails: string = textStatus + ", " + error;
+			alert("ERROR: Add Task failed.\nDetails: " + errorDetails);
+			console.log(errorDetails);
+		});
 	}
 
 	export function onAddTaskSubmit(event: JQueryEventObject)
 	{
-	    switchToView(View.Index);
+		event.preventDefault();
 
-	    let json: Object = AddTask.getFormAsJSON(event);
+		switchToView(View.Index);
+
+		let json: Object = AddTask.getFormAsJSON();
 		postFormJSON(json);
 	}
 }

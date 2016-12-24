@@ -31,11 +31,17 @@ var config = function(app, db)
 
 	app.post('/add-task', function(request, response)
 	{
-		// STUB:
 		var taskObject = request.body;
 		console.log("Task to add: ")
 		console.log(taskObject);
-		response.redirect(303, '/');
+		
+		db.collection("tasks", function(collection_error, collection)
+		{
+			collection.insert(taskObject, {}, function(insert_error, result)
+			{
+				response.json(result);
+			});
+		});
 	});
 };
 

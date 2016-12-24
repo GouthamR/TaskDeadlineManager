@@ -5,6 +5,9 @@
 import { Task } from "./item";
 import { TaskSerializer } from "./item";
 
+// Module-scope variables:
+let $addTaskContainer: JQuery;
+
 function toDate(dateWithoutTime: string, time: string): Date
 {
     let fullDate: string = dateWithoutTime + time;
@@ -23,12 +26,9 @@ function toTaskJSON(formArray: Object): Object
     return json;
 }
 
-// Side effect: event.preventDefault(), to prevent form POST request
-export function getFormAsJSON(event: JQueryEventObject)
+export function getFormAsJSON(): Object
 {
-    event.preventDefault();
-
-    let formArray = $(this).serializeArray();
+    let formArray = $addTaskContainer.find(".add-task-form").serializeArray();
     return toTaskJSON(formArray);
 }
 
@@ -36,7 +36,7 @@ export function main($targetContainer: JQuery, onAddTaskSubmit: (event: JQueryEv
 {
     "use strict";
 
-    let $navContainer: JQuery = $targetContainer.find(".nav");
+    $addTaskContainer = $targetContainer.find(".add-task");
 
-    $navContainer.find(".add-task-form").on("submit", onAddTaskSubmit);
+    $addTaskContainer.find(".add-task-form").on("submit", onAddTaskSubmit);
 };

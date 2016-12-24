@@ -5,6 +5,8 @@
 "use strict";
 var item_1 = require("./item");
 var item_2 = require("./item");
+// Module-scope variables:
+var $addTaskContainer;
 function toDate(dateWithoutTime, time) {
     var fullDate = dateWithoutTime + time;
     return moment(fullDate, "YYYY-MM-DD HH:mm").toDate();
@@ -17,17 +19,15 @@ function toTaskJSON(formArray) {
     var json = new item_2.TaskSerializer().toJSON(task);
     return json;
 }
-// Side effect: event.preventDefault(), to prevent form POST request
-function getFormAsJSON(event) {
-    event.preventDefault();
-    var formArray = $(this).serializeArray();
+function getFormAsJSON() {
+    var formArray = $addTaskContainer.find(".add-task-form").serializeArray();
     return toTaskJSON(formArray);
 }
 exports.getFormAsJSON = getFormAsJSON;
 function main($targetContainer, onAddTaskSubmit) {
     "use strict";
-    var $navContainer = $targetContainer.find(".nav");
-    $navContainer.find(".add-task-form").on("submit", onAddTaskSubmit);
+    $addTaskContainer = $targetContainer.find(".add-task");
+    $addTaskContainer.find(".add-task-form").on("submit", onAddTaskSubmit);
 }
 exports.main = main;
 ;
@@ -341,6 +341,10 @@ var AddTaskFunctions;
 (function (AddTaskFunctions) {
     function postFormJSON(json) {
         $.post("add-task", json)
+            .done(function (data, textStatus, jqXHR) {
+            console.log("Add Task success:");
+            console.log(data);
+        })
             .fail(function (jqXHR, textStatus, error) {
             var errorDetails = textStatus + ", " + error;
             alert("ERROR: Add Task failed.\nDetails: " + errorDetails);
@@ -348,8 +352,9 @@ var AddTaskFunctions;
         });
     }
     function onAddTaskSubmit(event) {
+        event.preventDefault();
         switchToView(View.Index);
-        var json = AddTask.getFormAsJSON(event);
+        var json = AddTask.getFormAsJSON();
         postFormJSON(json);
     }
     AddTaskFunctions.onAddTaskSubmit = onAddTaskSubmit;
