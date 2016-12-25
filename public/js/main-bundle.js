@@ -33,6 +33,7 @@ exports.main = main;
 ;
 
 },{"./item":4}],2:[function(require,module,exports){
+/// <reference types="fullcalendar" />
 "use strict";
 // Module-level variables:
 var $calendarContainer;
@@ -47,6 +48,88 @@ function removeLoading() {
     var $fullCalendarDiv = $calendarContainer.find(".calendar-fullcalendar");
     $fullCalendarDiv.find("." + LOADING_CLASS_NAME).remove();
 }
+function getEventsFromServer(start, end, timezone, callback) {
+    var events = [
+        {
+            title: 'All Day Event',
+            start: '2016-09-01'
+        },
+        {
+            title: 'All Day Event',
+            start: '2016-09-01'
+        },
+        {
+            title: 'All Day Event',
+            start: '2016-09-01'
+        },
+        {
+            title: 'All Day Event',
+            start: '2016-09-01'
+        },
+        {
+            title: 'All Day Event',
+            start: '2016-09-01'
+        },
+        {
+            title: 'All Day Event',
+            start: '2016-09-01'
+        },
+        {
+            title: 'All Day Event',
+            start: '2016-09-01'
+        },
+        {
+            title: 'All Day Event',
+            start: '2016-09-01'
+        },
+        {
+            title: 'All Day Event',
+            start: '2016-09-01'
+        },
+        {
+            title: 'All Day Event',
+            start: '2016-09-01'
+        },
+        {
+            title: 'All Day Event',
+            start: '2016-09-01'
+        },
+        {
+            title: 'All Day Event',
+            start: '2016-09-01'
+        },
+        {
+            title: 'All Day Event',
+            start: '2016-09-01'
+        },
+        {
+            title: 'Long Event',
+            start: '2016-09-07',
+            end: '2016-09-10'
+        },
+        {
+            id: 999,
+            title: 'Repeating Event',
+            start: '2016-09-09T16:00:00'
+        },
+        {
+            id: 999,
+            title: 'Repeating Event',
+            start: '2016-09-16T16:00:00'
+        },
+        {
+            title: 'Conference',
+            start: '2016-09-11',
+            end: '2016-09-13'
+        },
+        {
+            title: 'Meeting',
+            start: '2016-09-12T10:30:00',
+            end: '2016-09-12T12:30:00'
+        }
+    ];
+    callback(events);
+}
 function initFullCalendar() {
     $calendarContainer.find(".calendar-fullcalendar").fullCalendar({
         header: {
@@ -57,85 +140,7 @@ function initFullCalendar() {
         defaultDate: '2016-09-12',
         navLinks: true,
         editable: true,
-        events: [
-            {
-                title: 'All Day Event',
-                start: '2016-09-01'
-            },
-            {
-                title: 'All Day Event',
-                start: '2016-09-01'
-            },
-            {
-                title: 'All Day Event',
-                start: '2016-09-01'
-            },
-            {
-                title: 'All Day Event',
-                start: '2016-09-01'
-            },
-            {
-                title: 'All Day Event',
-                start: '2016-09-01'
-            },
-            {
-                title: 'All Day Event',
-                start: '2016-09-01'
-            },
-            {
-                title: 'All Day Event',
-                start: '2016-09-01'
-            },
-            {
-                title: 'All Day Event',
-                start: '2016-09-01'
-            },
-            {
-                title: 'All Day Event',
-                start: '2016-09-01'
-            },
-            {
-                title: 'All Day Event',
-                start: '2016-09-01'
-            },
-            {
-                title: 'All Day Event',
-                start: '2016-09-01'
-            },
-            {
-                title: 'All Day Event',
-                start: '2016-09-01'
-            },
-            {
-                title: 'All Day Event',
-                start: '2016-09-01'
-            },
-            {
-                title: 'Long Event',
-                start: '2016-09-07',
-                end: '2016-09-10'
-            },
-            {
-                id: 999,
-                title: 'Repeating Event',
-                start: '2016-09-09T16:00:00'
-            },
-            {
-                id: 999,
-                title: 'Repeating Event',
-                start: '2016-09-16T16:00:00'
-            },
-            {
-                title: 'Conference',
-                start: '2016-09-11',
-                end: '2016-09-13'
-            },
-            {
-                title: 'Meeting',
-                start: '2016-09-12T10:30:00',
-                end: '2016-09-12T12:30:00'
-            }
-        ]
+        events: getEventsFromServer
     });
     removeLoading();
 }

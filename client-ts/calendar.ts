@@ -1,3 +1,5 @@
+/// <reference types="fullcalendar" />
+
 // Module-level variables:
 let $calendarContainer: JQuery;
 const LOADING_CLASS_NAME: string = "calendar-loading";
@@ -18,6 +20,93 @@ function removeLoading(): void
     $fullCalendarDiv.find("." + LOADING_CLASS_NAME).remove();
 }
 
+function getEventsFromServer(start: moment.Moment, end: moment.Moment, 
+								timezone: string | boolean, 
+								callback: (events: FC.EventObject[]) => void): void
+{
+	let events: FC.EventObject[] = 
+	[
+		{
+			title: 'All Day Event',
+			start: '2016-09-01'
+		},
+		{
+			title: 'All Day Event',
+			start: '2016-09-01'
+		},
+		{
+			title: 'All Day Event',
+			start: '2016-09-01'
+		},
+		{
+			title: 'All Day Event',
+			start: '2016-09-01'
+		},
+		{
+			title: 'All Day Event',
+			start: '2016-09-01'
+		},
+		{
+			title: 'All Day Event',
+			start: '2016-09-01'
+		},
+		{
+			title: 'All Day Event',
+			start: '2016-09-01'
+		},
+		{
+			title: 'All Day Event',
+			start: '2016-09-01'
+		},
+		{
+			title: 'All Day Event',
+			start: '2016-09-01'
+		},
+		{
+			title: 'All Day Event',
+			start: '2016-09-01'
+		},
+		{
+			title: 'All Day Event',
+			start: '2016-09-01'
+		},
+		{
+			title: 'All Day Event',
+			start: '2016-09-01'
+		},
+		{
+			title: 'All Day Event',
+			start: '2016-09-01'
+		},
+		{
+			title: 'Long Event',
+			start: '2016-09-07',
+			end: '2016-09-10'
+		},
+		{
+			id: 999,
+			title: 'Repeating Event',
+			start: '2016-09-09T16:00:00'
+		},
+		{
+			id: 999,
+			title: 'Repeating Event',
+			start: '2016-09-16T16:00:00'
+		},
+		{
+			title: 'Conference',
+			start: '2016-09-11',
+			end: '2016-09-13'
+		},
+		{
+			title: 'Meeting',
+			start: '2016-09-12T10:30:00',
+			end: '2016-09-12T12:30:00'
+		}
+	];
+	callback(events);
+}
+
 function initFullCalendar(): void
 {
 	$calendarContainer.find(".calendar-fullcalendar").fullCalendar(
@@ -31,86 +120,7 @@ function initFullCalendar(): void
 		defaultDate: '2016-09-12',
 		navLinks: true,
 		editable: true,
-		events:
-		[
-			{
-				title: 'All Day Event',
-				start: '2016-09-01'
-			},
-			{
-				title: 'All Day Event',
-				start: '2016-09-01'
-			},
-			{
-				title: 'All Day Event',
-				start: '2016-09-01'
-			},
-			{
-				title: 'All Day Event',
-				start: '2016-09-01'
-			},
-			{
-				title: 'All Day Event',
-				start: '2016-09-01'
-			},
-			{
-				title: 'All Day Event',
-				start: '2016-09-01'
-			},
-			{
-				title: 'All Day Event',
-				start: '2016-09-01'
-			},
-			{
-				title: 'All Day Event',
-				start: '2016-09-01'
-			},
-			{
-				title: 'All Day Event',
-				start: '2016-09-01'
-			},
-			{
-				title: 'All Day Event',
-				start: '2016-09-01'
-			},
-			{
-				title: 'All Day Event',
-				start: '2016-09-01'
-			},
-			{
-				title: 'All Day Event',
-				start: '2016-09-01'
-			},
-			{
-				title: 'All Day Event',
-				start: '2016-09-01'
-			},
-			{
-				title: 'Long Event',
-				start: '2016-09-07',
-				end: '2016-09-10'
-			},
-			{
-				id: 999,
-				title: 'Repeating Event',
-				start: '2016-09-09T16:00:00'
-			},
-			{
-				id: 999,
-				title: 'Repeating Event',
-				start: '2016-09-16T16:00:00'
-			},
-			{
-				title: 'Conference',
-				start: '2016-09-11',
-				end: '2016-09-13'
-			},
-			{
-				title: 'Meeting',
-				start: '2016-09-12T10:30:00',
-				end: '2016-09-12T12:30:00'
-			}
-		]
+		events: getEventsFromServer
 	});
 
 	removeLoading();
