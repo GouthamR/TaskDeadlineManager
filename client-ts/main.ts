@@ -49,6 +49,102 @@ function switchToView(view: View): void
 	setVisibility(".main-calendar", calendar);
 }
 
+function loadItemDataFromServer(route: string, onSuccess: (data) => void, 
+									onFailure: (errorDetails: string) => void): void
+{
+	$.getJSON(route)
+    .done(function(data, textStatus: string, jqXHR: JQueryXHR)
+    {
+    	onSuccess(data);
+    })
+    .fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
+    {
+        let errorDetails: string = textStatus + ", " + error;
+        onFailure(errorDetails);
+    });
+}
+
+function loadTasksFromServer(onSuccess: (tasks: Task[]) => void, 
+								onFailure: (errorDetails: string) => void): void
+{
+	function onLoadSuccess(data): void
+	{
+		let tasks: Task[] = [];
+	    let taskSerializer: TaskSerializer = new TaskSerializer();
+	    for(let i of data)
+	    {
+	        tasks.push(taskSerializer.fromJSON(i));
+	    }
+	    console.log(tasks);
+	    onSuccess(tasks);
+	}
+
+	loadItemDataFromServer("/load-tasks", onLoadSuccess, onFailure);
+}
+
+function loadDeadlinesFromServer(onSuccess: (deadlines: Deadline[]) => void, 
+								onFailure: (errorDetails: string) => void): void
+{
+	function onLoadSuccess(data): void
+	{
+		let deadlines: Deadline[] = [];
+	    let deadlineSerializer: DeadlineSerializer = new DeadlineSerializer();
+	    for(let i of data)
+	    {
+	        deadlines.push(deadlineSerializer.fromJSON(i));
+	    }
+	    console.log(deadlines);
+	    onSuccess(deadlines);
+	}
+
+	loadItemDataFromServer("/load-deadlines", onLoadSuccess, onFailure);
+}
+
+function loadTasksAndDeadlinesFromServer(onSuccess: (tasks: Task[], deadlines: Deadline[]) => any,
+											onFailure: (error: string) => any): void
+{
+	let isTasksLoaded: boolean = false;
+	let isDeadlinesLoaded: boolean = false;
+
+	let tasks: Task[] = [];
+	let deadlines: Deadline[] = [];
+
+	function onTasksLoaded(loadedTasks: Task[])
+	{
+		tasks = loadedTasks;
+		isTasksLoaded = true;
+
+		if(isDeadlinesLoaded)
+		{
+			onSuccess(tasks, deadlines);
+		}
+	}
+
+	function onDeadlinesLoaded(loadedDeadlines: Deadline[])
+	{
+		deadlines = loadedDeadlines;
+		isDeadlinesLoaded = true;
+
+		if(isTasksLoaded)
+		{
+			onSuccess(tasks, deadlines);
+		}
+	}
+
+	function onTasksFailure(errorDetails: string)
+	{
+		onFailure("Error loading tasks. Details: " + errorDetails);
+	}
+
+	function onDeadlinesFailure(errorDetails: string)
+	{
+		onFailure("Error loading deadlines. Details: " + errorDetails);
+	}
+
+	loadTasksFromServer(onTasksLoaded, onTasksFailure);
+	loadDeadlinesFromServer(onDeadlinesLoaded, onDeadlinesFailure);
+}
+
 namespace IndexFunctions
 {
 	export function onIndexAddTaskClicked(event: JQueryEventObject): void
@@ -56,100 +152,11 @@ namespace IndexFunctions
 	    switchToView(View.AddTask);
 	}
 
-	function loadItemDataFromServer(route: string, onSuccess: (data) => void, 
-										onFailure: (errorDetails: string) => void): void
+	export function loadFromServer(): void
 	{
-		$.getJSON(route)
-	    .done(function(data, textStatus: string, jqXHR: JQueryXHR)
-	    {
-	    	onSuccess(data);
-	    })
-	    .fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
-	    {
-	        let errorDetails: string = textStatus + ", " + error;
-	        onFailure(errorDetails);
-	    });
-	}
-
-	function loadTasksFromServer(onSuccess: (tasks: Task[]) => void, 
-									onFailure: (errorDetails: string) => void): void
-	{
-		function onLoadSuccess(data): void
-		{
-			let tasks: Task[] = [];
-		    let taskSerializer: TaskSerializer = new TaskSerializer();
-		    for(let i of data)
-		    {
-		        tasks.push(taskSerializer.fromJSON(i));
-		    }
-		    console.log(tasks);
-		    onSuccess(tasks);
-		}
-
-		loadItemDataFromServer("/load-tasks", onLoadSuccess, onFailure);
-	}
-
-	function loadDeadlinesFromServer(onSuccess: (deadlines: Deadline[]) => void, 
-									onFailure: (errorDetails: string) => void): void
-	{
-		function onLoadSuccess(data): void
-		{
-			let deadlines: Deadline[] = [];
-		    let deadlineSerializer: DeadlineSerializer = new DeadlineSerializer();
-		    for(let i of data)
-		    {
-		        deadlines.push(deadlineSerializer.fromJSON(i));
-		    }
-		    console.log(deadlines);
-		    onSuccess(deadlines);
-		}
-
-		loadItemDataFromServer("/load-deadlines", onLoadSuccess, onFailure);
-	}
-
-	export function loadTasksAndDeadlinesFromServer(): void
-	{
-		let isTasksLoaded: boolean = false;
-		let isDeadlinesLoaded: boolean = false;
-
-		let tasks: Task[] = [];
-		let deadlines: Deadline[] = [];
-
-		function onTasksLoaded(loadedTasks: Task[])
-		{
-			tasks = loadedTasks;
-			isTasksLoaded = true;
-
-			if(isDeadlinesLoaded)
-			{
-				index.loadView(tasks, deadlines);
-			}
-		}
-
-		function onDeadlinesLoaded(loadedDeadlines: Deadline[])
-		{
-			deadlines = loadedDeadlines;
-			isDeadlinesLoaded = true;
-
-			if(isTasksLoaded)
-			{
-				index.loadView(tasks, deadlines);
-			}
-		}
-
-		function onTasksFailure(errorDetails: string)
-		{
-			index.showLoadError("Error loading tasks. Details: " + errorDetails);
-		}
-
-		function onDeadlinesFailure(errorDetails: string)
-		{
-			index.showLoadError("Error loading deadlines. Details: " + errorDetails);
-		}
-
 		index.clearViewAndShowLoading();
-		loadTasksFromServer(onTasksLoaded, onTasksFailure);
-		loadDeadlinesFromServer(onDeadlinesLoaded, onDeadlinesFailure);
+
+		loadTasksAndDeadlinesFromServer(index.loadView, index.showLoadError);
 	}
 }
 
@@ -162,7 +169,7 @@ namespace AddTaskFunctions
 		{
 			console.log("Add Task success:");
 			console.log(data);
-			IndexFunctions.loadTasksAndDeadlinesFromServer();
+			IndexFunctions.loadFromServer();
 		})
 		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
 		{
@@ -201,7 +208,7 @@ function main(): void
 	nav.main($(".main-nav"), NavFunctions.onCalendarClicked);
 	calendar.main($(".main-calendar"));
 
-	IndexFunctions.loadTasksAndDeadlinesFromServer();
+	IndexFunctions.loadFromServer();
 }
 
 $(document).ready(main);
