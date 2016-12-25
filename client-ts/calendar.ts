@@ -1,8 +1,12 @@
-/// <reference types="fullcalendar" />
+import { Item } from "./item";
+import { Task } from "./item";
+import { Deadline } from "./item";
 
 // Module-level variables:
 let $calendarContainer: JQuery;
 const LOADING_CLASS_NAME: string = "calendar-loading";
+let loadFromServer: (onSuccess: (tasks: Task[], deadlines: Deadline[]) => any,
+						onFailure: (error: string) => any) => void;
 
 function clearAndShowLoading(): void
 {
@@ -24,87 +28,43 @@ function getEventsFromServer(start: moment.Moment, end: moment.Moment,
 								timezone: string | boolean, 
 								callback: (events: FC.EventObject[]) => void): void
 {
-	let events: FC.EventObject[] = 
-	[
+	function onSuccess (tasks: Task[], deadlines: Deadline[])
+	{
+		let events: FC.EventObject[] = [];
+
+		for(let task of tasks)
 		{
-			title: 'All Day Event',
-			start: '2016-09-01'
-		},
-		{
-			title: 'All Day Event',
-			start: '2016-09-01'
-		},
-		{
-			title: 'All Day Event',
-			start: '2016-09-01'
-		},
-		{
-			title: 'All Day Event',
-			start: '2016-09-01'
-		},
-		{
-			title: 'All Day Event',
-			start: '2016-09-01'
-		},
-		{
-			title: 'All Day Event',
-			start: '2016-09-01'
-		},
-		{
-			title: 'All Day Event',
-			start: '2016-09-01'
-		},
-		{
-			title: 'All Day Event',
-			start: '2016-09-01'
-		},
-		{
-			title: 'All Day Event',
-			start: '2016-09-01'
-		},
-		{
-			title: 'All Day Event',
-			start: '2016-09-01'
-		},
-		{
-			title: 'All Day Event',
-			start: '2016-09-01'
-		},
-		{
-			title: 'All Day Event',
-			start: '2016-09-01'
-		},
-		{
-			title: 'All Day Event',
-			start: '2016-09-01'
-		},
-		{
-			title: 'Long Event',
-			start: '2016-09-07',
-			end: '2016-09-10'
-		},
-		{
-			id: 999,
-			title: 'Repeating Event',
-			start: '2016-09-09T16:00:00'
-		},
-		{
-			id: 999,
-			title: 'Repeating Event',
-			start: '2016-09-16T16:00:00'
-		},
-		{
-			title: 'Conference',
-			start: '2016-09-11',
-			end: '2016-09-13'
-		},
-		{
-			title: 'Meeting',
-			start: '2016-09-12T10:30:00',
-			end: '2016-09-12T12:30:00'
+			let event: FC.EventObject = 
+			{
+				title: task.getTitle(),
+				start: task.getStart(),
+				allDay: task.getIsAllDay(),
+				end: task.getEnd()
+			};
+			events.push(event);
 		}
-	];
-	callback(events);
+
+		for(let deadline of deadlines)
+		{
+			let event: FC.EventObject = 
+			{
+				title: deadline.getTitle(),
+				start: deadline.getStart(),
+				allDay: deadline.getIsAllDay(),
+			};
+			events.push(event);
+		}
+
+		callback(events);
+	}
+
+	function onFailure (error: string)
+	{
+		alert("Failed to load from server. Details: " + error);
+		callback([]);
+	}
+
+	loadFromServer(onSuccess, onFailure);
 }
 
 function initFullCalendar(): void
@@ -126,9 +86,12 @@ function initFullCalendar(): void
 	removeLoading();
 }
 
-export function main($targetContainer: JQuery)
+export function main($targetContainer: JQuery, 
+						loadFromServerFn: (onSuccess: (tasks: Task[], deadlines: Deadline[]) => any,
+											onFailure: (error: string) => any) => void)
 {
 	$calendarContainer = $targetContainer.find(".calendar");
+	loadFromServer = loadFromServerFn;
 
 	clearAndShowLoading();
 	initFullCalendar();

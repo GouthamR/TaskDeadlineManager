@@ -199,6 +199,15 @@ namespace NavFunctions
 	}
 }
 
+namespace CalendarFunctions
+{
+	export function loadFromServer(onSuccess: (tasks: Task[], deadlines: Deadline[]) => any,
+									onFailure: (error: string) => any): void
+	{
+		loadTasksAndDeadlinesFromServer(onSuccess, onFailure);
+	}
+}
+
 function main(): void
 {
 	switchToView(View.Index);
@@ -206,7 +215,7 @@ function main(): void
 	AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
 	index.main($(".main-index"), IndexFunctions.onIndexAddTaskClicked);
 	nav.main($(".main-nav"), NavFunctions.onCalendarClicked);
-	calendar.main($(".main-calendar"));
+	calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer);
 
 	IndexFunctions.loadFromServer();
 }

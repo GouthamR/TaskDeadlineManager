@@ -30,11 +30,11 @@ exports.main = main;
 ;
 
 },{"./item":4}],2:[function(require,module,exports){
-/// <reference types="fullcalendar" />
 "use strict";
 // Module-level variables:
 var $calendarContainer;
 var LOADING_CLASS_NAME = "calendar-loading";
+var loadFromServer;
 function clearAndShowLoading() {
     // STUB (does not clear):
     var $fullCalendarDiv = $calendarContainer.find(".calendar-fullcalendar");
@@ -46,86 +46,34 @@ function removeLoading() {
     $fullCalendarDiv.find("." + LOADING_CLASS_NAME).remove();
 }
 function getEventsFromServer(start, end, timezone, callback) {
-    var events = [
-        {
-            title: 'All Day Event',
-            start: '2016-09-01'
-        },
-        {
-            title: 'All Day Event',
-            start: '2016-09-01'
-        },
-        {
-            title: 'All Day Event',
-            start: '2016-09-01'
-        },
-        {
-            title: 'All Day Event',
-            start: '2016-09-01'
-        },
-        {
-            title: 'All Day Event',
-            start: '2016-09-01'
-        },
-        {
-            title: 'All Day Event',
-            start: '2016-09-01'
-        },
-        {
-            title: 'All Day Event',
-            start: '2016-09-01'
-        },
-        {
-            title: 'All Day Event',
-            start: '2016-09-01'
-        },
-        {
-            title: 'All Day Event',
-            start: '2016-09-01'
-        },
-        {
-            title: 'All Day Event',
-            start: '2016-09-01'
-        },
-        {
-            title: 'All Day Event',
-            start: '2016-09-01'
-        },
-        {
-            title: 'All Day Event',
-            start: '2016-09-01'
-        },
-        {
-            title: 'All Day Event',
-            start: '2016-09-01'
-        },
-        {
-            title: 'Long Event',
-            start: '2016-09-07',
-            end: '2016-09-10'
-        },
-        {
-            id: 999,
-            title: 'Repeating Event',
-            start: '2016-09-09T16:00:00'
-        },
-        {
-            id: 999,
-            title: 'Repeating Event',
-            start: '2016-09-16T16:00:00'
-        },
-        {
-            title: 'Conference',
-            start: '2016-09-11',
-            end: '2016-09-13'
-        },
-        {
-            title: 'Meeting',
-            start: '2016-09-12T10:30:00',
-            end: '2016-09-12T12:30:00'
+    function onSuccess(tasks, deadlines) {
+        var events = [];
+        for (var _i = 0, tasks_1 = tasks; _i < tasks_1.length; _i++) {
+            var task = tasks_1[_i];
+            var event_1 = {
+                title: task.getTitle(),
+                start: task.getStart(),
+                allDay: task.getIsAllDay(),
+                end: task.getEnd()
+            };
+            events.push(event_1);
         }
-    ];
-    callback(events);
+        for (var _a = 0, deadlines_1 = deadlines; _a < deadlines_1.length; _a++) {
+            var deadline = deadlines_1[_a];
+            var event_2 = {
+                title: deadline.getTitle(),
+                start: deadline.getStart(),
+                allDay: deadline.getIsAllDay()
+            };
+            events.push(event_2);
+        }
+        callback(events);
+    }
+    function onFailure(error) {
+        alert("Failed to load from server. Details: " + error);
+        callback([]);
+    }
+    loadFromServer(onSuccess, onFailure);
 }
 function initFullCalendar() {
     $calendarContainer.find(".calendar-fullcalendar").fullCalendar({
@@ -141,8 +89,9 @@ function initFullCalendar() {
     });
     removeLoading();
 }
-function main($targetContainer) {
+function main($targetContainer, loadFromServerFn) {
     $calendarContainer = $targetContainer.find(".calendar");
+    loadFromServer = loadFromServerFn;
     clearAndShowLoading();
     initFullCalendar();
 }
@@ -507,12 +456,19 @@ var NavFunctions;
     }
     NavFunctions.onCalendarClicked = onCalendarClicked;
 })(NavFunctions || (NavFunctions = {}));
+var CalendarFunctions;
+(function (CalendarFunctions) {
+    function loadFromServer(onSuccess, onFailure) {
+        loadTasksAndDeadlinesFromServer(onSuccess, onFailure);
+    }
+    CalendarFunctions.loadFromServer = loadFromServer;
+})(CalendarFunctions || (CalendarFunctions = {}));
 function main() {
     switchToView(View.Index);
     AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
     index.main($(".main-index"), IndexFunctions.onIndexAddTaskClicked);
     nav.main($(".main-nav"), NavFunctions.onCalendarClicked);
-    calendar.main($(".main-calendar"));
+    calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer);
     IndexFunctions.loadFromServer();
 }
 $(document).ready(main);
