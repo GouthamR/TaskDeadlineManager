@@ -32,7 +32,121 @@ function main($targetContainer, onAddTaskSubmit) {
 exports.main = main;
 ;
 
-},{"./item":3}],2:[function(require,module,exports){
+},{"./item":4}],2:[function(require,module,exports){
+"use strict";
+// Module-level variables:
+var $calendarContainer;
+var LOADING_CLASS_NAME = "calendar-loading";
+function clearAndShowLoading() {
+    // STUB (does not clear):
+    var $fullCalendarDiv = $calendarContainer.find(".calendar-fullcalendar");
+    var $loading = $("<p>", { class: LOADING_CLASS_NAME }).html("Loading...");
+    $fullCalendarDiv.append($loading);
+}
+function removeLoading() {
+    var $fullCalendarDiv = $calendarContainer.find(".calendar-fullcalendar");
+    $fullCalendarDiv.find("." + LOADING_CLASS_NAME).remove();
+}
+function initFullCalendar() {
+    $calendarContainer.find(".calendar-fullcalendar").fullCalendar({
+        header: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'month,basicWeek,agendaDay'
+        },
+        defaultDate: '2016-09-12',
+        navLinks: true,
+        editable: true,
+        events: [
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'All Day Event',
+                start: '2016-09-01'
+            },
+            {
+                title: 'Long Event',
+                start: '2016-09-07',
+                end: '2016-09-10'
+            },
+            {
+                id: 999,
+                title: 'Repeating Event',
+                start: '2016-09-09T16:00:00'
+            },
+            {
+                id: 999,
+                title: 'Repeating Event',
+                start: '2016-09-16T16:00:00'
+            },
+            {
+                title: 'Conference',
+                start: '2016-09-11',
+                end: '2016-09-13'
+            },
+            {
+                title: 'Meeting',
+                start: '2016-09-12T10:30:00',
+                end: '2016-09-12T12:30:00'
+            }
+        ]
+    });
+    removeLoading();
+}
+function main($targetContainer) {
+    $calendarContainer = $targetContainer.find(".calendar");
+    clearAndShowLoading();
+    initFullCalendar();
+}
+exports.main = main;
+
+},{}],3:[function(require,module,exports){
 "use strict";
 var ItemEditor = (function () {
     function ItemEditor(item, li, doneCallback) {
@@ -136,7 +250,7 @@ function main($targetContainer, onAddTaskClicked) {
 }
 exports.main = main;
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -245,17 +359,19 @@ var DeadlineSerializer = (function () {
 }());
 exports.DeadlineSerializer = DeadlineSerializer;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 "use strict";
 var AddTask = require("./add-task");
 var index = require("./index");
 var nav = require("./nav");
+var calendar = require("./calendar");
 var item_1 = require("./item");
 var item_2 = require("./item");
 var View;
 (function (View) {
     View[View["Index"] = 0] = "Index";
     View[View["AddTask"] = 1] = "AddTask";
+    View[View["Calendar"] = 2] = "Calendar";
 })(View || (View = {}));
 function setVisibility(elementClass, isVisible) {
     var HIDING_CLASS_NAME = "hidden";
@@ -267,16 +383,20 @@ function setVisibility(elementClass, isVisible) {
     }
 }
 function switchToView(view) {
-    var index, addtask;
-    index = addtask = false;
+    var index, addtask, calendar;
+    index = addtask = calendar = false;
     if (view == View.Index) {
         index = true;
     }
     else if (view == View.AddTask) {
         addtask = true;
     }
+    else if (view == View.Calendar) {
+        calendar = true;
+    }
     setVisibility(".main-index", index);
     setVisibility(".main-add-task", addtask);
+    setVisibility(".main-calendar", calendar);
 }
 var IndexFunctions;
 (function (IndexFunctions) {
@@ -374,42 +494,65 @@ var AddTaskFunctions;
     }
     AddTaskFunctions.onAddTaskSubmit = onAddTaskSubmit;
 })(AddTaskFunctions || (AddTaskFunctions = {}));
+var NavFunctions;
+(function (NavFunctions) {
+    function onCalendarClicked(event) {
+        console.log("Nav calendar clicked");
+        switchToView(View.Calendar);
+    }
+    NavFunctions.onCalendarClicked = onCalendarClicked;
+})(NavFunctions || (NavFunctions = {}));
 function main() {
     switchToView(View.Index);
     AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
     index.main($(".main-index"), IndexFunctions.onIndexAddTaskClicked);
-    nav.main($(".main-nav"));
+    nav.main($(".main-nav"), NavFunctions.onCalendarClicked);
+    calendar.main($(".main-calendar"));
     IndexFunctions.loadTasksAndDeadlinesFromServer();
 }
 $(document).ready(main);
 
-},{"./add-task":1,"./index":2,"./item":3,"./nav":5}],5:[function(require,module,exports){
+},{"./add-task":1,"./calendar":2,"./index":3,"./item":4,"./nav":6}],6:[function(require,module,exports){
 "use strict";
-function main($targetContainer) {
-    "use strict";
-    var MOBILE_MAX_WIDTH = 768; // pixels
-    var ANIM_TIME = 350; // milliseconds
-    var $navContainer = $targetContainer.find(".nav");
-    var isOpen = false;
-    var $nav = $navContainer.find("nav");
-    $navContainer.find(".nav-pull-link").on("click", function (event) {
-        var animDirection = isOpen ? "-" : "+";
+// Module-scope variables:
+var MOBILE_MAX_WIDTH = 768; // pixels
+var ANIM_TIME = 350; // milliseconds
+var Nav = (function () {
+    function Nav($navContainer, onCalendarClicked) {
+        var _this = this;
+        this.$navContainer = $navContainer;
+        this.isOpen = false;
+        var onPullLinkClicked = function (e) { _this.toggleSidebarExpansion(); };
+        $navContainer.find(".nav-pull-link").click(onPullLinkClicked);
+        var onWindowResize = function (e) { _this.toggleSidebarVsHeader(); };
+        $(window).resize(onWindowResize);
+        $navContainer.find(".nav-calendar-button").click(onCalendarClicked);
+    }
+    Nav.prototype.toggleSidebarExpansion = function () {
+        var $nav = this.$navContainer.find("nav");
+        var animDirection = this.isOpen ? "-" : "+";
         $nav.animate({ left: (animDirection + '=' + $nav.width()) }, ANIM_TIME);
-        isOpen = !isOpen;
-    });
-    $(window).resize(function (event) {
+        this.isOpen = !this.isOpen;
+    };
+    Nav.prototype.toggleSidebarVsHeader = function () {
+        var $nav = this.$navContainer.find("nav");
         var switchToTop = $(window).width() > MOBILE_MAX_WIDTH;
         if (switchToTop && $nav.position().left < 0) {
-            isOpen = true;
+            this.isOpen = true;
             $nav.css({ left: 0 }); // horizontally center nav (in case collapsed in mobile view)
         }
         else if (!switchToTop) {
             // hide nav:
-            isOpen = false;
+            this.isOpen = false;
             $nav.css({ left: -$nav.width() });
         }
-    });
+    };
+    return Nav;
+}());
+function main($targetContainer, onCalendarClicked) {
+    var $navContainer = $targetContainer.find(".nav");
+    var nav = new Nav($navContainer, onCalendarClicked);
 }
 exports.main = main;
 
-},{}]},{},[4]);
+},{}]},{},[5]);

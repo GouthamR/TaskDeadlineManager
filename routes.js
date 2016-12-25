@@ -5,11 +5,6 @@ var config = function(app, db)
 		response.render("main");
 	});
 
-	app.get('/calendar', function(request, response)
-	{
-		response.render("calendar");
-	});
-
 	app.get('/load-tasks', function(request, response)
 	{
 		db.collection("tasks", function(collection_error, collection)

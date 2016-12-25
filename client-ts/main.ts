@@ -1,6 +1,7 @@
 import * as AddTask from "./add-task"
 import * as index from "./index"
 import * as nav from "./nav"
+import * as calendar from "./calendar"
 import { Task } from "./item";
 import { TaskSerializer } from "./item";
 import { Deadline } from "./item";
@@ -8,7 +9,7 @@ import { DeadlineSerializer } from "./item";
 
 enum View
 {
-	Index, AddTask
+	Index, AddTask, Calendar
 }
 
 function setVisibility(elementClass: string, isVisible: boolean): void
@@ -27,8 +28,8 @@ function setVisibility(elementClass: string, isVisible: boolean): void
 
 function switchToView(view: View): void
 {
-	let index: boolean, addtask: boolean;
-	index = addtask = false;
+	let index: boolean, addtask: boolean, calendar: boolean;
+	index = addtask = calendar = false;
 
 	if(view == View.Index)
 	{
@@ -38,9 +39,14 @@ function switchToView(view: View): void
 	{
 		addtask = true;
 	}
+	else if(view == View.Calendar)
+	{
+		calendar = true;
+	}
 
 	setVisibility(".main-index", index);
 	setVisibility(".main-add-task", addtask);
+	setVisibility(".main-calendar", calendar);
 }
 
 namespace IndexFunctions
@@ -177,13 +183,23 @@ namespace AddTaskFunctions
 	}
 }
 
+namespace NavFunctions
+{
+	export function onCalendarClicked(event: JQueryEventObject): void
+	{
+		console.log("Nav calendar clicked");
+		switchToView(View.Calendar);
+	}
+}
+
 function main(): void
 {
 	switchToView(View.Index);
 
 	AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
 	index.main($(".main-index"), IndexFunctions.onIndexAddTaskClicked);
-	nav.main($(".main-nav"));
+	nav.main($(".main-nav"), NavFunctions.onCalendarClicked);
+	calendar.main($(".main-calendar"));
 
 	IndexFunctions.loadTasksAndDeadlinesFromServer();
 }

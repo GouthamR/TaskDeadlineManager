@@ -1,36 +1,56 @@
-export function main($targetContainer: JQuery): void
+// Module-scope variables:
+const MOBILE_MAX_WIDTH: number = 768; // pixels
+const ANIM_TIME: number = 350; // milliseconds
+
+class Nav
 {
-    "use strict";
+    private $navContainer: JQuery;
+    private isOpen: boolean;
 
-    const MOBILE_MAX_WIDTH: number = 768; // pixels
-    const ANIM_TIME: number = 350; // milliseconds
-
-    let $navContainer: JQuery = $targetContainer.find(".nav");
-
-    let isOpen: boolean = false;
-
-    let $nav: JQuery = $navContainer.find("nav");
-
-    $navContainer.find(".nav-pull-link").on("click", function (event: JQueryEventObject)
+    public constructor($navContainer: JQuery, onCalendarClicked: (event: JQueryEventObject) => void)
     {
-        let animDirection: string = isOpen ? "-" : "+";
+        this.$navContainer = $navContainer;
+        this.isOpen = false;
+
+        let onPullLinkClicked = (e: JQueryEventObject) => { this.toggleSidebarExpansion(); };
+        $navContainer.find(".nav-pull-link").click(onPullLinkClicked);
+
+        let onWindowResize = (e: JQueryEventObject) => { this.toggleSidebarVsHeader(); };
+        $(window).resize(onWindowResize);
+
+        $navContainer.find(".nav-calendar-button").click(onCalendarClicked);
+    }
+
+    private toggleSidebarExpansion(): void
+    {
+        let $nav: JQuery = this.$navContainer.find("nav");
+
+        let animDirection: string = this.isOpen ? "-" : "+";
         $nav.animate({ left: (animDirection + '=' + $nav.width()) }, ANIM_TIME);
-        isOpen = !isOpen;
-    });
+        this.isOpen = !this.isOpen;
+    }
 
-    $(window).resize(function (event: JQueryEventObject)
+    private toggleSidebarVsHeader(): void
     {
+        let $nav: JQuery = this.$navContainer.find("nav");
+
         let switchToTop: boolean = $(window).width() > MOBILE_MAX_WIDTH;
         if (switchToTop && $nav.position().left < 0)
         {
-            isOpen = true;
+            this.isOpen = true;
             $nav.css({ left: 0 }); // horizontally center nav (in case collapsed in mobile view)
         }
         else if (!switchToTop) // switch to sidebar
         {
             // hide nav:
-            isOpen = false;
+            this.isOpen = false;
             $nav.css({ left: -$nav.width() });
         }
-    });
+    }
+}
+
+export function main($targetContainer: JQuery, onCalendarClicked: (event: JQueryEventObject) => void): void
+{
+    let $navContainer: JQuery = $targetContainer.find(".nav");
+    let nav: Nav = new Nav($navContainer, onCalendarClicked);
 }

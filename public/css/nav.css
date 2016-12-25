@@ -21,7 +21,7 @@
 
 .nav nav {
     position: fixed;
-    z-index: 1;
+    z-index: 1000; /* needs to be high enough to be above third-party z-indices */
     width: 100%;
     background-color: #0F51AD;
 }
@@ -98,7 +98,6 @@
 @media (max-width: 768px) {
     .nav nav {
         position: fixed;
-        z-index: 1;
         display: inline-block;
         width: 15em;
         height: 100%;
@@ -130,7 +129,7 @@
 
     .nav .nav-pull-link {
         position: fixed;
-        z-index: 2;
+        z-index: 2000; /* needs to be high enough to be above third-party z-indices */
         background-color: #0F51AD;
         display: block;
         height: 3.5em;
