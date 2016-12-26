@@ -26,27 +26,28 @@ function setVisibility(elementClass: string, isVisible: boolean): void
 	}
 }
 
-function switchToView(view: View): void
+// Returns keys of enum e.
+// e.g. given enum E { A, B, C } returns [0, 1, 2]
+function getEnumValues(e): number[]
 {
-	let index: boolean, addtask: boolean, calendar: boolean;
-	index = addtask = calendar = false;
+	let valueStrings: string[] = Object.keys(e).filter((k) => typeof e[k] === "string");
+	return valueStrings.map((v) => parseInt(v));
+}
 
-	if(view == View.Index)
+function switchToView(newView: View): void
+{
+	const CLASS_NAME_TO_VIEW_VALUE_MAP = 
 	{
-		index = true;
-	}
-	else if(view == View.AddTask)
-	{
-		addtask = true;
-	}
-	else if(view == View.Calendar)
-	{
-		calendar = true;
-	}
+		".main-index": View.Index,
+		".main-add-task": View.AddTask,
+		".main-calendar": View.Calendar
+	};
 
-	setVisibility(".main-index", index);
-	setVisibility(".main-add-task", addtask);
-	setVisibility(".main-calendar", calendar);
+	for(let className in CLASS_NAME_TO_VIEW_VALUE_MAP)
+	{
+		let viewValue = CLASS_NAME_TO_VIEW_VALUE_MAP[className];
+		setVisibility(className, viewValue == newView);
+	}
 }
 
 function loadItemDataFromServer(route: string, onSuccess: (data) => void, 

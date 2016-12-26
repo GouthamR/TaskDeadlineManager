@@ -333,21 +333,22 @@ function setVisibility(elementClass, isVisible) {
         $(elementClass).addClass(HIDING_CLASS_NAME);
     }
 }
-function switchToView(view) {
-    var index, addtask, calendar;
-    index = addtask = calendar = false;
-    if (view == View.Index) {
-        index = true;
+// Returns keys of enum e.
+// e.g. given enum E { A, B, C } returns [0, 1, 2]
+function getEnumValues(e) {
+    var valueStrings = Object.keys(e).filter(function (k) { return typeof e[k] === "string"; });
+    return valueStrings.map(function (v) { return parseInt(v); });
+}
+function switchToView(newView) {
+    var CLASS_NAME_TO_VIEW_VALUE_MAP = {
+        ".main-index": View.Index,
+        ".main-add-task": View.AddTask,
+        ".main-calendar": View.Calendar
+    };
+    for (var className in CLASS_NAME_TO_VIEW_VALUE_MAP) {
+        var viewValue = CLASS_NAME_TO_VIEW_VALUE_MAP[className];
+        setVisibility(className, viewValue == newView);
     }
-    else if (view == View.AddTask) {
-        addtask = true;
-    }
-    else if (view == View.Calendar) {
-        calendar = true;
-    }
-    setVisibility(".main-index", index);
-    setVisibility(".main-add-task", addtask);
-    setVisibility(".main-calendar", calendar);
 }
 function loadItemDataFromServer(route, onSuccess, onFailure) {
     $.getJSON(route)

@@ -50,7 +50,7 @@ function getEventsFromServer(start: moment.Moment, end: moment.Moment,
 			{
 				title: deadline.getTitle(),
 				start: deadline.getStart(),
-				allDay: deadline.getIsAllDay(),
+				allDay: deadline.getIsAllDay()
 			};
 			events.push(event);
 		}
