@@ -48,6 +48,11 @@ function switchToView(newView: View): void
 		let viewValue = CLASS_NAME_TO_VIEW_VALUE_MAP[className];
 		setVisibility(className, viewValue == newView);
 	}
+
+	if(newView == View.Calendar)
+	{
+		calendar.reloadCalendar();
+	}
 }
 
 function loadItemDataFromServer(route: string, onSuccess: (data) => void, 

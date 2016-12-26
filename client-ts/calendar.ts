@@ -86,6 +86,13 @@ function initFullCalendar(): void
 	removeLoading();
 }
 
+export function reloadCalendar(): void
+{
+	console.log("Reloading calendar");
+	let $fullCalendar: JQuery = $calendarContainer.find(".calendar-fullcalendar");
+	$fullCalendar.fullCalendar("refetchEvents");
+}
+
 export function main($targetContainer: JQuery, 
 						loadFromServerFn: (onSuccess: (tasks: Task[], deadlines: Deadline[]) => any,
 											onFailure: (error: string) => any) => void)

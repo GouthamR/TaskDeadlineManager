@@ -89,6 +89,12 @@ function initFullCalendar() {
     });
     removeLoading();
 }
+function reloadCalendar() {
+    console.log("Reloading calendar");
+    var $fullCalendar = $calendarContainer.find(".calendar-fullcalendar");
+    $fullCalendar.fullCalendar("refetchEvents");
+}
+exports.reloadCalendar = reloadCalendar;
 function main($targetContainer, loadFromServerFn) {
     $calendarContainer = $targetContainer.find(".calendar");
     loadFromServer = loadFromServerFn;
@@ -348,6 +354,9 @@ function switchToView(newView) {
     for (var className in CLASS_NAME_TO_VIEW_VALUE_MAP) {
         var viewValue = CLASS_NAME_TO_VIEW_VALUE_MAP[className];
         setVisibility(className, viewValue == newView);
+    }
+    if (newView == View.Calendar) {
+        calendar.reloadCalendar();
     }
 }
 function loadItemDataFromServer(route, onSuccess, onFailure) {
