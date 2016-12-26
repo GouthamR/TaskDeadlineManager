@@ -464,12 +464,12 @@ var CalendarFunctions;
     CalendarFunctions.loadFromServer = loadFromServer;
 })(CalendarFunctions || (CalendarFunctions = {}));
 function main() {
-    switchToView(View.Index);
     AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
     index.main($(".main-index"), IndexFunctions.onIndexAddTaskClicked);
     nav.main($(".main-nav"), NavFunctions.onCalendarClicked);
     calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer);
     IndexFunctions.loadFromServer();
+    switchToView(View.Index);
 }
 $(document).ready(main);
 
