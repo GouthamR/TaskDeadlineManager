@@ -13,8 +13,8 @@ function toTaskJSON(formArray) {
     var start = toDate(formArray[1].value, formArray[2].value);
     var end = toDate(formArray[3].value, formArray[4].value);
     var task = new item_1.Task(title, start, end, false);
-    var json = new item_2.TaskSerializer().toJSON(task);
-    return json;
+    var taskJson = new item_2.TaskSerializer().toJSON(task);
+    return taskJson;
 }
 function getFormAsJSON() {
     var formArray = $addTaskContainer.find(".add-task-form").serializeArray();
@@ -282,8 +282,7 @@ var TaskSerializer = (function () {
         };
         return json;
     };
-    TaskSerializer.prototype.fromJSON = function (json) {
-        var taskJson = json;
+    TaskSerializer.prototype.fromJSON = function (taskJson) {
         return new Task(taskJson.title, new Date(parseInt(taskJson.startEpochMillis)), new Date(parseInt(taskJson.endEpochMillis)), taskJson.isAllDay == "true");
     };
     return TaskSerializer;
@@ -308,8 +307,7 @@ var DeadlineSerializer = (function () {
         };
         return json;
     };
-    DeadlineSerializer.prototype.fromJSON = function (json) {
-        var deadlineJson = json;
+    DeadlineSerializer.prototype.fromJSON = function (deadlineJson) {
         return new Deadline(deadlineJson.title, new Date(parseInt(deadlineJson.startEpochMillis)), deadlineJson.isAllDay == "true");
     };
     return DeadlineSerializer;
@@ -437,8 +435,8 @@ var IndexFunctions;
 })(IndexFunctions || (IndexFunctions = {}));
 var AddTaskFunctions;
 (function (AddTaskFunctions) {
-    function postFormJSON(json) {
-        $.post("add-task", json)
+    function postFormJSON(taskJson) {
+        $.post("add-task", taskJson)
             .done(function (data, textStatus, jqXHR) {
             console.log("Add Task success:");
             console.log(data);

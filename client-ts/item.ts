@@ -45,10 +45,10 @@ export class Item
     }
 }
 
-interface JSONSerializer<T>
+interface JSONSerializer<ObjectType, JSONType>
 {
-    toJSON(obj: T): Object;
-    fromJSON(json: Object): T;
+    toJSON(obj: ObjectType): JSONType;
+    fromJSON(json: JSONType): ObjectType;
 }
 
 export class Task extends Item
@@ -85,18 +85,17 @@ export class Task extends Item
     }
 }
 
-interface TaskJSON
+export interface TaskJSON
 {
-    // string representations of all:
     title: string;
     startEpochMillis: string;
     endEpochMillis: string;
     isAllDay: string;
 }
 
-export class TaskSerializer implements JSONSerializer<Task>
+export class TaskSerializer implements JSONSerializer<Task, TaskJSON>
 {
-    toJSON(obj: Task): Object
+    toJSON(obj: Task): TaskJSON
     {
         let json: TaskJSON =
         {
@@ -107,9 +106,8 @@ export class TaskSerializer implements JSONSerializer<Task>
         };
         return json;
     }
-    fromJSON(json: Object): Task
+    fromJSON(taskJson: TaskJSON): Task
     {
-        let taskJson: TaskJSON = <TaskJSON> json;
         return new Task(taskJson.title, 
                         new Date(parseInt(taskJson.startEpochMillis)),
                         new Date(parseInt(taskJson.endEpochMillis)), 
@@ -125,17 +123,16 @@ export class Deadline extends Item
     }
 }
 
-interface DeadlineJSON
+export interface DeadlineJSON
 {
-    // string representations of all:
     title: string;
     startEpochMillis: string;
     isAllDay: string;
 }
 
-export class DeadlineSerializer implements JSONSerializer<Deadline>
+export class DeadlineSerializer implements JSONSerializer<Deadline, DeadlineJSON>
 {
-    toJSON(obj: Deadline): Object
+    toJSON(obj: Deadline): DeadlineJSON
     {
         let json: DeadlineJSON =
         {
@@ -145,9 +142,8 @@ export class DeadlineSerializer implements JSONSerializer<Deadline>
         };
         return json;
     }
-    fromJSON(json: Object): Deadline
+    fromJSON(deadlineJson: DeadlineJSON): Deadline
     {
-        let deadlineJson: DeadlineJSON = <DeadlineJSON> json;
         return new Deadline(deadlineJson.title, 
                             new Date(parseInt(deadlineJson.startEpochMillis)),
                             deadlineJson.isAllDay == "true");

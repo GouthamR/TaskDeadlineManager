@@ -3,6 +3,7 @@ import * as index from "./index"
 import * as nav from "./nav"
 import * as calendar from "./calendar"
 import { Task } from "./item";
+import { TaskJSON } from "./item";
 import { TaskSerializer } from "./item";
 import { Deadline } from "./item";
 import { DeadlineSerializer } from "./item";
@@ -168,9 +169,9 @@ namespace IndexFunctions
 
 namespace AddTaskFunctions
 {
-	function postFormJSON(json: Object)
+	function postFormJSON(taskJson: TaskJSON)
 	{
-		$.post("add-task", json)
+		$.post("add-task", taskJson)
 		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
 		{
 			console.log("Add Task success:");
@@ -191,7 +192,7 @@ namespace AddTaskFunctions
 
 		switchToView(View.Index);
 
-		let json: Object = AddTask.getFormAsJSON();
+		let json: TaskJSON = AddTask.getFormAsJSON();
 		postFormJSON(json);
 	}
 }
