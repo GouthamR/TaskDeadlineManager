@@ -1,5 +1,5 @@
 import { Task } from "./item";
-import { TaskJSON } from "./item";
+import { TaskJSONWithoutID } from "./item";
 import { TaskSerializer } from "./item";
 
 // Module-scope variables:
@@ -11,22 +11,26 @@ function toDate(dateWithoutTime: string, time: string): Date
     return moment(fullDate, "YYYY-MM-DD HH:mm").toDate();
 }
 
-function toTaskJSON(formArray: Object): TaskJSON
+function toTaskJSONWithoutID(formArray: Object): TaskJSONWithoutID
 {
     let title: string = formArray[0].value;
-    let start: Date = toDate(formArray[1].value, formArray[2].value);
-    let end: Date = toDate(formArray[3].value, formArray[4].value);
+    let startDate: Date = toDate(formArray[1].value, formArray[2].value);
+    let endDate: Date = toDate(formArray[3].value, formArray[4].value);
 
-    let task: Task = new Task(title, start, end, false);
-    let taskJson: TaskJSON = new TaskSerializer().toJSON(task);
-
-    return taskJson;
+    let json: TaskJSONWithoutID = 
+    {
+        title: title,
+        startEpochMillis: startDate.getTime().toString(),
+        endEpochMillis: endDate.getTime().toString(),
+        isAllDay: "false"
+    }
+    return json;
 }
 
-export function getFormAsJSON(): TaskJSON
+export function getFormAsJSON(): TaskJSONWithoutID
 {
     let formArray = $addTaskContainer.find(".add-task-form").serializeArray();
-    return toTaskJSON(formArray);
+    return toTaskJSONWithoutID(formArray);
 }
 
 export function main($targetContainer: JQuery, onAddTaskSubmit: (event: JQueryEventObject) => void): void

@@ -1,24 +1,26 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
-var item_1 = require("./item");
-var item_2 = require("./item");
 // Module-scope variables:
 var $addTaskContainer;
 function toDate(dateWithoutTime, time) {
     var fullDate = dateWithoutTime + time;
     return moment(fullDate, "YYYY-MM-DD HH:mm").toDate();
 }
-function toTaskJSON(formArray) {
+function toTaskJSONWithoutID(formArray) {
     var title = formArray[0].value;
-    var start = toDate(formArray[1].value, formArray[2].value);
-    var end = toDate(formArray[3].value, formArray[4].value);
-    var task = new item_1.Task(title, start, end, false);
-    var taskJson = new item_2.TaskSerializer().toJSON(task);
-    return taskJson;
+    var startDate = toDate(formArray[1].value, formArray[2].value);
+    var endDate = toDate(formArray[3].value, formArray[4].value);
+    var json = {
+        title: title,
+        startEpochMillis: startDate.getTime().toString(),
+        endEpochMillis: endDate.getTime().toString(),
+        isAllDay: "false"
+    };
+    return json;
 }
 function getFormAsJSON() {
     var formArray = $addTaskContainer.find(".add-task-form").serializeArray();
-    return toTaskJSON(formArray);
+    return toTaskJSONWithoutID(formArray);
 }
 exports.getFormAsJSON = getFormAsJSON;
 function main($targetContainer, onAddTaskSubmit) {
@@ -29,7 +31,7 @@ function main($targetContainer, onAddTaskSubmit) {
 exports.main = main;
 ;
 
-},{"./item":4}],2:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 "use strict";
 // Module-level variables:
 var $calendarContainer;
@@ -215,10 +217,11 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Item = (function () {
-    function Item(title, start, isAllDay) {
+    function Item(title, start, isAllDay, id) {
         this.title = title;
         this.start = start;
         this.isAllDay = isAllDay;
+        this.id = id;
     }
     Item.prototype.getDayTimeString = function () {
         // stub:
@@ -234,6 +237,7 @@ var Item = (function () {
     Item.prototype.getTitle = function () { return this.title; };
     Item.prototype.getStart = function () { return this.start; };
     Item.prototype.getIsAllDay = function () { return this.isAllDay; };
+    Item.prototype.getID = function () { return this.id; };
     Item.prototype.setTitle = function (title) {
         this.title = title;
     };
@@ -248,8 +252,8 @@ var Item = (function () {
 exports.Item = Item;
 var Task = (function (_super) {
     __extends(Task, _super);
-    function Task(title, start, end, isAllDay) {
-        _super.call(this, title, start, isAllDay);
+    function Task(title, start, end, isAllDay, id) {
+        _super.call(this, title, start, isAllDay, id);
         this.end = end;
     }
     Task.prototype.getEnd = function () { return this.end; };
@@ -278,20 +282,21 @@ var TaskSerializer = (function () {
             title: obj.getTitle(),
             startEpochMillis: obj.getStart().getTime().toString(),
             endEpochMillis: obj.getEnd().getTime().toString(),
-            isAllDay: obj.getIsAllDay().toString()
+            isAllDay: obj.getIsAllDay().toString(),
+            _id: obj.getID()
         };
         return json;
     };
     TaskSerializer.prototype.fromJSON = function (taskJson) {
-        return new Task(taskJson.title, new Date(parseInt(taskJson.startEpochMillis)), new Date(parseInt(taskJson.endEpochMillis)), taskJson.isAllDay == "true");
+        return new Task(taskJson.title, new Date(parseInt(taskJson.startEpochMillis)), new Date(parseInt(taskJson.endEpochMillis)), taskJson.isAllDay == "true", taskJson._id);
     };
     return TaskSerializer;
 }());
 exports.TaskSerializer = TaskSerializer;
 var Deadline = (function (_super) {
     __extends(Deadline, _super);
-    function Deadline(title, start, isAllDay) {
-        _super.call(this, title, start, isAllDay);
+    function Deadline(title, start, isAllDay, id) {
+        _super.call(this, title, start, isAllDay, id);
     }
     return Deadline;
 }(Item));
@@ -303,12 +308,13 @@ var DeadlineSerializer = (function () {
         var json = {
             title: obj.getTitle(),
             startEpochMillis: obj.getStart().getTime().toString(),
-            isAllDay: obj.getIsAllDay().toString()
+            isAllDay: obj.getIsAllDay().toString(),
+            _id: obj.getID()
         };
         return json;
     };
     DeadlineSerializer.prototype.fromJSON = function (deadlineJson) {
-        return new Deadline(deadlineJson.title, new Date(parseInt(deadlineJson.startEpochMillis)), deadlineJson.isAllDay == "true");
+        return new Deadline(deadlineJson.title, new Date(parseInt(deadlineJson.startEpochMillis)), deadlineJson.isAllDay == "true", deadlineJson._id);
     };
     return DeadlineSerializer;
 }());
@@ -373,7 +379,9 @@ function loadTasksFromServer(onSuccess, onFailure) {
         var taskSerializer = new item_1.TaskSerializer();
         for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
             var i = data_1[_i];
-            tasks.push(taskSerializer.fromJSON(i));
+            var taskJson = i;
+            var task = taskSerializer.fromJSON(taskJson);
+            tasks.push(task);
         }
         console.log(tasks);
         onSuccess(tasks);
@@ -435,8 +443,8 @@ var IndexFunctions;
 })(IndexFunctions || (IndexFunctions = {}));
 var AddTaskFunctions;
 (function (AddTaskFunctions) {
-    function postFormJSON(taskJson) {
-        $.post("add-task", taskJson)
+    function postFormJSON(json) {
+        $.post("add-task", json)
             .done(function (data, textStatus, jqXHR) {
             console.log("Add Task success:");
             console.log(data);

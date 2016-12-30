@@ -5,6 +5,7 @@ var config = function(app, db)
 		response.render("main");
 	});
 
+	// Response: TaskJSON[]
 	app.get('/load-tasks', function(request, response)
 	{
 		db.collection("tasks", function(collection_error, collection)
@@ -24,6 +25,7 @@ var config = function(app, db)
 		response.json(deadlines);
 	});
 
+	// Request: TaskJSONWithoutID
 	app.post('/add-task', function(request, response)
 	{
 		var taskObject = request.body;

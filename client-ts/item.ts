@@ -3,12 +3,14 @@ export class Item
     private title: string;
     private start: Date;
     private isAllDay: boolean;
+    private id: string;
 
-    public constructor(title: string, start: Date, isAllDay: boolean)
+    public constructor(title: string, start: Date, isAllDay: boolean, id: string)
     {
         this.title = title;
         this.start = start;
         this.isAllDay = isAllDay;
+        this.id = id;
     }
 
     public getDayTimeString() : string
@@ -30,6 +32,7 @@ export class Item
     public getTitle() : string { return this.title; }
     public getStart() : Date { return this.start; }
     public getIsAllDay() : boolean { return this.isAllDay; }
+    public getID() : string { return this.id; }
 
     public setTitle(title: string) : void
     {
@@ -55,9 +58,9 @@ export class Task extends Item
 {
     private end: Date;
 
-    public constructor(title: string, start: Date, end: Date, isAllDay: boolean)
+    public constructor(title: string, start: Date, end: Date, isAllDay: boolean, id: string)
     {
-        super(title, start, isAllDay);
+        super(title, start, isAllDay, id);
         this.end = end;
     }
 
@@ -85,12 +88,17 @@ export class Task extends Item
     }
 }
 
-export interface TaskJSON
+export interface TaskJSONWithoutID
 {
     title: string;
     startEpochMillis: string;
     endEpochMillis: string;
     isAllDay: string;
+}
+
+export interface TaskJSON extends TaskJSONWithoutID
+{
+    _id: string;
 }
 
 export class TaskSerializer implements JSONSerializer<Task, TaskJSON>
@@ -102,24 +110,27 @@ export class TaskSerializer implements JSONSerializer<Task, TaskJSON>
             title: obj.getTitle(),
             startEpochMillis: obj.getStart().getTime().toString(),
             endEpochMillis: obj.getEnd().getTime().toString(),
-            isAllDay: obj.getIsAllDay().toString()
+            isAllDay: obj.getIsAllDay().toString(),
+            _id: obj.getID()
         };
         return json;
     }
+
     fromJSON(taskJson: TaskJSON): Task
     {
         return new Task(taskJson.title, 
                         new Date(parseInt(taskJson.startEpochMillis)),
                         new Date(parseInt(taskJson.endEpochMillis)), 
-                        taskJson.isAllDay == "true");
+                        taskJson.isAllDay == "true",
+                        taskJson._id);
     }
 }
 
 export class Deadline extends Item
 {
-    public constructor(title: string, start: Date, isAllDay: boolean)
+    public constructor(title: string, start: Date, isAllDay: boolean, id: string)
     {
-        super(title, start, isAllDay);
+        super(title, start, isAllDay, id);
     }
 }
 
@@ -128,6 +139,7 @@ export interface DeadlineJSON
     title: string;
     startEpochMillis: string;
     isAllDay: string;
+    _id: string;
 }
 
 export class DeadlineSerializer implements JSONSerializer<Deadline, DeadlineJSON>
@@ -138,7 +150,8 @@ export class DeadlineSerializer implements JSONSerializer<Deadline, DeadlineJSON
         {
             title: obj.getTitle(),
             startEpochMillis: obj.getStart().getTime().toString(),
-            isAllDay: obj.getIsAllDay().toString()
+            isAllDay: obj.getIsAllDay().toString(),
+            _id: obj.getID()
         };
         return json;
     }
@@ -146,6 +159,7 @@ export class DeadlineSerializer implements JSONSerializer<Deadline, DeadlineJSON
     {
         return new Deadline(deadlineJson.title, 
                             new Date(parseInt(deadlineJson.startEpochMillis)),
-                            deadlineJson.isAllDay == "true");
+                            deadlineJson.isAllDay == "true",
+                            deadlineJson._id);
     }
 }

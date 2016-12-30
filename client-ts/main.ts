@@ -3,6 +3,7 @@ import * as index from "./index"
 import * as nav from "./nav"
 import * as calendar from "./calendar"
 import { Task } from "./item";
+import { TaskJSONWithoutID } from "./item";
 import { TaskJSON } from "./item";
 import { TaskSerializer } from "./item";
 import { Deadline } from "./item";
@@ -80,7 +81,9 @@ function loadTasksFromServer(onSuccess: (tasks: Task[]) => void,
 	    let taskSerializer: TaskSerializer = new TaskSerializer();
 	    for(let i of data)
 	    {
-	        tasks.push(taskSerializer.fromJSON(i));
+	    	let taskJson: TaskJSON = i as TaskJSON;
+	    	let task: Task = taskSerializer.fromJSON(taskJson);
+	        tasks.push(task);
 	    }
 	    console.log(tasks);
 	    onSuccess(tasks);
@@ -169,9 +172,9 @@ namespace IndexFunctions
 
 namespace AddTaskFunctions
 {
-	function postFormJSON(taskJson: TaskJSON)
+	function postFormJSON(json: TaskJSONWithoutID)
 	{
-		$.post("add-task", taskJson)
+		$.post("add-task", json)
 		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
 		{
 			console.log("Add Task success:");
@@ -192,7 +195,7 @@ namespace AddTaskFunctions
 
 		switchToView(View.Index);
 
-		let json: TaskJSON = AddTask.getFormAsJSON();
+		let json: TaskJSONWithoutID = AddTask.getFormAsJSON();
 		postFormJSON(json);
 	}
 }
