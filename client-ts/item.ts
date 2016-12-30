@@ -2,7 +2,7 @@ export class Item
 {
     private title: string;
     private start: Date;
-    private isAllDay: boolean;
+    private isAllDay: boolean; // when true, time component of start is disregarded.
     private id: string;
 
     public constructor(title: string, start: Date, isAllDay: boolean, id: string)
@@ -56,6 +56,10 @@ interface JSONSerializer<ObjectType, JSONType>
 
 export class Task extends Item
 {
+    // When isAllDay = true, end is used for the end day, EXCLUSIVE.
+    // Example 1: start = 2/2/2016 and end = 2/3/2016 refers to all day through 2/2/2016.
+    // Example 2: start = 2/2/2016 and end = 2/4/2016 refers to all day through 2/2/2016 AND 2/3/2016.
+    // When isAllDay = true, time component of end is disregarded.
     private end: Date;
 
     public constructor(title: string, start: Date, end: Date, isAllDay: boolean, id: string)

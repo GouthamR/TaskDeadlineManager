@@ -1,3 +1,5 @@
+var mongodb = require('mongodb');
+
 var config = function(app, db)
 {
 	app.get('/', function(request, response)
@@ -35,6 +37,24 @@ var config = function(app, db)
 		db.collection("tasks", function(collection_error, collection)
 		{
 			collection.insert(taskObject, {}, function(insert_error, result)
+			{
+				response.json(result);
+			});
+		});
+	});
+
+	// Argument: TaskJSON
+	app.post('/update-task', function(request, response)
+	{
+		var taskJSON = request.body;
+		taskJSON._id = new mongodb.ObjectId(taskJSON._id);
+		console.log("Task to update: ")
+		console.log(taskJSON);
+
+		db.collection("tasks", function(collection_error, collection)
+		{
+			collection.findOneAndReplace({"_id": taskJSON._id}, taskJSON, {}, 
+											function(replace_error, result)
 			{
 				response.json(result);
 			});

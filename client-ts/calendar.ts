@@ -7,6 +7,18 @@ let $calendarContainer: JQuery;
 const LOADING_CLASS_NAME: string = "calendar-loading";
 let loadFromServer: (onSuccess: (tasks: Task[], deadlines: Deadline[]) => any,
 						onFailure: (error: string) => any) => void;
+let updateTaskOnServer: (updatedTask: Task) => void;
+
+enum ItemType
+{
+	Task, Deadline
+}
+
+interface ItemEventObject extends FC.EventObject
+{
+	itemType: ItemType;
+	item: Item;
+}
 
 function clearAndShowLoading(): void
 {
@@ -30,27 +42,20 @@ function getEventsFromServer(start: moment.Moment, end: moment.Moment,
 {
 	function onSuccess (tasks: Task[], deadlines: Deadline[])
 	{
-		let events: FC.EventObject[] = [];
+		// STUB: (does not add deadlines to calendar)
+
+		let events: ItemEventObject[] = [];
 
 		for(let task of tasks)
 		{
-			let event: FC.EventObject = 
+			let event: ItemEventObject = 
 			{
 				title: task.getTitle(),
-				start: task.getStart(),
+				start: moment(task.getStart()),
 				allDay: task.getIsAllDay(),
-				end: task.getEnd()
-			};
-			events.push(event);
-		}
-
-		for(let deadline of deadlines)
-		{
-			let event: FC.EventObject = 
-			{
-				title: deadline.getTitle(),
-				start: deadline.getStart(),
-				allDay: deadline.getIsAllDay()
+				end: moment(task.getEnd()),
+				itemType: ItemType.Task,
+				item: task
 			};
 			events.push(event);
 		}
@@ -67,6 +72,62 @@ function getEventsFromServer(start: moment.Moment, end: moment.Moment,
 	loadFromServer(onSuccess, onFailure);
 }
 
+// While FC.EventObject has an allDay field, that field yields inaccurate values.
+function isAllDay(event: FC.EventObject)
+{
+	const NUM_CHARS_IN_ALL_DAY_FORMAT: number = 10;
+
+	let formatted: string = (event.start as moment.Moment).format();
+	let numCharsInFormat: number = formatted.length;
+	return (numCharsInFormat == NUM_CHARS_IN_ALL_DAY_FORMAT);
+}
+
+// This function uses the momentObj.format() to convert to date, since that
+// method always returns correct results, unlike momentObj.toDate().
+function convertMomentToDate(momentObj: moment.Moment): Date
+{
+	return moment(momentObj.format()).toDate();
+}
+
+// While event.start.toDate would seemingly work, it often returns invalid results.
+// But event.start.format() is always valid, so this mehod uses that to get the equivalent date.
+function convertStartToDate(event: FC.EventObject): Date
+{
+	return convertMomentToDate(event.start as moment.Moment);
+}
+
+// While event.end.toDate would seemingly work, it often returns invalid results.
+// But event.end.format() is always valid, so this mehod uses that to get the equivalent date.
+function convertEndToDate(event: FC.EventObject): Date
+{
+	return convertMomentToDate(event.end as moment.Moment);
+}
+
+function convertToTask(itemEvent: ItemEventObject): Task
+{
+	let task: Task = itemEvent.item as Task;
+
+	task.setStart(convertStartToDate(itemEvent as FC.EventObject));
+	task.setEnd(convertEndToDate(itemEvent as FC.EventObject));
+	task.setIsAllDay(isAllDay(itemEvent as FC.EventObject));
+
+	return task;
+}
+
+function onEventChanged(event: FC.EventObject, delta: moment.Duration, 
+						revertFunc: Function, jsEvent: Event, ui: any, 
+						view: FC.ViewObject): void
+{
+	let itemEventObj = event as ItemEventObject;
+	console.log("Event changed: ");
+	console.log(itemEventObj);
+	if(itemEventObj.itemType == ItemType.Task)
+	{
+		let updatedTask: Task = convertToTask(itemEventObj);
+		updateTaskOnServer(updatedTask);
+	}
+}
+
 function initFullCalendar(): void
 {
 	$calendarContainer.find(".calendar-fullcalendar").fullCalendar(
@@ -77,10 +138,15 @@ function initFullCalendar(): void
 			center: 'title',
 			right: 'month,basicWeek,agendaDay'
 		},
-		defaultDate: '2016-09-12',
 		navLinks: true,
 		editable: true,
-		events: getEventsFromServer
+		timezone: 'local', // to avoid ambiguous timezone
+		events: getEventsFromServer,
+		eventDrop: onEventChanged,
+		eventResize: onEventChanged,
+		forceEventDuration: true, // to set a default end date when moving to/from all-day. default is based on defaultTimedEventDuration and defaultAllDayEventDuration.
+		defaultTimedEventDuration: '01:00:00',
+		defaultAllDayEventDuration: {days: 1}
 	});
 
 	removeLoading();
@@ -95,10 +161,12 @@ export function reloadCalendar(): void
 
 export function main($targetContainer: JQuery, 
 						loadFromServerFn: (onSuccess: (tasks: Task[], deadlines: Deadline[]) => any,
-											onFailure: (error: string) => any) => void)
+											onFailure: (error: string) => any) => void,
+						updateTaskOnServerFn: (updatedTask: Task) => void)
 {
 	$calendarContainer = $targetContainer.find(".calendar");
 	loadFromServer = loadFromServerFn;
+	updateTaskOnServer = updateTaskOnServerFn;
 
 	clearAndShowLoading();
 	initFullCalendar();

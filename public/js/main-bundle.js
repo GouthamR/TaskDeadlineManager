@@ -37,6 +37,12 @@ exports.main = main;
 var $calendarContainer;
 var LOADING_CLASS_NAME = "calendar-loading";
 var loadFromServer;
+var updateTaskOnServer;
+var ItemType;
+(function (ItemType) {
+    ItemType[ItemType["Task"] = 0] = "Task";
+    ItemType[ItemType["Deadline"] = 1] = "Deadline";
+})(ItemType || (ItemType = {}));
 function clearAndShowLoading() {
     // STUB (does not clear):
     var $fullCalendarDiv = $calendarContainer.find(".calendar-fullcalendar");
@@ -49,25 +55,19 @@ function removeLoading() {
 }
 function getEventsFromServer(start, end, timezone, callback) {
     function onSuccess(tasks, deadlines) {
+        // STUB: (does not add deadlines to calendar)
         var events = [];
         for (var _i = 0, tasks_1 = tasks; _i < tasks_1.length; _i++) {
             var task = tasks_1[_i];
             var event_1 = {
                 title: task.getTitle(),
-                start: task.getStart(),
+                start: moment(task.getStart()),
                 allDay: task.getIsAllDay(),
-                end: task.getEnd()
+                end: moment(task.getEnd()),
+                itemType: ItemType.Task,
+                item: task
             };
             events.push(event_1);
-        }
-        for (var _a = 0, deadlines_1 = deadlines; _a < deadlines_1.length; _a++) {
-            var deadline = deadlines_1[_a];
-            var event_2 = {
-                title: deadline.getTitle(),
-                start: deadline.getStart(),
-                allDay: deadline.getIsAllDay()
-            };
-            events.push(event_2);
         }
         callback(events);
     }
@@ -77,6 +77,44 @@ function getEventsFromServer(start, end, timezone, callback) {
     }
     loadFromServer(onSuccess, onFailure);
 }
+// While FC.EventObject has an allDay field, that field yields inaccurate values.
+function isAllDay(event) {
+    var NUM_CHARS_IN_ALL_DAY_FORMAT = 10;
+    var formatted = event.start.format();
+    var numCharsInFormat = formatted.length;
+    return (numCharsInFormat == NUM_CHARS_IN_ALL_DAY_FORMAT);
+}
+// This function uses the momentObj.format() to convert to date, since that
+// method always returns correct results, unlike momentObj.toDate().
+function convertMomentToDate(momentObj) {
+    return moment(momentObj.format()).toDate();
+}
+// While event.start.toDate would seemingly work, it often returns invalid results.
+// But event.start.format() is always valid, so this mehod uses that to get the equivalent date.
+function convertStartToDate(event) {
+    return convertMomentToDate(event.start);
+}
+// While event.end.toDate would seemingly work, it often returns invalid results.
+// But event.end.format() is always valid, so this mehod uses that to get the equivalent date.
+function convertEndToDate(event) {
+    return convertMomentToDate(event.end);
+}
+function convertToTask(itemEvent) {
+    var task = itemEvent.item;
+    task.setStart(convertStartToDate(itemEvent));
+    task.setEnd(convertEndToDate(itemEvent));
+    task.setIsAllDay(isAllDay(itemEvent));
+    return task;
+}
+function onEventChanged(event, delta, revertFunc, jsEvent, ui, view) {
+    var itemEventObj = event;
+    console.log("Event changed: ");
+    console.log(itemEventObj);
+    if (itemEventObj.itemType == ItemType.Task) {
+        var updatedTask = convertToTask(itemEventObj);
+        updateTaskOnServer(updatedTask);
+    }
+}
 function initFullCalendar() {
     $calendarContainer.find(".calendar-fullcalendar").fullCalendar({
         header: {
@@ -84,10 +122,15 @@ function initFullCalendar() {
             center: 'title',
             right: 'month,basicWeek,agendaDay'
         },
-        defaultDate: '2016-09-12',
         navLinks: true,
         editable: true,
-        events: getEventsFromServer
+        timezone: 'local',
+        events: getEventsFromServer,
+        eventDrop: onEventChanged,
+        eventResize: onEventChanged,
+        forceEventDuration: true,
+        defaultTimedEventDuration: '01:00:00',
+        defaultAllDayEventDuration: { days: 1 }
     });
     removeLoading();
 }
@@ -97,9 +140,10 @@ function reloadCalendar() {
     $fullCalendar.fullCalendar("refetchEvents");
 }
 exports.reloadCalendar = reloadCalendar;
-function main($targetContainer, loadFromServerFn) {
+function main($targetContainer, loadFromServerFn, updateTaskOnServerFn) {
     $calendarContainer = $targetContainer.find(".calendar");
     loadFromServer = loadFromServerFn;
+    updateTaskOnServer = updateTaskOnServerFn;
     clearAndShowLoading();
     initFullCalendar();
 }
@@ -478,12 +522,28 @@ var CalendarFunctions;
         loadTasksAndDeadlinesFromServer(onSuccess, onFailure);
     }
     CalendarFunctions.loadFromServer = loadFromServer;
+    // Replaces task that has the id of updatedTask with updatedTask.
+    function updateTaskOnServer(updatedTask) {
+        var updatedJSON = new item_1.TaskSerializer().toJSON(updatedTask);
+        $.post("update-task", updatedJSON)
+            .done(function (data, textStatus, jqXHR) {
+            console.log("Update Task success:");
+            console.log(data);
+            calendar.reloadCalendar();
+        })
+            .fail(function (jqXHR, textStatus, error) {
+            var errorDetails = textStatus + ", " + error;
+            alert("ERROR: Update Task failed.\nDetails: " + errorDetails);
+            console.log(errorDetails);
+        });
+    }
+    CalendarFunctions.updateTaskOnServer = updateTaskOnServer;
 })(CalendarFunctions || (CalendarFunctions = {}));
 function main() {
     AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
     index.main($(".main-index"), IndexFunctions.onIndexAddTaskClicked);
     nav.main($(".main-nav"), NavFunctions.onCalendarClicked);
-    calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer);
+    calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer, CalendarFunctions.updateTaskOnServer);
     IndexFunctions.loadFromServer();
     switchToView(View.Index);
 }

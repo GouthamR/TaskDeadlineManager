@@ -216,6 +216,26 @@ namespace CalendarFunctions
 	{
 		loadTasksAndDeadlinesFromServer(onSuccess, onFailure);
 	}
+
+	// Replaces task that has the id of updatedTask with updatedTask.
+	export function updateTaskOnServer(updatedTask: Task): void
+	{
+		let updatedJSON: TaskJSON = new TaskSerializer().toJSON(updatedTask);
+		
+		$.post("update-task", updatedJSON)
+		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
+		{
+			console.log("Update Task success:");
+			console.log(data);
+			calendar.reloadCalendar();
+		})
+		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
+		{
+			let errorDetails: string = textStatus + ", " + error;
+			alert("ERROR: Update Task failed.\nDetails: " + errorDetails);
+			console.log(errorDetails);
+		});
+	}
 }
 
 function main(): void
@@ -223,7 +243,7 @@ function main(): void
 	AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
 	index.main($(".main-index"), IndexFunctions.onIndexAddTaskClicked);
 	nav.main($(".main-nav"), NavFunctions.onCalendarClicked);
-	calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer);
+	calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer, CalendarFunctions.updateTaskOnServer);
 
 	IndexFunctions.loadFromServer();
 
