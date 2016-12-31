@@ -43,11 +43,10 @@ function setDefaultDateTimeInputValues()
         $(dateInput).val(moment().format("YYYY-MM-DD"));
     }
 
-    let timeInputs: HTMLElement[] = $addTaskContainer.find(".add-task-form input[type='time']").toArray();
-    for(let timeInput of timeInputs)
-    {
-        $(timeInput).val(moment().format("HH:mm"));
-    }
+    let $startTimeInput: JQuery = $addTaskContainer.find(".add-task-form-start-time-input");
+    let $endTimeInput: JQuery = $addTaskContainer.find(".add-task-form-end-time-input");
+    $startTimeInput.val(moment().startOf("hour").add(1, 'hours').format("HH:mm"));
+    $endTimeInput.val(moment().startOf("hour").add(2, 'hours').format("HH:mm"));
 }
 
 export function main($targetContainer: JQuery, onAddTaskSubmit: (event: JQueryEventObject) => void): void

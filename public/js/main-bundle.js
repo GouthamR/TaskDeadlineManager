@@ -30,11 +30,10 @@ function setDefaultDateTimeInputValues() {
         var dateInput = dateInputs_1[_i];
         $(dateInput).val(moment().format("YYYY-MM-DD"));
     }
-    var timeInputs = $addTaskContainer.find(".add-task-form input[type='time']").toArray();
-    for (var _a = 0, timeInputs_1 = timeInputs; _a < timeInputs_1.length; _a++) {
-        var timeInput = timeInputs_1[_a];
-        $(timeInput).val(moment().format("HH:mm"));
-    }
+    var $startTimeInput = $addTaskContainer.find(".add-task-form-start-time-input");
+    var $endTimeInput = $addTaskContainer.find(".add-task-form-end-time-input");
+    $startTimeInput.val(moment().startOf("hour").add(1, 'hours').format("HH:mm"));
+    $endTimeInput.val(moment().startOf("hour").add(2, 'hours').format("HH:mm"));
 }
 function main($targetContainer, onAddTaskSubmit) {
     "use strict";
