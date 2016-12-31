@@ -16,7 +16,7 @@
   },
   "homepage": "https://github.com/GouthamR/TaskDeadlineManager#readme",
   "dependencies": {
-    "@types/fullcalendar": "^2.7.36",
+    "@types/jquery": "^2.0.34",
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
     "express-handlebars": "^3.0.0",

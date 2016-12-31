@@ -1,3 +1,5 @@
+/// <reference path="./moment_modified.d.ts" />
+
 import { Task } from "./item";
 import { TaskJSONWithoutID } from "./item";
 import { TaskSerializer } from "./item";

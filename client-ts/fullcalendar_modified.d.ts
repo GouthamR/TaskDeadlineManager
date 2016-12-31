@@ -1,12 +1,11 @@
 ﻿// Type definitions for FullCalendar 2.7.2
+// MODIFIED BY GOUTHAMR to better match current API.
 // Project: http://fullcalendar.io/
 // Definitions by: Neil Stalker <https://github.com/nestalk>, Marcelo Camargo <https://github.com/hasellcamargo>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
+/// <reference path="./moment_modified.d.ts" />
 /// <reference types="jquery"/>
-/// <reference types="moment" />
-
-import * as moment from 'moment';
 
 export as namespace FC;
 

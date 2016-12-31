@@ -1,3 +1,6 @@
+/// <reference path="./fullcalendar_modified.d.ts" />
+/// <reference path="./moment_modified.d.ts" />
+
 import { Item } from "./item";
 import { Task } from "./item";
 import { Deadline } from "./item";
