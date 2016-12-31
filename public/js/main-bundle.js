@@ -24,7 +24,7 @@ function getFormAsJSON() {
     return toTaskJSONWithoutID(formArray);
 }
 exports.getFormAsJSON = getFormAsJSON;
-function setDateTimeInputValuesToNow() {
+function setDefaultDateTimeInputValues() {
     var dateInputs = $addTaskContainer.find(".add-task-form input[type='date']").toArray();
     for (var _i = 0, dateInputs_1 = dateInputs; _i < dateInputs_1.length; _i++) {
         var dateInput = dateInputs_1[_i];
@@ -33,14 +33,14 @@ function setDateTimeInputValuesToNow() {
     var timeInputs = $addTaskContainer.find(".add-task-form input[type='time']").toArray();
     for (var _a = 0, timeInputs_1 = timeInputs; _a < timeInputs_1.length; _a++) {
         var timeInput = timeInputs_1[_a];
-        $(timeInput).val(moment().format("HH:mm:ss"));
+        $(timeInput).val(moment().format("HH:mm"));
     }
 }
 function main($targetContainer, onAddTaskSubmit) {
     "use strict";
     $addTaskContainer = $targetContainer.find(".add-task");
     $addTaskContainer.find(".add-task-form").on("submit", onAddTaskSubmit);
-    setDateTimeInputValuesToNow();
+    setDefaultDateTimeInputValues();
 }
 exports.main = main;
 ;
