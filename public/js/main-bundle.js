@@ -188,14 +188,16 @@ var ItemEditor = (function () {
 }());
 var View = (function () {
     function View($targetContainer, indexModel, mainModel) {
+        var _this = this;
         this.$indexContainer = $targetContainer.find(".index");
+        this.indexModel = indexModel;
+        this.mainModel = mainModel;
         var $addTaskButton = this.$indexContainer.find(".index-task-container > a");
-        $addTaskButton.click(function (event) { return mainModel.switchToView(main.View.AddTask); });
-        this.removeTaskFromServer = indexModel.removeTaskFromServer.bind(indexModel);
+        $addTaskButton.click(function (event) { return _this.mainModel.switchToView(main.View.AddTask); });
     }
     View.prototype.markItemDone = function (item, li) {
         // STUB (does not remove deadlines correctly):
-        this.removeTaskFromServer(item);
+        this.indexModel.removeTaskFromServer(item);
         console.log(item.getTitle() + " removed");
         li.slideUp();
     };
@@ -220,11 +222,16 @@ var View = (function () {
         var li = this.createLi(item);
         this.$indexContainer.find(container_name).find("ul").append(li);
     };
-    View.prototype.clearAndShowLoading = function (container_name) {
+    View.prototype.clearAndShowLoadingOnContainer = function (container_name) {
         var $ul = this.$indexContainer.find(container_name).find("ul");
         $ul.empty();
         var $loading = $("<p>", { class: "index-loading" }).html("Loading...");
         $ul.append($loading);
+    };
+    View.prototype.clearAndShowLoading = function () {
+        console.log("clearViewAndShowLoading");
+        this.clearAndShowLoadingOnContainer(".index-task-container");
+        this.clearAndShowLoadingOnContainer(".index-deadline-container");
     };
     View.prototype.removeLoading = function (container_name) {
         this.$indexContainer.find(container_name).find(".index-loading").remove();
@@ -238,32 +245,30 @@ var View = (function () {
         $indexErrorContainer.append($("<p>").html(errorMessage));
         $indexErrorContainer.removeClass("hidden");
     };
+    View.prototype.loadView = function (tasks, deadlines) {
+        this.clearAndShowLoading();
+        for (var i = 0; i < tasks.length; i++) {
+            this.appendLi(".index-task-container", tasks[i]);
+        }
+        for (var i = 0; i < deadlines.length; i++) {
+            this.appendLi(".index-deadline-container", deadlines[i]);
+        }
+        this.removeLoading(".index-task-container");
+        this.removeLoading(".index-deadline-container");
+    };
+    View.prototype.reloadFromServer = function () {
+        var _this = this;
+        this.clearAndShowLoading();
+        this.mainModel.loadTasksAndDeadlinesFromServer(function (t, d) { return _this.loadView(t, d); }, function (e) { return _this.showLoadError(e); });
+    };
     return View;
 }());
-// module-scope variables:
+// Module-scope variables:
 var view;
-function loadView(tasks, deadlines) {
-    clearViewAndShowLoading();
-    for (var i = 0; i < tasks.length; i++) {
-        view.appendLi(".index-task-container", tasks[i]);
-    }
-    for (var i = 0; i < deadlines.length; i++) {
-        view.appendLi(".index-deadline-container", deadlines[i]);
-    }
-    view.removeLoading(".index-task-container");
-    view.removeLoading(".index-deadline-container");
+function reloadFromServer() {
+    view.reloadFromServer();
 }
-exports.loadView = loadView;
-function showLoadError(errorMessage) {
-    view.showLoadError(errorMessage);
-}
-exports.showLoadError = showLoadError;
-function clearViewAndShowLoading() {
-    console.log("clearViewAndShowLoading");
-    view.clearAndShowLoading(".index-task-container");
-    view.clearAndShowLoading(".index-deadline-container");
-}
-exports.clearViewAndShowLoading = clearViewAndShowLoading;
+exports.reloadFromServer = reloadFromServer;
 function init($targetContainer, indexModel, mainModel) {
     "use strict";
     view = new View($targetContainer, indexModel, mainModel);
@@ -427,7 +432,7 @@ var MainModel = (function () {
             calendar.reloadCalendar();
         }
         else if (newView == View.Index) {
-            indexModel.loadFromServer();
+            index.reloadFromServer();
         }
     };
     MainModel.prototype.loadItemDataFromServer = function (route, onSuccess, onFailure) {
@@ -500,13 +505,8 @@ var MainModel = (function () {
 }());
 exports.MainModel = MainModel;
 var IndexModel = (function () {
-    function IndexModel(mainModel) {
-        this.mainModel = mainModel;
+    function IndexModel() {
     }
-    IndexModel.prototype.loadFromServer = function () {
-        index.clearViewAndShowLoading();
-        this.mainModel.loadTasksAndDeadlinesFromServer(index.loadView, index.showLoadError);
-    };
     IndexModel.prototype.removeTaskFromServer = function (taskToRemove) {
         var json = new item_1.TaskSerializer().toJSON(taskToRemove);
         $.post("delete-task", json)
@@ -530,7 +530,7 @@ var AddTaskFunctions;
             .done(function (data, textStatus, jqXHR) {
             console.log("Add Task success:");
             console.log(data);
-            indexModel.loadFromServer();
+            index.reloadFromServer();
         })
             .fail(function (jqXHR, textStatus, error) {
             var errorDetails = textStatus + ", " + error;
@@ -587,12 +587,12 @@ var mainModel;
 var indexModel;
 function main() {
     mainModel = new MainModel();
-    indexModel = new IndexModel(mainModel);
+    indexModel = new IndexModel();
     AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
     index.init($(".main-index"), indexModel, mainModel);
     nav.main($(".main-nav"), NavFunctions.onCalendarClicked, NavFunctions.onSchedulerClicked);
     calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer, CalendarFunctions.updateTaskOnServer);
-    indexModel.loadFromServer();
+    index.reloadFromServer();
     mainModel.switchToView(View.Index);
 }
 $(document).ready(main);

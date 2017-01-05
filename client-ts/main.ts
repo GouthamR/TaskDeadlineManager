@@ -59,7 +59,7 @@ export class MainModel
 		}
 		else if(newView == View.Index)
 		{
-			indexModel.loadFromServer();
+			index.reloadFromServer();
 		}
 	}
 
@@ -165,20 +165,6 @@ export class MainModel
 
 export class IndexModel
 {
-	private mainModel: MainModel;
-
-	public constructor(mainModel: MainModel)
-	{
-		this.mainModel = mainModel;
-	}
-
-	public loadFromServer(): void
-	{
-		index.clearViewAndShowLoading();
-
-		this.mainModel.loadTasksAndDeadlinesFromServer(index.loadView, index.showLoadError);
-	}
-
 	public removeTaskFromServer(taskToRemove: Task): void
 	{
 		let json: TaskJSON = new TaskSerializer().toJSON(taskToRemove);
@@ -207,7 +193,7 @@ namespace AddTaskFunctions
 		{
 			console.log("Add Task success:");
 			console.log(data);
-			indexModel.loadFromServer();
+			index.reloadFromServer();
 		})
 		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
 		{
@@ -279,14 +265,14 @@ let indexModel: IndexModel;
 function main(): void
 {
 	mainModel = new MainModel();
-	indexModel = new IndexModel(mainModel);
+	indexModel = new IndexModel();
 
 	AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
 	index.init($(".main-index"), indexModel, mainModel);
 	nav.main($(".main-nav"), NavFunctions.onCalendarClicked, NavFunctions.onSchedulerClicked);
 	calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer, CalendarFunctions.updateTaskOnServer);
 
-	indexModel.loadFromServer();
+	index.reloadFromServer();
 
 	mainModel.switchToView(View.Index);
 }
