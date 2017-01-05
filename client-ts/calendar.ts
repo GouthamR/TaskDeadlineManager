@@ -4,13 +4,12 @@
 import { Item } from "./item";
 import { Task } from "./item";
 import { Deadline } from "./item";
+import * as main from "./main"
 
 // Module-level variables:
-let $calendarContainer: JQuery;
 const LOADING_CLASS_NAME: string = "calendar-loading";
-let loadFromServer: (onSuccess: (tasks: Task[], deadlines: Deadline[]) => any,
-						onFailure: (error: string) => any) => void;
-let updateTaskOnServer: (updatedTask: Task) => void;
+let $calendarContainer: JQuery;
+let mainModel: main.MainModel;
 
 enum ItemType
 {
@@ -72,7 +71,7 @@ function getEventsFromServer(start: moment.Moment, end: moment.Moment,
 		callback([]);
 	}
 
-	loadFromServer(onSuccess, onFailure);
+	mainModel.loadTasksAndDeadlinesFromServer(onSuccess, onFailure);
 }
 
 // While FC.EventObject has an allDay field, that field yields inaccurate values.
@@ -127,7 +126,7 @@ function onEventChanged(event: FC.EventObject, delta: moment.Duration,
 	if(itemEventObj.itemType == ItemType.Task)
 	{
 		let updatedTask: Task = convertToTask(itemEventObj);
-		updateTaskOnServer(updatedTask);
+		mainModel.updateTaskOnServer(updatedTask);
 	}
 }
 
@@ -162,14 +161,10 @@ export function reloadCalendar(): void
 	$fullCalendar.fullCalendar("refetchEvents");
 }
 
-export function main($targetContainer: JQuery, 
-						loadFromServerFn: (onSuccess: (tasks: Task[], deadlines: Deadline[]) => any,
-											onFailure: (error: string) => any) => void,
-						updateTaskOnServerFn: (updatedTask: Task) => void)
+export function init($targetContainer: JQuery, mainModelParam: main.MainModel)
 {
 	$calendarContainer = $targetContainer.find(".calendar");
-	loadFromServer = loadFromServerFn;
-	updateTaskOnServer = updateTaskOnServerFn;
+	mainModel = mainModelParam;
 
 	clearAndShowLoading();
 	initFullCalendar();

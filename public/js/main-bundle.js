@@ -59,10 +59,9 @@ exports.init = init;
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 // Module-level variables:
-var $calendarContainer;
 var LOADING_CLASS_NAME = "calendar-loading";
-var loadFromServer;
-var updateTaskOnServer;
+var $calendarContainer;
+var mainModel;
 var ItemType;
 (function (ItemType) {
     ItemType[ItemType["Task"] = 0] = "Task";
@@ -100,7 +99,7 @@ function getEventsFromServer(start, end, timezone, callback) {
         alert("Failed to load from server. Details: " + error);
         callback([]);
     }
-    loadFromServer(onSuccess, onFailure);
+    mainModel.loadTasksAndDeadlinesFromServer(onSuccess, onFailure);
 }
 // While FC.EventObject has an allDay field, that field yields inaccurate values.
 function isAllDay(event) {
@@ -137,7 +136,7 @@ function onEventChanged(event, delta, revertFunc, jsEvent, ui, view) {
     console.log(itemEventObj);
     if (itemEventObj.itemType == ItemType.Task) {
         var updatedTask = convertToTask(itemEventObj);
-        updateTaskOnServer(updatedTask);
+        mainModel.updateTaskOnServer(updatedTask);
     }
 }
 function initFullCalendar() {
@@ -165,14 +164,13 @@ function reloadCalendar() {
     $fullCalendar.fullCalendar("refetchEvents");
 }
 exports.reloadCalendar = reloadCalendar;
-function main($targetContainer, loadFromServerFn, updateTaskOnServerFn) {
+function init($targetContainer, mainModelParam) {
     $calendarContainer = $targetContainer.find(".calendar");
-    loadFromServer = loadFromServerFn;
-    updateTaskOnServer = updateTaskOnServerFn;
+    mainModel = mainModelParam;
     clearAndShowLoading();
     initFullCalendar();
 }
-exports.main = main;
+exports.init = init;
 
 },{}],3:[function(require,module,exports){
 "use strict";
@@ -512,6 +510,20 @@ var MainModel = (function () {
         this.loadTasksFromServer(onTasksLoaded, onTasksFailure);
         this.loadDeadlinesFromServer(onDeadlinesLoaded, onDeadlinesFailure);
     };
+    MainModel.prototype.updateTaskOnServer = function (updatedTask) {
+        var updatedJSON = new item_1.TaskSerializer().toJSON(updatedTask);
+        $.post("update-task", updatedJSON)
+            .done(function (data, textStatus, jqXHR) {
+            console.log("Update Task success:");
+            console.log(data);
+            calendar.reloadCalendar();
+        })
+            .fail(function (jqXHR, textStatus, error) {
+            var errorDetails = textStatus + ", " + error;
+            alert("ERROR: Update Task failed.\nDetails: " + errorDetails);
+            console.log(errorDetails);
+        });
+    };
     return MainModel;
 }());
 exports.MainModel = MainModel;
@@ -553,29 +565,6 @@ var AddTaskModel = (function () {
     return AddTaskModel;
 }());
 exports.AddTaskModel = AddTaskModel;
-var CalendarFunctions;
-(function (CalendarFunctions) {
-    function loadFromServer(onSuccess, onFailure) {
-        mainModel.loadTasksAndDeadlinesFromServer(onSuccess, onFailure);
-    }
-    CalendarFunctions.loadFromServer = loadFromServer;
-    // Replaces task that has the id of updatedTask with updatedTask.
-    function updateTaskOnServer(updatedTask) {
-        var updatedJSON = new item_1.TaskSerializer().toJSON(updatedTask);
-        $.post("update-task", updatedJSON)
-            .done(function (data, textStatus, jqXHR) {
-            console.log("Update Task success:");
-            console.log(data);
-            calendar.reloadCalendar();
-        })
-            .fail(function (jqXHR, textStatus, error) {
-            var errorDetails = textStatus + ", " + error;
-            alert("ERROR: Update Task failed.\nDetails: " + errorDetails);
-            console.log(errorDetails);
-        });
-    }
-    CalendarFunctions.updateTaskOnServer = updateTaskOnServer;
-})(CalendarFunctions || (CalendarFunctions = {}));
 // Module-scope variables:
 var mainModel;
 var indexModel;
@@ -587,7 +576,7 @@ function main() {
     AddTask.init($(".main-add-task"), addTaskModel, mainModel);
     index.init($(".main-index"), indexModel, mainModel);
     nav.init($(".main-nav"), mainModel);
-    calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer, CalendarFunctions.updateTaskOnServer);
+    calendar.init($(".main-calendar"), mainModel);
     index.reloadFromServer();
     mainModel.switchToView(View.Index);
 }

@@ -161,6 +161,25 @@ export class MainModel
 		this.loadTasksFromServer(onTasksLoaded, onTasksFailure);
 		this.loadDeadlinesFromServer(onDeadlinesLoaded, onDeadlinesFailure);
 	}
+
+	public updateTaskOnServer(updatedTask: Task): void
+	{
+		let updatedJSON: TaskJSON = new TaskSerializer().toJSON(updatedTask);
+		
+		$.post("update-task", updatedJSON)
+		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
+		{
+			console.log("Update Task success:");
+			console.log(data);
+			calendar.reloadCalendar();
+		})
+		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
+		{
+			let errorDetails: string = textStatus + ", " + error;
+			alert("ERROR: Update Task failed.\nDetails: " + errorDetails);
+			console.log(errorDetails);
+		});
+	}
 }
 
 export class IndexModel
@@ -204,35 +223,6 @@ export class AddTaskModel
 	}
 }
 
-namespace CalendarFunctions
-{
-	export function loadFromServer(onSuccess: (tasks: Task[], deadlines: Deadline[]) => any,
-									onFailure: (error: string) => any): void
-	{
-		mainModel.loadTasksAndDeadlinesFromServer(onSuccess, onFailure);
-	}
-
-	// Replaces task that has the id of updatedTask with updatedTask.
-	export function updateTaskOnServer(updatedTask: Task): void
-	{
-		let updatedJSON: TaskJSON = new TaskSerializer().toJSON(updatedTask);
-		
-		$.post("update-task", updatedJSON)
-		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
-		{
-			console.log("Update Task success:");
-			console.log(data);
-			calendar.reloadCalendar();
-		})
-		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
-		{
-			let errorDetails: string = textStatus + ", " + error;
-			alert("ERROR: Update Task failed.\nDetails: " + errorDetails);
-			console.log(errorDetails);
-		});
-	}
-}
-
 // Module-scope variables:
 let mainModel: MainModel;
 let indexModel: IndexModel;
@@ -247,7 +237,7 @@ function main(): void
 	AddTask.init($(".main-add-task"), addTaskModel, mainModel);
 	index.init($(".main-index"), indexModel, mainModel);
 	nav.init($(".main-nav"), mainModel);
-	calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer, CalendarFunctions.updateTaskOnServer);
+	calendar.init($(".main-calendar"), mainModel);
 
 	index.reloadFromServer();
 
