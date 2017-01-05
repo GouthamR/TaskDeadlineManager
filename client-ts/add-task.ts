@@ -3,9 +3,12 @@
 import { Task } from "./item";
 import { TaskJSONWithoutID } from "./item";
 import { TaskSerializer } from "./item";
+import * as main from "./main"
 
 // Module-scope variables:
 let $addTaskContainer: JQuery;
+let addTaskModel: main.AddTaskModel;
+let mainModel: main.MainModel;
 
 function toDate(dateWithoutTime: string, time: string): Date
 {
@@ -29,7 +32,7 @@ function toTaskJSONWithoutID(formArray: Object): TaskJSONWithoutID
     return json;
 }
 
-export function getFormAsJSON(): TaskJSONWithoutID
+function getFormAsJSON(): TaskJSONWithoutID
 {
     let formArray = $addTaskContainer.find(".add-task-form").serializeArray();
     return toTaskJSONWithoutID(formArray);
@@ -49,13 +52,28 @@ function setDefaultDateTimeInputValues()
     $endTimeInput.val(moment().startOf("hour").add(2, 'hours').format("HH:mm"));
 }
 
-export function main($targetContainer: JQuery, onAddTaskSubmit: (event: JQueryEventObject) => void): void
+function onAddTaskSubmit(event: JQueryEventObject)
+{
+    event.preventDefault();
+
+    mainModel.switchToView(main.View.Index);
+
+    let json: TaskJSONWithoutID = getFormAsJSON();
+    addTaskModel.addTask(json);
+}
+
+export function init($targetContainer: JQuery, addTaskModelParam: main.AddTaskModel,
+                        mainModelParam: main.MainModel): void
 {
     "use strict";
 
     $addTaskContainer = $targetContainer.find(".add-task");
+    addTaskModel = addTaskModelParam;
+    mainModel = mainModelParam;
 
-    $addTaskContainer.find(".add-task-form").on("submit", onAddTaskSubmit);
+    let addTaskForm: JQuery = $addTaskContainer.find(".add-task-form");
+    addTaskForm.on("submit", 
+                    (event: JQueryEventObject) => onAddTaskSubmit(event));
 
     setDefaultDateTimeInputValues();
 }

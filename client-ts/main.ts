@@ -184,9 +184,9 @@ export class IndexModel
 	}
 }
 
-namespace AddTaskFunctions
+export class AddTaskModel
 {
-	function postFormJSON(json: TaskJSONWithoutID)
+	public addTask(json: TaskJSONWithoutID)
 	{
 		$.post("add-task", json)
 		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
@@ -201,16 +201,6 @@ namespace AddTaskFunctions
 			alert("ERROR: Add Task failed.\nDetails: " + errorDetails);
 			console.log(errorDetails);
 		});
-	}
-
-	export function onAddTaskSubmit(event: JQueryEventObject)
-	{
-		event.preventDefault();
-
-		mainModel.switchToView(View.Index);
-
-		let json: TaskJSONWithoutID = AddTask.getFormAsJSON();
-		postFormJSON(json);
 	}
 }
 
@@ -261,13 +251,15 @@ namespace CalendarFunctions
 // Module-scope variables:
 let mainModel: MainModel;
 let indexModel: IndexModel;
+let addTaskModel: AddTaskModel;
 
 function main(): void
 {
 	mainModel = new MainModel();
 	indexModel = new IndexModel();
+	addTaskModel = new AddTaskModel();
 
-	AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
+	AddTask.init($(".main-add-task"), addTaskModel, mainModel);
 	index.init($(".main-index"), indexModel, mainModel);
 	nav.main($(".main-nav"), NavFunctions.onCalendarClicked, NavFunctions.onSchedulerClicked);
 	calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer, CalendarFunctions.updateTaskOnServer);

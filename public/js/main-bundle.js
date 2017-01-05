@@ -1,8 +1,11 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
+var main = require("./main");
 // Module-scope variables:
 var $addTaskContainer;
+var addTaskModel;
+var mainModel;
 function toDate(dateWithoutTime, time) {
     var fullDate = dateWithoutTime + time;
     return moment(fullDate, "YYYY-MM-DD HH:mm").toDate();
@@ -23,7 +26,6 @@ function getFormAsJSON() {
     var formArray = $addTaskContainer.find(".add-task-form").serializeArray();
     return toTaskJSONWithoutID(formArray);
 }
-exports.getFormAsJSON = getFormAsJSON;
 function setDefaultDateTimeInputValues() {
     var dateInputs = $addTaskContainer.find(".add-task-form input[type='date']").toArray();
     for (var _i = 0, dateInputs_1 = dateInputs; _i < dateInputs_1.length; _i++) {
@@ -35,15 +37,24 @@ function setDefaultDateTimeInputValues() {
     $startTimeInput.val(moment().startOf("hour").add(1, 'hours').format("HH:mm"));
     $endTimeInput.val(moment().startOf("hour").add(2, 'hours').format("HH:mm"));
 }
-function main($targetContainer, onAddTaskSubmit) {
+function onAddTaskSubmit(event) {
+    event.preventDefault();
+    mainModel.switchToView(main.View.Index);
+    var json = getFormAsJSON();
+    addTaskModel.addTask(json);
+}
+function init($targetContainer, addTaskModelParam, mainModelParam) {
     "use strict";
     $addTaskContainer = $targetContainer.find(".add-task");
-    $addTaskContainer.find(".add-task-form").on("submit", onAddTaskSubmit);
+    addTaskModel = addTaskModelParam;
+    mainModel = mainModelParam;
+    var addTaskForm = $addTaskContainer.find(".add-task-form");
+    addTaskForm.on("submit", function (event) { return onAddTaskSubmit(event); });
     setDefaultDateTimeInputValues();
 }
-exports.main = main;
+exports.init = init;
 
-},{}],2:[function(require,module,exports){
+},{"./main":5}],2:[function(require,module,exports){
 /// <reference path="./fullcalendar_modified.d.ts" />
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
@@ -523,9 +534,10 @@ var IndexModel = (function () {
     return IndexModel;
 }());
 exports.IndexModel = IndexModel;
-var AddTaskFunctions;
-(function (AddTaskFunctions) {
-    function postFormJSON(json) {
+var AddTaskModel = (function () {
+    function AddTaskModel() {
+    }
+    AddTaskModel.prototype.addTask = function (json) {
         $.post("add-task", json)
             .done(function (data, textStatus, jqXHR) {
             console.log("Add Task success:");
@@ -537,15 +549,10 @@ var AddTaskFunctions;
             alert("ERROR: Add Task failed.\nDetails: " + errorDetails);
             console.log(errorDetails);
         });
-    }
-    function onAddTaskSubmit(event) {
-        event.preventDefault();
-        mainModel.switchToView(View.Index);
-        var json = AddTask.getFormAsJSON();
-        postFormJSON(json);
-    }
-    AddTaskFunctions.onAddTaskSubmit = onAddTaskSubmit;
-})(AddTaskFunctions || (AddTaskFunctions = {}));
+    };
+    return AddTaskModel;
+}());
+exports.AddTaskModel = AddTaskModel;
 var NavFunctions;
 (function (NavFunctions) {
     function onCalendarClicked(event) {
@@ -585,10 +592,12 @@ var CalendarFunctions;
 // Module-scope variables:
 var mainModel;
 var indexModel;
+var addTaskModel;
 function main() {
     mainModel = new MainModel();
     indexModel = new IndexModel();
-    AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
+    addTaskModel = new AddTaskModel();
+    AddTask.init($(".main-add-task"), addTaskModel, mainModel);
     index.init($(".main-index"), indexModel, mainModel);
     nav.main($(".main-nav"), NavFunctions.onCalendarClicked, NavFunctions.onSchedulerClicked);
     calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer, CalendarFunctions.updateTaskOnServer);
