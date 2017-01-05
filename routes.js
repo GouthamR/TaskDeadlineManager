@@ -30,7 +30,7 @@ var config = function(app, db)
 
 	app.get('/load-deadlines', function(request, response)
 	{
-		var deadlines = require("./deadlines.json");
+		var deadlines = [];
 		response.json(deadlines);
 	});
 
