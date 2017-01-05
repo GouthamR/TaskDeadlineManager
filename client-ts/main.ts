@@ -57,7 +57,7 @@ function switchToView(newView: View): void
 	}
 	else if(newView == View.Index)
 	{
-		IndexFunctions.loadFromServer();
+		indexModel.loadFromServer();
 	}
 }
 
@@ -159,21 +159,21 @@ function loadTasksAndDeadlinesFromServer(onSuccess: (tasks: Task[], deadlines: D
 	loadDeadlinesFromServer(onDeadlinesLoaded, onDeadlinesFailure);
 }
 
-namespace IndexFunctions
+export class IndexModel
 {
-	export function onIndexAddTaskClicked(event: JQueryEventObject): void
+	public onAddTaskClicked(event: JQueryEventObject): void
 	{
 	    switchToView(View.AddTask);
 	}
 
-	export function loadFromServer(): void
+	public loadFromServer(): void
 	{
 		index.clearViewAndShowLoading();
 
 		loadTasksAndDeadlinesFromServer(index.loadView, index.showLoadError);
 	}
 
-	export function removeTaskFromServer(taskToRemove: Task): void
+	public removeTaskFromServer(taskToRemove: Task): void
 	{
 		let json: TaskJSON = new TaskSerializer().toJSON(taskToRemove);
 
@@ -201,7 +201,7 @@ namespace AddTaskFunctions
 		{
 			console.log("Add Task success:");
 			console.log(data);
-			IndexFunctions.loadFromServer();
+			indexModel.loadFromServer();
 		})
 		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
 		{
@@ -266,14 +266,19 @@ namespace CalendarFunctions
 	}
 }
 
+// Module-scope variables:
+let indexModel: IndexModel;
+
 function main(): void
 {
+	indexModel = new IndexModel();
+
 	AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
-	index.main($(".main-index"), IndexFunctions.onIndexAddTaskClicked, IndexFunctions.removeTaskFromServer);
+	index.main($(".main-index"), indexModel);
 	nav.main($(".main-nav"), NavFunctions.onCalendarClicked, NavFunctions.onSchedulerClicked);
 	calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer, CalendarFunctions.updateTaskOnServer);
 
-	IndexFunctions.loadFromServer();
+	indexModel.loadFromServer();
 
 	switchToView(View.Index);
 }

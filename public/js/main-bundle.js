@@ -186,11 +186,11 @@ var ItemEditor = (function () {
     return ItemEditor;
 }());
 var View = (function () {
-    function View($targetContainer, onAddTaskClicked, removeTaskFromServer) {
+    function View($targetContainer, indexModel) {
         this.$indexContainer = $targetContainer.find(".index");
         var $addTaskButton = this.$indexContainer.find(".index-task-container > a");
-        $addTaskButton.click(onAddTaskClicked);
-        this.removeTaskFromServer = removeTaskFromServer;
+        $addTaskButton.click(indexModel.onAddTaskClicked.bind(indexModel));
+        this.removeTaskFromServer = indexModel.removeTaskFromServer.bind(indexModel);
     }
     View.prototype.markItemDone = function (item, li) {
         // STUB (does not remove deadlines correctly):
@@ -263,9 +263,9 @@ function clearViewAndShowLoading() {
     view.clearAndShowLoading(".index-deadline-container");
 }
 exports.clearViewAndShowLoading = clearViewAndShowLoading;
-function main($targetContainer, onAddTaskClicked, removeTaskFromServer) {
+function main($targetContainer, indexModel) {
     "use strict";
-    view = new View($targetContainer, onAddTaskClicked, removeTaskFromServer);
+    view = new View($targetContainer, indexModel);
 }
 exports.main = main;
 
@@ -423,7 +423,7 @@ function switchToView(newView) {
         calendar.reloadCalendar();
     }
     else if (newView == View.Index) {
-        IndexFunctions.loadFromServer();
+        indexModel.loadFromServer();
     }
 }
 function loadItemDataFromServer(route, onSuccess, onFailure) {
@@ -492,18 +492,17 @@ function loadTasksAndDeadlinesFromServer(onSuccess, onFailure) {
     loadTasksFromServer(onTasksLoaded, onTasksFailure);
     loadDeadlinesFromServer(onDeadlinesLoaded, onDeadlinesFailure);
 }
-var IndexFunctions;
-(function (IndexFunctions) {
-    function onIndexAddTaskClicked(event) {
-        switchToView(View.AddTask);
+var IndexModel = (function () {
+    function IndexModel() {
     }
-    IndexFunctions.onIndexAddTaskClicked = onIndexAddTaskClicked;
-    function loadFromServer() {
+    IndexModel.prototype.onAddTaskClicked = function (event) {
+        switchToView(View.AddTask);
+    };
+    IndexModel.prototype.loadFromServer = function () {
         index.clearViewAndShowLoading();
         loadTasksAndDeadlinesFromServer(index.loadView, index.showLoadError);
-    }
-    IndexFunctions.loadFromServer = loadFromServer;
-    function removeTaskFromServer(taskToRemove) {
+    };
+    IndexModel.prototype.removeTaskFromServer = function (taskToRemove) {
         var json = new item_1.TaskSerializer().toJSON(taskToRemove);
         $.post("delete-task", json)
             .done(function (data, textStatus, jqXHR) {
@@ -515,9 +514,10 @@ var IndexFunctions;
             alert("ERROR: Remove Task failed.\nDetails: " + errorDetails);
             console.log(errorDetails);
         });
-    }
-    IndexFunctions.removeTaskFromServer = removeTaskFromServer;
-})(IndexFunctions || (IndexFunctions = {}));
+    };
+    return IndexModel;
+}());
+exports.IndexModel = IndexModel;
 var AddTaskFunctions;
 (function (AddTaskFunctions) {
     function postFormJSON(json) {
@@ -525,7 +525,7 @@ var AddTaskFunctions;
             .done(function (data, textStatus, jqXHR) {
             console.log("Add Task success:");
             console.log(data);
-            IndexFunctions.loadFromServer();
+            indexModel.loadFromServer();
         })
             .fail(function (jqXHR, textStatus, error) {
             var errorDetails = textStatus + ", " + error;
@@ -577,12 +577,15 @@ var CalendarFunctions;
     }
     CalendarFunctions.updateTaskOnServer = updateTaskOnServer;
 })(CalendarFunctions || (CalendarFunctions = {}));
+// Module-scope variables:
+var indexModel;
 function main() {
+    indexModel = new IndexModel();
     AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
-    index.main($(".main-index"), IndexFunctions.onIndexAddTaskClicked, IndexFunctions.removeTaskFromServer);
+    index.main($(".main-index"), indexModel);
     nav.main($(".main-nav"), NavFunctions.onCalendarClicked, NavFunctions.onSchedulerClicked);
     calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer, CalendarFunctions.updateTaskOnServer);
-    IndexFunctions.loadFromServer();
+    indexModel.loadFromServer();
     switchToView(View.Index);
 }
 $(document).ready(main);

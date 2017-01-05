@@ -1,6 +1,7 @@
 import { Item } from "./item";
 import { Task } from "./item";
 import { Deadline } from "./item";
+import { IndexModel } from "./main";
 
 class ItemEditor
 {
@@ -40,15 +41,14 @@ class View
     private $indexContainer: JQuery;
     private removeTaskFromServer: (taskToRemove: Task) => void;
 
-    public constructor($targetContainer: JQuery, onAddTaskClicked: (event: JQueryEventObject) => void,
-                        removeTaskFromServer: (taskToRemove: Task) => void)
+    public constructor($targetContainer: JQuery, indexModel: IndexModel)
     {
         this.$indexContainer = $targetContainer.find(".index");
         
         let $addTaskButton: JQuery = this.$indexContainer.find(".index-task-container > a");
-        $addTaskButton.click(onAddTaskClicked);
+        $addTaskButton.click(indexModel.onAddTaskClicked.bind(indexModel));
 
-        this.removeTaskFromServer = removeTaskFromServer;
+        this.removeTaskFromServer = indexModel.removeTaskFromServer.bind(indexModel);
     }
 
     private markItemDone(item: Item, li: JQuery): void
@@ -150,11 +150,9 @@ export function clearViewAndShowLoading(): void
     view.clearAndShowLoading(".index-deadline-container");
 }
 
-export function main($targetContainer: JQuery, 
-                        onAddTaskClicked: (event: JQueryEventObject) => void,
-                        removeTaskFromServer: (taskToRemove: Task) => void): void
+export function main($targetContainer: JQuery, indexModel: IndexModel): void
 {
     "use strict";
 
-    view = new View($targetContainer, onAddTaskClicked, removeTaskFromServer);
+    view = new View($targetContainer, indexModel);
 }
