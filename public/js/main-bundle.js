@@ -553,19 +553,6 @@ var AddTaskModel = (function () {
     return AddTaskModel;
 }());
 exports.AddTaskModel = AddTaskModel;
-var NavFunctions;
-(function (NavFunctions) {
-    function onCalendarClicked(event) {
-        console.log("Nav calendar clicked");
-        mainModel.switchToView(View.Calendar);
-    }
-    NavFunctions.onCalendarClicked = onCalendarClicked;
-    function onSchedulerClicked(event) {
-        console.log("Nav scheduler clicked");
-        mainModel.switchToView(View.Index);
-    }
-    NavFunctions.onSchedulerClicked = onSchedulerClicked;
-})(NavFunctions || (NavFunctions = {}));
 var CalendarFunctions;
 (function (CalendarFunctions) {
     function loadFromServer(onSuccess, onFailure) {
@@ -599,7 +586,7 @@ function main() {
     addTaskModel = new AddTaskModel();
     AddTask.init($(".main-add-task"), addTaskModel, mainModel);
     index.init($(".main-index"), indexModel, mainModel);
-    nav.main($(".main-nav"), NavFunctions.onCalendarClicked, NavFunctions.onSchedulerClicked);
+    nav.init($(".main-nav"), mainModel);
     calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer, CalendarFunctions.updateTaskOnServer);
     index.reloadFromServer();
     mainModel.switchToView(View.Index);
@@ -608,21 +595,31 @@ $(document).ready(main);
 
 },{"./add-task":1,"./calendar":2,"./index":3,"./item":4,"./nav":6}],6:[function(require,module,exports){
 "use strict";
+var main = require("./main");
 // Module-scope variables:
 var MOBILE_MAX_WIDTH = 768; // pixels
 var ANIM_TIME = 350; // milliseconds
 var Nav = (function () {
-    function Nav($navContainer, onCalendarClicked, onSchedulerClicked) {
+    function Nav($navContainer, mainModel) {
         var _this = this;
         this.$navContainer = $navContainer;
         this.isOpen = false;
+        this.mainModel = mainModel;
         var onPullLinkClicked = function (e) { _this.toggleSidebarExpansion(); };
         $navContainer.find(".nav-pull-link").click(onPullLinkClicked);
         var onWindowResize = function (e) { _this.toggleSidebarVsHeader(); };
         $(window).resize(onWindowResize);
-        $navContainer.find(".nav-calendar-button").click(onCalendarClicked);
-        $navContainer.find(".nav-scheduler-button").click(onSchedulerClicked);
+        $navContainer.find(".nav-calendar-button").click(function (event) { return _this.onCalendarClicked(event); });
+        $navContainer.find(".nav-scheduler-button").click(function (event) { return _this.onSchedulerClicked(event); });
     }
+    Nav.prototype.onCalendarClicked = function (event) {
+        console.log("Nav calendar clicked");
+        this.mainModel.switchToView(main.View.Calendar);
+    };
+    Nav.prototype.onSchedulerClicked = function (event) {
+        console.log("Nav scheduler clicked");
+        this.mainModel.switchToView(main.View.Index);
+    };
     Nav.prototype.toggleSidebarExpansion = function () {
         var $nav = this.$navContainer.find("nav");
         var animDirection = this.isOpen ? "-" : "+";
@@ -644,10 +641,10 @@ var Nav = (function () {
     };
     return Nav;
 }());
-function main($targetContainer, onCalendarClicked, onSchedulerClicked) {
+function init($targetContainer, mainModel) {
     var $navContainer = $targetContainer.find(".nav");
-    var nav = new Nav($navContainer, onCalendarClicked, onSchedulerClicked);
+    var nav = new Nav($navContainer, mainModel);
 }
-exports.main = main;
+exports.init = init;
 
-},{}]},{},[5]);
+},{"./main":5}]},{},[5]);

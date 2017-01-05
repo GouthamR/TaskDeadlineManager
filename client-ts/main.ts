@@ -204,21 +204,6 @@ export class AddTaskModel
 	}
 }
 
-namespace NavFunctions
-{
-	export function onCalendarClicked(event: JQueryEventObject): void
-	{
-		console.log("Nav calendar clicked");
-		mainModel.switchToView(View.Calendar);
-	}
-
-	export function onSchedulerClicked(event: JQueryEventObject): void
-	{
-		console.log("Nav scheduler clicked");
-		mainModel.switchToView(View.Index);
-	}
-}
-
 namespace CalendarFunctions
 {
 	export function loadFromServer(onSuccess: (tasks: Task[], deadlines: Deadline[]) => any,
@@ -261,7 +246,7 @@ function main(): void
 
 	AddTask.init($(".main-add-task"), addTaskModel, mainModel);
 	index.init($(".main-index"), indexModel, mainModel);
-	nav.main($(".main-nav"), NavFunctions.onCalendarClicked, NavFunctions.onSchedulerClicked);
+	nav.init($(".main-nav"), mainModel);
 	calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer, CalendarFunctions.updateTaskOnServer);
 
 	index.reloadFromServer();

@@ -1,3 +1,5 @@
+import * as main from "./main"
+
 // Module-scope variables:
 const MOBILE_MAX_WIDTH: number = 768; // pixels
 const ANIM_TIME: number = 350; // milliseconds
@@ -6,12 +8,13 @@ class Nav
 {
     private $navContainer: JQuery;
     private isOpen: boolean;
+    private mainModel: main.MainModel;
 
-    public constructor($navContainer: JQuery, onCalendarClicked: (event: JQueryEventObject) => void,
-                        onSchedulerClicked: (event: JQueryEventObject) => void)
+    public constructor($navContainer: JQuery, mainModel: main.MainModel)
     {
         this.$navContainer = $navContainer;
         this.isOpen = false;
+        this.mainModel = mainModel;
 
         let onPullLinkClicked = (e: JQueryEventObject) => { this.toggleSidebarExpansion(); };
         $navContainer.find(".nav-pull-link").click(onPullLinkClicked);
@@ -19,8 +22,20 @@ class Nav
         let onWindowResize = (e: JQueryEventObject) => { this.toggleSidebarVsHeader(); };
         $(window).resize(onWindowResize);
 
-        $navContainer.find(".nav-calendar-button").click(onCalendarClicked);
-        $navContainer.find(".nav-scheduler-button").click(onSchedulerClicked);
+        $navContainer.find(".nav-calendar-button").click((event: JQueryEventObject) => this.onCalendarClicked(event));
+        $navContainer.find(".nav-scheduler-button").click((event: JQueryEventObject) => this.onSchedulerClicked(event));
+    }
+
+    private onCalendarClicked(event: JQueryEventObject): void
+    {
+        console.log("Nav calendar clicked");
+        this.mainModel.switchToView(main.View.Calendar);
+    }
+
+    private onSchedulerClicked(event: JQueryEventObject): void
+    {
+        console.log("Nav scheduler clicked");
+        this.mainModel.switchToView(main.View.Index);
     }
 
     private toggleSidebarExpansion(): void
@@ -51,9 +66,8 @@ class Nav
     }
 }
 
-export function main($targetContainer: JQuery, onCalendarClicked: (event: JQueryEventObject) => void,
-                        onSchedulerClicked: (event: JQueryEventObject) => void): void
+export function init($targetContainer: JQuery, mainModel: main.MainModel): void
 {
     let $navContainer: JQuery = $targetContainer.find(".nav");
-    let nav: Nav = new Nav($navContainer, onCalendarClicked, onSchedulerClicked);
+    let nav: Nav = new Nav($navContainer, mainModel);
 }
