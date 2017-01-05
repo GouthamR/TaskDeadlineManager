@@ -394,113 +394,120 @@ var View;
     View[View["AddTask"] = 1] = "AddTask";
     View[View["Calendar"] = 2] = "Calendar";
 })(View || (View = {}));
-function setVisibility(elementClass, isVisible) {
-    var HIDING_CLASS_NAME = "hidden";
-    if (isVisible) {
-        $(elementClass).removeClass(HIDING_CLASS_NAME);
+var MainModel = (function () {
+    function MainModel() {
     }
-    else {
-        $(elementClass).addClass(HIDING_CLASS_NAME);
-    }
-}
-// Returns keys of enum e.
-// e.g. given enum E { A, B, C } returns [0, 1, 2]
-function getEnumValues(e) {
-    var valueStrings = Object.keys(e).filter(function (k) { return typeof e[k] === "string"; });
-    return valueStrings.map(function (v) { return parseInt(v); });
-}
-function switchToView(newView) {
-    var CLASS_NAME_TO_VIEW_VALUE_MAP = {
-        ".main-index": View.Index,
-        ".main-add-task": View.AddTask,
-        ".main-calendar": View.Calendar
+    MainModel.prototype.setVisibility = function (elementClass, isVisible) {
+        var HIDING_CLASS_NAME = "hidden";
+        if (isVisible) {
+            $(elementClass).removeClass(HIDING_CLASS_NAME);
+        }
+        else {
+            $(elementClass).addClass(HIDING_CLASS_NAME);
+        }
     };
-    for (var className in CLASS_NAME_TO_VIEW_VALUE_MAP) {
-        var viewValue = CLASS_NAME_TO_VIEW_VALUE_MAP[className];
-        setVisibility(className, viewValue == newView);
-    }
-    if (newView == View.Calendar) {
-        calendar.reloadCalendar();
-    }
-    else if (newView == View.Index) {
-        indexModel.loadFromServer();
-    }
-}
-function loadItemDataFromServer(route, onSuccess, onFailure) {
-    $.getJSON(route)
-        .done(function (data, textStatus, jqXHR) {
-        onSuccess(data);
-    })
-        .fail(function (jqXHR, textStatus, error) {
-        var errorDetails = textStatus + ", " + error;
-        onFailure(errorDetails);
-    });
-}
-function loadTasksFromServer(onSuccess, onFailure) {
-    function onLoadSuccess(data) {
+    // Returns keys of enum e.
+    // e.g. given enum E { A, B, C } returns [0, 1, 2]
+    MainModel.prototype.getEnumValues = function (e) {
+        var valueStrings = Object.keys(e).filter(function (k) { return typeof e[k] === "string"; });
+        return valueStrings.map(function (v) { return parseInt(v); });
+    };
+    MainModel.prototype.switchToView = function (newView) {
+        var CLASS_NAME_TO_VIEW_VALUE_MAP = {
+            ".main-index": View.Index,
+            ".main-add-task": View.AddTask,
+            ".main-calendar": View.Calendar
+        };
+        for (var className in CLASS_NAME_TO_VIEW_VALUE_MAP) {
+            var viewValue = CLASS_NAME_TO_VIEW_VALUE_MAP[className];
+            this.setVisibility(className, viewValue == newView);
+        }
+        if (newView == View.Calendar) {
+            calendar.reloadCalendar();
+        }
+        else if (newView == View.Index) {
+            indexModel.loadFromServer();
+        }
+    };
+    MainModel.prototype.loadItemDataFromServer = function (route, onSuccess, onFailure) {
+        $.getJSON(route)
+            .done(function (data, textStatus, jqXHR) {
+            onSuccess(data);
+        })
+            .fail(function (jqXHR, textStatus, error) {
+            var errorDetails = textStatus + ", " + error;
+            onFailure(errorDetails);
+        });
+    };
+    MainModel.prototype.loadTasksFromServer = function (onSuccess, onFailure) {
+        function onLoadSuccess(data) {
+            var tasks = [];
+            var taskSerializer = new item_1.TaskSerializer();
+            for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
+                var i = data_1[_i];
+                var taskJson = i;
+                var task = taskSerializer.fromJSON(taskJson);
+                tasks.push(task);
+            }
+            console.log(tasks);
+            onSuccess(tasks);
+        }
+        this.loadItemDataFromServer("/load-tasks", onLoadSuccess, onFailure);
+    };
+    MainModel.prototype.loadDeadlinesFromServer = function (onSuccess, onFailure) {
+        function onLoadSuccess(data) {
+            var deadlines = [];
+            var deadlineSerializer = new item_2.DeadlineSerializer();
+            for (var _i = 0, data_2 = data; _i < data_2.length; _i++) {
+                var i = data_2[_i];
+                deadlines.push(deadlineSerializer.fromJSON(i));
+            }
+            console.log(deadlines);
+            onSuccess(deadlines);
+        }
+        this.loadItemDataFromServer("/load-deadlines", onLoadSuccess, onFailure);
+    };
+    MainModel.prototype.loadTasksAndDeadlinesFromServer = function (onSuccess, onFailure) {
+        var isTasksLoaded = false;
+        var isDeadlinesLoaded = false;
         var tasks = [];
-        var taskSerializer = new item_1.TaskSerializer();
-        for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
-            var i = data_1[_i];
-            var taskJson = i;
-            var task = taskSerializer.fromJSON(taskJson);
-            tasks.push(task);
-        }
-        console.log(tasks);
-        onSuccess(tasks);
-    }
-    loadItemDataFromServer("/load-tasks", onLoadSuccess, onFailure);
-}
-function loadDeadlinesFromServer(onSuccess, onFailure) {
-    function onLoadSuccess(data) {
         var deadlines = [];
-        var deadlineSerializer = new item_2.DeadlineSerializer();
-        for (var _i = 0, data_2 = data; _i < data_2.length; _i++) {
-            var i = data_2[_i];
-            deadlines.push(deadlineSerializer.fromJSON(i));
+        function onTasksLoaded(loadedTasks) {
+            tasks = loadedTasks;
+            isTasksLoaded = true;
+            if (isDeadlinesLoaded) {
+                onSuccess(tasks, deadlines);
+            }
         }
-        console.log(deadlines);
-        onSuccess(deadlines);
-    }
-    loadItemDataFromServer("/load-deadlines", onLoadSuccess, onFailure);
-}
-function loadTasksAndDeadlinesFromServer(onSuccess, onFailure) {
-    var isTasksLoaded = false;
-    var isDeadlinesLoaded = false;
-    var tasks = [];
-    var deadlines = [];
-    function onTasksLoaded(loadedTasks) {
-        tasks = loadedTasks;
-        isTasksLoaded = true;
-        if (isDeadlinesLoaded) {
-            onSuccess(tasks, deadlines);
+        function onDeadlinesLoaded(loadedDeadlines) {
+            deadlines = loadedDeadlines;
+            isDeadlinesLoaded = true;
+            if (isTasksLoaded) {
+                onSuccess(tasks, deadlines);
+            }
         }
-    }
-    function onDeadlinesLoaded(loadedDeadlines) {
-        deadlines = loadedDeadlines;
-        isDeadlinesLoaded = true;
-        if (isTasksLoaded) {
-            onSuccess(tasks, deadlines);
+        function onTasksFailure(errorDetails) {
+            onFailure("Error loading tasks. Details: " + errorDetails);
         }
-    }
-    function onTasksFailure(errorDetails) {
-        onFailure("Error loading tasks. Details: " + errorDetails);
-    }
-    function onDeadlinesFailure(errorDetails) {
-        onFailure("Error loading deadlines. Details: " + errorDetails);
-    }
-    loadTasksFromServer(onTasksLoaded, onTasksFailure);
-    loadDeadlinesFromServer(onDeadlinesLoaded, onDeadlinesFailure);
-}
+        function onDeadlinesFailure(errorDetails) {
+            onFailure("Error loading deadlines. Details: " + errorDetails);
+        }
+        this.loadTasksFromServer(onTasksLoaded, onTasksFailure);
+        this.loadDeadlinesFromServer(onDeadlinesLoaded, onDeadlinesFailure);
+    };
+    return MainModel;
+}());
+exports.MainModel = MainModel;
 var IndexModel = (function () {
-    function IndexModel() {
+    function IndexModel(mainModel) {
+        this.mainModel = mainModel;
     }
     IndexModel.prototype.onAddTaskClicked = function (event) {
-        switchToView(View.AddTask);
+        this.mainModel.switchToView(View.AddTask);
     };
     IndexModel.prototype.loadFromServer = function () {
         index.clearViewAndShowLoading();
-        loadTasksAndDeadlinesFromServer(index.loadView, index.showLoadError);
+        this.mainModel.loadTasksAndDeadlinesFromServer(index.loadView, index.showLoadError);
     };
     IndexModel.prototype.removeTaskFromServer = function (taskToRemove) {
         var json = new item_1.TaskSerializer().toJSON(taskToRemove);
@@ -535,7 +542,7 @@ var AddTaskFunctions;
     }
     function onAddTaskSubmit(event) {
         event.preventDefault();
-        switchToView(View.Index);
+        mainModel.switchToView(View.Index);
         var json = AddTask.getFormAsJSON();
         postFormJSON(json);
     }
@@ -545,19 +552,19 @@ var NavFunctions;
 (function (NavFunctions) {
     function onCalendarClicked(event) {
         console.log("Nav calendar clicked");
-        switchToView(View.Calendar);
+        mainModel.switchToView(View.Calendar);
     }
     NavFunctions.onCalendarClicked = onCalendarClicked;
     function onSchedulerClicked(event) {
         console.log("Nav scheduler clicked");
-        switchToView(View.Index);
+        mainModel.switchToView(View.Index);
     }
     NavFunctions.onSchedulerClicked = onSchedulerClicked;
 })(NavFunctions || (NavFunctions = {}));
 var CalendarFunctions;
 (function (CalendarFunctions) {
     function loadFromServer(onSuccess, onFailure) {
-        loadTasksAndDeadlinesFromServer(onSuccess, onFailure);
+        mainModel.loadTasksAndDeadlinesFromServer(onSuccess, onFailure);
     }
     CalendarFunctions.loadFromServer = loadFromServer;
     // Replaces task that has the id of updatedTask with updatedTask.
@@ -578,15 +585,17 @@ var CalendarFunctions;
     CalendarFunctions.updateTaskOnServer = updateTaskOnServer;
 })(CalendarFunctions || (CalendarFunctions = {}));
 // Module-scope variables:
+var mainModel;
 var indexModel;
 function main() {
-    indexModel = new IndexModel();
+    mainModel = new MainModel();
+    indexModel = new IndexModel(mainModel);
     AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
     index.main($(".main-index"), indexModel);
     nav.main($(".main-nav"), NavFunctions.onCalendarClicked, NavFunctions.onSchedulerClicked);
     calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer, CalendarFunctions.updateTaskOnServer);
     indexModel.loadFromServer();
-    switchToView(View.Index);
+    mainModel.switchToView(View.Index);
 }
 $(document).ready(main);
 

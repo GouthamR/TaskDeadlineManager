@@ -14,163 +14,174 @@ enum View
 	Index, AddTask, Calendar
 }
 
-function setVisibility(elementClass: string, isVisible: boolean): void
+export class MainModel
 {
-	const HIDING_CLASS_NAME: string = "hidden";
-
-	if(isVisible)
+	private setVisibility(elementClass: string, isVisible: boolean): void
 	{
-		$(elementClass).removeClass(HIDING_CLASS_NAME);
-	}
-	else
-	{
-		$(elementClass).addClass(HIDING_CLASS_NAME);
-	}
-}
+		const HIDING_CLASS_NAME: string = "hidden";
 
-// Returns keys of enum e.
-// e.g. given enum E { A, B, C } returns [0, 1, 2]
-function getEnumValues(e): number[]
-{
-	let valueStrings: string[] = Object.keys(e).filter((k) => typeof e[k] === "string");
-	return valueStrings.map((v) => parseInt(v));
-}
-
-function switchToView(newView: View): void
-{
-	const CLASS_NAME_TO_VIEW_VALUE_MAP = 
-	{
-		".main-index": View.Index,
-		".main-add-task": View.AddTask,
-		".main-calendar": View.Calendar
-	};
-
-	for(let className in CLASS_NAME_TO_VIEW_VALUE_MAP)
-	{
-		let viewValue = CLASS_NAME_TO_VIEW_VALUE_MAP[className];
-		setVisibility(className, viewValue == newView);
+		if(isVisible)
+		{
+			$(elementClass).removeClass(HIDING_CLASS_NAME);
+		}
+		else
+		{
+			$(elementClass).addClass(HIDING_CLASS_NAME);
+		}
 	}
 
-	if(newView == View.Calendar)
+	// Returns keys of enum e.
+	// e.g. given enum E { A, B, C } returns [0, 1, 2]
+	private getEnumValues(e): number[]
 	{
-		calendar.reloadCalendar();
+		let valueStrings: string[] = Object.keys(e).filter((k) => typeof e[k] === "string");
+		return valueStrings.map((v) => parseInt(v));
 	}
-	else if(newView == View.Index)
-	{
-		indexModel.loadFromServer();
-	}
-}
 
-function loadItemDataFromServer(route: string, onSuccess: (data) => void, 
+	public switchToView(newView: View): void
+	{
+		const CLASS_NAME_TO_VIEW_VALUE_MAP = 
+		{
+			".main-index": View.Index,
+			".main-add-task": View.AddTask,
+			".main-calendar": View.Calendar
+		};
+
+		for(let className in CLASS_NAME_TO_VIEW_VALUE_MAP)
+		{
+			let viewValue = CLASS_NAME_TO_VIEW_VALUE_MAP[className];
+			this.setVisibility(className, viewValue == newView);
+		}
+
+		if(newView == View.Calendar)
+		{
+			calendar.reloadCalendar();
+		}
+		else if(newView == View.Index)
+		{
+			indexModel.loadFromServer();
+		}
+	}
+
+
+	private loadItemDataFromServer(route: string, onSuccess: (data) => void, 
+										onFailure: (errorDetails: string) => void): void
+	{
+		$.getJSON(route)
+	    .done(function(data, textStatus: string, jqXHR: JQueryXHR)
+	    {
+	    	onSuccess(data);
+	    })
+	    .fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
+	    {
+	        let errorDetails: string = textStatus + ", " + error;
+	        onFailure(errorDetails);
+	    });
+	}
+
+	private loadTasksFromServer(onSuccess: (tasks: Task[]) => void, 
 									onFailure: (errorDetails: string) => void): void
-{
-	$.getJSON(route)
-    .done(function(data, textStatus: string, jqXHR: JQueryXHR)
-    {
-    	onSuccess(data);
-    })
-    .fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
-    {
-        let errorDetails: string = textStatus + ", " + error;
-        onFailure(errorDetails);
-    });
-}
-
-function loadTasksFromServer(onSuccess: (tasks: Task[]) => void, 
-								onFailure: (errorDetails: string) => void): void
-{
-	function onLoadSuccess(data): void
 	{
+		function onLoadSuccess(data): void
+		{
+			let tasks: Task[] = [];
+		    let taskSerializer: TaskSerializer = new TaskSerializer();
+		    for(let i of data)
+		    {
+		    	let taskJson: TaskJSON = i as TaskJSON;
+		    	let task: Task = taskSerializer.fromJSON(taskJson);
+		        tasks.push(task);
+		    }
+		    console.log(tasks);
+		    onSuccess(tasks);
+		}
+
+		this.loadItemDataFromServer("/load-tasks", onLoadSuccess, onFailure);
+	}
+
+	private loadDeadlinesFromServer(onSuccess: (deadlines: Deadline[]) => void, 
+									onFailure: (errorDetails: string) => void): void
+	{
+		function onLoadSuccess(data): void
+		{
+			let deadlines: Deadline[] = [];
+		    let deadlineSerializer: DeadlineSerializer = new DeadlineSerializer();
+		    for(let i of data)
+		    {
+		        deadlines.push(deadlineSerializer.fromJSON(i));
+		    }
+		    console.log(deadlines);
+		    onSuccess(deadlines);
+		}
+
+		this.loadItemDataFromServer("/load-deadlines", onLoadSuccess, onFailure);
+	}
+
+	public loadTasksAndDeadlinesFromServer(onSuccess: (tasks: Task[], deadlines: Deadline[]) => any,
+												onFailure: (error: string) => any): void
+	{
+		let isTasksLoaded: boolean = false;
+		let isDeadlinesLoaded: boolean = false;
+
 		let tasks: Task[] = [];
-	    let taskSerializer: TaskSerializer = new TaskSerializer();
-	    for(let i of data)
-	    {
-	    	let taskJson: TaskJSON = i as TaskJSON;
-	    	let task: Task = taskSerializer.fromJSON(taskJson);
-	        tasks.push(task);
-	    }
-	    console.log(tasks);
-	    onSuccess(tasks);
-	}
-
-	loadItemDataFromServer("/load-tasks", onLoadSuccess, onFailure);
-}
-
-function loadDeadlinesFromServer(onSuccess: (deadlines: Deadline[]) => void, 
-								onFailure: (errorDetails: string) => void): void
-{
-	function onLoadSuccess(data): void
-	{
 		let deadlines: Deadline[] = [];
-	    let deadlineSerializer: DeadlineSerializer = new DeadlineSerializer();
-	    for(let i of data)
-	    {
-	        deadlines.push(deadlineSerializer.fromJSON(i));
-	    }
-	    console.log(deadlines);
-	    onSuccess(deadlines);
-	}
 
-	loadItemDataFromServer("/load-deadlines", onLoadSuccess, onFailure);
-}
-
-function loadTasksAndDeadlinesFromServer(onSuccess: (tasks: Task[], deadlines: Deadline[]) => any,
-											onFailure: (error: string) => any): void
-{
-	let isTasksLoaded: boolean = false;
-	let isDeadlinesLoaded: boolean = false;
-
-	let tasks: Task[] = [];
-	let deadlines: Deadline[] = [];
-
-	function onTasksLoaded(loadedTasks: Task[])
-	{
-		tasks = loadedTasks;
-		isTasksLoaded = true;
-
-		if(isDeadlinesLoaded)
+		function onTasksLoaded(loadedTasks: Task[])
 		{
-			onSuccess(tasks, deadlines);
+			tasks = loadedTasks;
+			isTasksLoaded = true;
+
+			if(isDeadlinesLoaded)
+			{
+				onSuccess(tasks, deadlines);
+			}
 		}
-	}
 
-	function onDeadlinesLoaded(loadedDeadlines: Deadline[])
-	{
-		deadlines = loadedDeadlines;
-		isDeadlinesLoaded = true;
-
-		if(isTasksLoaded)
+		function onDeadlinesLoaded(loadedDeadlines: Deadline[])
 		{
-			onSuccess(tasks, deadlines);
+			deadlines = loadedDeadlines;
+			isDeadlinesLoaded = true;
+
+			if(isTasksLoaded)
+			{
+				onSuccess(tasks, deadlines);
+			}
 		}
-	}
 
-	function onTasksFailure(errorDetails: string)
-	{
-		onFailure("Error loading tasks. Details: " + errorDetails);
-	}
+		function onTasksFailure(errorDetails: string)
+		{
+			onFailure("Error loading tasks. Details: " + errorDetails);
+		}
 
-	function onDeadlinesFailure(errorDetails: string)
-	{
-		onFailure("Error loading deadlines. Details: " + errorDetails);
-	}
+		function onDeadlinesFailure(errorDetails: string)
+		{
+			onFailure("Error loading deadlines. Details: " + errorDetails);
+		}
 
-	loadTasksFromServer(onTasksLoaded, onTasksFailure);
-	loadDeadlinesFromServer(onDeadlinesLoaded, onDeadlinesFailure);
+		this.loadTasksFromServer(onTasksLoaded, onTasksFailure);
+		this.loadDeadlinesFromServer(onDeadlinesLoaded, onDeadlinesFailure);
+	}
 }
 
 export class IndexModel
 {
+	private mainModel: MainModel;
+
+	public constructor(mainModel: MainModel)
+	{
+		this.mainModel = mainModel;
+	}
+
 	public onAddTaskClicked(event: JQueryEventObject): void
 	{
-	    switchToView(View.AddTask);
+	    this.mainModel.switchToView(View.AddTask);
 	}
 
 	public loadFromServer(): void
 	{
 		index.clearViewAndShowLoading();
 
-		loadTasksAndDeadlinesFromServer(index.loadView, index.showLoadError);
+		this.mainModel.loadTasksAndDeadlinesFromServer(index.loadView, index.showLoadError);
 	}
 
 	public removeTaskFromServer(taskToRemove: Task): void
@@ -215,7 +226,7 @@ namespace AddTaskFunctions
 	{
 		event.preventDefault();
 
-		switchToView(View.Index);
+		mainModel.switchToView(View.Index);
 
 		let json: TaskJSONWithoutID = AddTask.getFormAsJSON();
 		postFormJSON(json);
@@ -227,13 +238,13 @@ namespace NavFunctions
 	export function onCalendarClicked(event: JQueryEventObject): void
 	{
 		console.log("Nav calendar clicked");
-		switchToView(View.Calendar);
+		mainModel.switchToView(View.Calendar);
 	}
 
 	export function onSchedulerClicked(event: JQueryEventObject): void
 	{
 		console.log("Nav scheduler clicked");
-		switchToView(View.Index);
+		mainModel.switchToView(View.Index);
 	}
 }
 
@@ -242,7 +253,7 @@ namespace CalendarFunctions
 	export function loadFromServer(onSuccess: (tasks: Task[], deadlines: Deadline[]) => any,
 									onFailure: (error: string) => any): void
 	{
-		loadTasksAndDeadlinesFromServer(onSuccess, onFailure);
+		mainModel.loadTasksAndDeadlinesFromServer(onSuccess, onFailure);
 	}
 
 	// Replaces task that has the id of updatedTask with updatedTask.
@@ -267,11 +278,13 @@ namespace CalendarFunctions
 }
 
 // Module-scope variables:
+let mainModel: MainModel;
 let indexModel: IndexModel;
 
 function main(): void
 {
-	indexModel = new IndexModel();
+	mainModel = new MainModel();
+	indexModel = new IndexModel(mainModel);
 
 	AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
 	index.main($(".main-index"), indexModel);
@@ -280,7 +293,7 @@ function main(): void
 
 	indexModel.loadFromServer();
 
-	switchToView(View.Index);
+	mainModel.switchToView(View.Index);
 }
 
 $(document).ready(main);
