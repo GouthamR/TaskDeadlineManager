@@ -165,6 +165,7 @@ exports.main = main;
 
 },{}],3:[function(require,module,exports){
 "use strict";
+var main = require("./main");
 var ItemEditor = (function () {
     function ItemEditor(item, li, doneCallback) {
         this.item = item;
@@ -186,10 +187,10 @@ var ItemEditor = (function () {
     return ItemEditor;
 }());
 var View = (function () {
-    function View($targetContainer, indexModel) {
+    function View($targetContainer, indexModel, mainModel) {
         this.$indexContainer = $targetContainer.find(".index");
         var $addTaskButton = this.$indexContainer.find(".index-task-container > a");
-        $addTaskButton.click(indexModel.onAddTaskClicked.bind(indexModel));
+        $addTaskButton.click(function (event) { return mainModel.switchToView(main.View.AddTask); });
         this.removeTaskFromServer = indexModel.removeTaskFromServer.bind(indexModel);
     }
     View.prototype.markItemDone = function (item, li) {
@@ -263,13 +264,13 @@ function clearViewAndShowLoading() {
     view.clearAndShowLoading(".index-deadline-container");
 }
 exports.clearViewAndShowLoading = clearViewAndShowLoading;
-function main($targetContainer, indexModel) {
+function init($targetContainer, indexModel, mainModel) {
     "use strict";
-    view = new View($targetContainer, indexModel);
+    view = new View($targetContainer, indexModel, mainModel);
 }
-exports.main = main;
+exports.init = init;
 
-},{}],4:[function(require,module,exports){
+},{"./main":5}],4:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -388,12 +389,12 @@ var nav = require("./nav");
 var calendar = require("./calendar");
 var item_1 = require("./item");
 var item_2 = require("./item");
-var View;
 (function (View) {
     View[View["Index"] = 0] = "Index";
     View[View["AddTask"] = 1] = "AddTask";
     View[View["Calendar"] = 2] = "Calendar";
-})(View || (View = {}));
+})(exports.View || (exports.View = {}));
+var View = exports.View;
 var MainModel = (function () {
     function MainModel() {
     }
@@ -502,9 +503,6 @@ var IndexModel = (function () {
     function IndexModel(mainModel) {
         this.mainModel = mainModel;
     }
-    IndexModel.prototype.onAddTaskClicked = function (event) {
-        this.mainModel.switchToView(View.AddTask);
-    };
     IndexModel.prototype.loadFromServer = function () {
         index.clearViewAndShowLoading();
         this.mainModel.loadTasksAndDeadlinesFromServer(index.loadView, index.showLoadError);
@@ -591,7 +589,7 @@ function main() {
     mainModel = new MainModel();
     indexModel = new IndexModel(mainModel);
     AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
-    index.main($(".main-index"), indexModel);
+    index.init($(".main-index"), indexModel, mainModel);
     nav.main($(".main-nav"), NavFunctions.onCalendarClicked, NavFunctions.onSchedulerClicked);
     calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer, CalendarFunctions.updateTaskOnServer);
     indexModel.loadFromServer();

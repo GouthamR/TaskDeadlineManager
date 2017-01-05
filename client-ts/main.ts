@@ -9,7 +9,7 @@ import { TaskSerializer } from "./item";
 import { Deadline } from "./item";
 import { DeadlineSerializer } from "./item";
 
-enum View
+export enum View
 {
 	Index, AddTask, Calendar
 }
@@ -172,11 +172,6 @@ export class IndexModel
 		this.mainModel = mainModel;
 	}
 
-	public onAddTaskClicked(event: JQueryEventObject): void
-	{
-	    this.mainModel.switchToView(View.AddTask);
-	}
-
 	public loadFromServer(): void
 	{
 		index.clearViewAndShowLoading();
@@ -287,7 +282,7 @@ function main(): void
 	indexModel = new IndexModel(mainModel);
 
 	AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
-	index.main($(".main-index"), indexModel);
+	index.init($(".main-index"), indexModel, mainModel);
 	nav.main($(".main-nav"), NavFunctions.onCalendarClicked, NavFunctions.onSchedulerClicked);
 	calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer, CalendarFunctions.updateTaskOnServer);
 
