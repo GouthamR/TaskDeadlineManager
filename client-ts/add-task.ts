@@ -58,4 +58,4 @@ export function main($targetContainer: JQuery, onAddTaskSubmit: (event: JQueryEv
     $addTaskContainer.find(".add-task-form").on("submit", onAddTaskSubmit);
 
     setDefaultDateTimeInputValues();
-};
+}

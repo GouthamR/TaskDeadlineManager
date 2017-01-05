@@ -42,7 +42,6 @@ function main($targetContainer, onAddTaskSubmit) {
     setDefaultDateTimeInputValues();
 }
 exports.main = main;
-;
 
 },{}],2:[function(require,module,exports){
 /// <reference path="./fullcalendar_modified.d.ts" />
@@ -187,13 +186,15 @@ var ItemEditor = (function () {
     return ItemEditor;
 }());
 var View = (function () {
-    function View($targetContainer, onAddTaskClicked) {
+    function View($targetContainer, onAddTaskClicked, removeTaskFromServer) {
         this.$indexContainer = $targetContainer.find(".index");
         var $addTaskButton = this.$indexContainer.find(".index-task-container > a");
         $addTaskButton.click(onAddTaskClicked);
+        this.removeTaskFromServer = removeTaskFromServer;
     }
     View.prototype.markItemDone = function (item, li) {
-        // stub
+        // STUB (does not remove deadlines correctly):
+        this.removeTaskFromServer(item);
         console.log(item.getTitle() + " removed");
         li.slideUp();
     };
@@ -262,9 +263,9 @@ function clearViewAndShowLoading() {
     view.clearAndShowLoading(".index-deadline-container");
 }
 exports.clearViewAndShowLoading = clearViewAndShowLoading;
-function main($targetContainer, onAddTaskClicked) {
+function main($targetContainer, onAddTaskClicked, removeTaskFromServer) {
     "use strict";
-    view = new View($targetContainer, onAddTaskClicked);
+    view = new View($targetContainer, onAddTaskClicked, removeTaskFromServer);
 }
 exports.main = main;
 
@@ -499,6 +500,20 @@ var IndexFunctions;
         loadTasksAndDeadlinesFromServer(index.loadView, index.showLoadError);
     }
     IndexFunctions.loadFromServer = loadFromServer;
+    function removeTaskFromServer(taskToRemove) {
+        var json = new item_1.TaskSerializer().toJSON(taskToRemove);
+        $.post("delete-task", json)
+            .done(function (data, textStatus, jqXHR) {
+            console.log("Remove Task success:");
+            console.log(data);
+        })
+            .fail(function (jqXHR, textStatus, error) {
+            var errorDetails = textStatus + ", " + error;
+            alert("ERROR: Remove Task failed.\nDetails: " + errorDetails);
+            console.log(errorDetails);
+        });
+    }
+    IndexFunctions.removeTaskFromServer = removeTaskFromServer;
 })(IndexFunctions || (IndexFunctions = {}));
 var AddTaskFunctions;
 (function (AddTaskFunctions) {
@@ -556,7 +571,7 @@ var CalendarFunctions;
 })(CalendarFunctions || (CalendarFunctions = {}));
 function main() {
     AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
-    index.main($(".main-index"), IndexFunctions.onIndexAddTaskClicked);
+    index.main($(".main-index"), IndexFunctions.onIndexAddTaskClicked, IndexFunctions.removeTaskFromServer);
     nav.main($(".main-nav"), NavFunctions.onCalendarClicked);
     calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer, CalendarFunctions.updateTaskOnServer);
     IndexFunctions.loadFromServer();

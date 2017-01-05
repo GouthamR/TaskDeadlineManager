@@ -168,6 +168,24 @@ namespace IndexFunctions
 
 		loadTasksAndDeadlinesFromServer(index.loadView, index.showLoadError);
 	}
+
+	export function removeTaskFromServer(taskToRemove: Task): void
+	{
+		let json: TaskJSON = new TaskSerializer().toJSON(taskToRemove);
+
+		$.post("delete-task", json)
+		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
+		{
+			console.log("Remove Task success:");
+			console.log(data);
+		})
+		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
+		{
+			let errorDetails: string = textStatus + ", " + error;
+			alert("ERROR: Remove Task failed.\nDetails: " + errorDetails);
+			console.log(errorDetails);
+		});
+	}
 }
 
 namespace AddTaskFunctions
@@ -241,7 +259,7 @@ namespace CalendarFunctions
 function main(): void
 {
 	AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
-	index.main($(".main-index"), IndexFunctions.onIndexAddTaskClicked);
+	index.main($(".main-index"), IndexFunctions.onIndexAddTaskClicked, IndexFunctions.removeTaskFromServer);
 	nav.main($(".main-nav"), NavFunctions.onCalendarClicked);
 	calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer, CalendarFunctions.updateTaskOnServer);
 

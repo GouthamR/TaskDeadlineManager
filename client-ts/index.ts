@@ -38,18 +38,23 @@ class ItemEditor
 class View
 {
     private $indexContainer: JQuery;
+    private removeTaskFromServer: (taskToRemove: Task) => void;
 
-    public constructor($targetContainer: JQuery, onAddTaskClicked: (event: JQueryEventObject) => void)
+    public constructor($targetContainer: JQuery, onAddTaskClicked: (event: JQueryEventObject) => void,
+                        removeTaskFromServer: (taskToRemove: Task) => void)
     {
         this.$indexContainer = $targetContainer.find(".index");
         
         let $addTaskButton: JQuery = this.$indexContainer.find(".index-task-container > a");
         $addTaskButton.click(onAddTaskClicked);
+
+        this.removeTaskFromServer = removeTaskFromServer;
     }
 
     private markItemDone(item: Item, li: JQuery): void
     {
-        // stub
+        // STUB (does not remove deadlines correctly):
+        this.removeTaskFromServer(item as Task);
         console.log(item.getTitle() + " removed");
         li.slideUp();
     }
@@ -145,9 +150,11 @@ export function clearViewAndShowLoading(): void
     view.clearAndShowLoading(".index-deadline-container");
 }
 
-export function main($targetContainer: JQuery, onAddTaskClicked: (event: JQueryEventObject) => void): void
+export function main($targetContainer: JQuery, 
+                        onAddTaskClicked: (event: JQueryEventObject) => void,
+                        removeTaskFromServer: (taskToRemove: Task) => void): void
 {
     "use strict";
 
-    view = new View($targetContainer, onAddTaskClicked);
+    view = new View($targetContainer, onAddTaskClicked, removeTaskFromServer);
 }
