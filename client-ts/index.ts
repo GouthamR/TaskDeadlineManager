@@ -87,15 +87,22 @@ class View
         return li;
     }
 
-    private appendLi(container_name: string, item: Item): void
+    private addItemToContainer(item: Item, $container: JQuery)
     {
-        let li: JQuery = this.createLi(item);
-        this.$indexContainer.find(container_name).find("ul").append(li);
+        let $newLi: JQuery = this.createLi(item);
+        let $list: JQuery = $container.find("ul");
+        $list.append($newLi);
     }
 
-    private clearAndShowLoadingOnContainer(container_name: string): void
+    private addTaskToView(task: Task): void
     {
-        let $ul: JQuery = this.$indexContainer.find(container_name).find("ul");
+        let $taskContainer: JQuery = this.$indexContainer.find(".index-task-container");
+        this.addItemToContainer(task as Item, $taskContainer);
+    }
+
+    private clearAndShowLoadingOnContainer($container: JQuery): void
+    {
+        let $ul: JQuery = $container.find("ul");
         
         $ul.empty();
         
@@ -103,24 +110,48 @@ class View
         $ul.append($loading);
     }
 
+    private clearAndShowLoadingTasks(): void
+    {
+        let $taskContainer: JQuery = this.$indexContainer.find(".index-task-container");
+        this.clearAndShowLoadingOnContainer($taskContainer);
+    }
+
+    private clearAndShowLoadingDeadlines(): void
+    {
+        let $deadlineContainer: JQuery = this.$indexContainer.find(".index-deadline-container");
+        this.clearAndShowLoadingOnContainer($deadlineContainer);
+    }
+
     public clearAndShowLoading(): void
     {
         console.log("clearViewAndShowLoading");
-        this.clearAndShowLoadingOnContainer(".index-task-container");
-        this.clearAndShowLoadingOnContainer(".index-deadline-container");
+        this.clearAndShowLoadingTasks();
+        this.clearAndShowLoadingDeadlines();
     }
 
-    private removeLoading(container_name: string): void
+    private removeLoadingText($container: JQuery): void
     {
-        this.$indexContainer.find(container_name).find(".index-loading").remove();
+        $container.find(".index-loading").remove();
+    }
+
+    private removeTaskLoadingText(): void
+    {
+        let $taskContainer: JQuery = this.$indexContainer.find(".index-task-container");
+        this.removeLoadingText($taskContainer);
+    }
+
+    private removeDeadlineLoadingText(): void
+    {
+        let $deadlineContainer: JQuery = this.$indexContainer.find(".index-deadline-container");
+        this.removeLoadingText($deadlineContainer);
     }
 
     // Note: appends error after any existing errors.
     public showLoadError(errorMessage: string): void
     {
         console.log("loadError!");
-        this.removeLoading(".index-task-container");
-        this.removeLoading(".index-deadline-container");
+        this.removeTaskLoadingText();
+        this.removeDeadlineLoadingText();
         let $indexErrorContainer = this.$indexContainer.find(".index-error-container");
         $indexErrorContainer.append($("<p>").html(errorMessage));
         $indexErrorContainer.removeClass("hidden");
@@ -128,17 +159,16 @@ class View
 
     public loadView(tasks: Task[], deadlines: Deadline[]): void
     {
-        // STUB (does not add deadlines to view):
-        
         this.clearAndShowLoading();
 
         for (let i: number = 0; i < tasks.length; i++)
         {
-            this.appendLi(".index-task-container", tasks[i]);
+            this.addTaskToView(tasks[i]);
         }
+        this.removeTaskLoadingText();
 
-        this.removeLoading(".index-task-container");
-        this.removeLoading(".index-deadline-container");
+        // STUB (does not add deadlines to view):
+        this.removeDeadlineLoadingText();
     }
 
     public reloadFromServer(): void

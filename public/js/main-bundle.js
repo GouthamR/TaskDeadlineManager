@@ -227,41 +227,62 @@ var View = (function () {
         this.fillLi(li, item);
         return li;
     };
-    View.prototype.appendLi = function (container_name, item) {
-        var li = this.createLi(item);
-        this.$indexContainer.find(container_name).find("ul").append(li);
+    View.prototype.addItemToContainer = function (item, $container) {
+        var $newLi = this.createLi(item);
+        var $list = $container.find("ul");
+        $list.append($newLi);
     };
-    View.prototype.clearAndShowLoadingOnContainer = function (container_name) {
-        var $ul = this.$indexContainer.find(container_name).find("ul");
+    View.prototype.addTaskToView = function (task) {
+        var $taskContainer = this.$indexContainer.find(".index-task-container");
+        this.addItemToContainer(task, $taskContainer);
+    };
+    View.prototype.clearAndShowLoadingOnContainer = function ($container) {
+        var $ul = $container.find("ul");
         $ul.empty();
         var $loading = $("<p>", { class: "index-loading" }).html("Loading...");
         $ul.append($loading);
     };
+    View.prototype.clearAndShowLoadingTasks = function () {
+        var $taskContainer = this.$indexContainer.find(".index-task-container");
+        this.clearAndShowLoadingOnContainer($taskContainer);
+    };
+    View.prototype.clearAndShowLoadingDeadlines = function () {
+        var $deadlineContainer = this.$indexContainer.find(".index-deadline-container");
+        this.clearAndShowLoadingOnContainer($deadlineContainer);
+    };
     View.prototype.clearAndShowLoading = function () {
         console.log("clearViewAndShowLoading");
-        this.clearAndShowLoadingOnContainer(".index-task-container");
-        this.clearAndShowLoadingOnContainer(".index-deadline-container");
+        this.clearAndShowLoadingTasks();
+        this.clearAndShowLoadingDeadlines();
     };
-    View.prototype.removeLoading = function (container_name) {
-        this.$indexContainer.find(container_name).find(".index-loading").remove();
+    View.prototype.removeLoadingText = function ($container) {
+        $container.find(".index-loading").remove();
+    };
+    View.prototype.removeTaskLoadingText = function () {
+        var $taskContainer = this.$indexContainer.find(".index-task-container");
+        this.removeLoadingText($taskContainer);
+    };
+    View.prototype.removeDeadlineLoadingText = function () {
+        var $deadlineContainer = this.$indexContainer.find(".index-deadline-container");
+        this.removeLoadingText($deadlineContainer);
     };
     // Note: appends error after any existing errors.
     View.prototype.showLoadError = function (errorMessage) {
         console.log("loadError!");
-        this.removeLoading(".index-task-container");
-        this.removeLoading(".index-deadline-container");
+        this.removeTaskLoadingText();
+        this.removeDeadlineLoadingText();
         var $indexErrorContainer = this.$indexContainer.find(".index-error-container");
         $indexErrorContainer.append($("<p>").html(errorMessage));
         $indexErrorContainer.removeClass("hidden");
     };
     View.prototype.loadView = function (tasks, deadlines) {
-        // STUB (does not add deadlines to view):
         this.clearAndShowLoading();
         for (var i = 0; i < tasks.length; i++) {
-            this.appendLi(".index-task-container", tasks[i]);
+            this.addTaskToView(tasks[i]);
         }
-        this.removeLoading(".index-task-container");
-        this.removeLoading(".index-deadline-container");
+        this.removeTaskLoadingText();
+        // STUB (does not add deadlines to view):
+        this.removeDeadlineLoadingText();
     };
     View.prototype.reloadFromServer = function () {
         var _this = this;
