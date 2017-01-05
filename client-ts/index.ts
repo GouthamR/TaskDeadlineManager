@@ -128,15 +128,13 @@ class View
 
     public loadView(tasks: Task[], deadlines: Deadline[]): void
     {
+        // STUB (does not add deadlines to view):
+        
         this.clearAndShowLoading();
 
         for (let i: number = 0; i < tasks.length; i++)
         {
             this.appendLi(".index-task-container", tasks[i]);
-        }
-        for (let i: number = 0; i < deadlines.length; i++)
-        {
-            this.appendLi(".index-deadline-container", deadlines[i]);
         }
 
         this.removeLoading(".index-task-container");

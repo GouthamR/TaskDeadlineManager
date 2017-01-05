@@ -255,12 +255,10 @@ var View = (function () {
         $indexErrorContainer.removeClass("hidden");
     };
     View.prototype.loadView = function (tasks, deadlines) {
+        // STUB (does not add deadlines to view):
         this.clearAndShowLoading();
         for (var i = 0; i < tasks.length; i++) {
             this.appendLi(".index-task-container", tasks[i]);
-        }
-        for (var i = 0; i < deadlines.length; i++) {
-            this.appendLi(".index-deadline-container", deadlines[i]);
         }
         this.removeLoading(".index-task-container");
         this.removeLoading(".index-deadline-container");
