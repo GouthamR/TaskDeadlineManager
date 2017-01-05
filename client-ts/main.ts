@@ -55,6 +55,10 @@ function switchToView(newView: View): void
 	{
 		calendar.reloadCalendar();
 	}
+	else if(newView == View.Index)
+	{
+		IndexFunctions.loadFromServer();
+	}
 }
 
 function loadItemDataFromServer(route: string, onSuccess: (data) => void, 
@@ -225,6 +229,12 @@ namespace NavFunctions
 		console.log("Nav calendar clicked");
 		switchToView(View.Calendar);
 	}
+
+	export function onSchedulerClicked(event: JQueryEventObject): void
+	{
+		console.log("Nav scheduler clicked");
+		switchToView(View.Index);
+	}
 }
 
 namespace CalendarFunctions
@@ -260,7 +270,7 @@ function main(): void
 {
 	AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
 	index.main($(".main-index"), IndexFunctions.onIndexAddTaskClicked, IndexFunctions.removeTaskFromServer);
-	nav.main($(".main-nav"), NavFunctions.onCalendarClicked);
+	nav.main($(".main-nav"), NavFunctions.onCalendarClicked, NavFunctions.onSchedulerClicked);
 	calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer, CalendarFunctions.updateTaskOnServer);
 
 	IndexFunctions.loadFromServer();

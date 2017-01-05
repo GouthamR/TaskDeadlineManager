@@ -422,6 +422,9 @@ function switchToView(newView) {
     if (newView == View.Calendar) {
         calendar.reloadCalendar();
     }
+    else if (newView == View.Index) {
+        IndexFunctions.loadFromServer();
+    }
 }
 function loadItemDataFromServer(route, onSuccess, onFailure) {
     $.getJSON(route)
@@ -545,6 +548,11 @@ var NavFunctions;
         switchToView(View.Calendar);
     }
     NavFunctions.onCalendarClicked = onCalendarClicked;
+    function onSchedulerClicked(event) {
+        console.log("Nav scheduler clicked");
+        switchToView(View.Index);
+    }
+    NavFunctions.onSchedulerClicked = onSchedulerClicked;
 })(NavFunctions || (NavFunctions = {}));
 var CalendarFunctions;
 (function (CalendarFunctions) {
@@ -572,7 +580,7 @@ var CalendarFunctions;
 function main() {
     AddTask.main($(".main-add-task"), AddTaskFunctions.onAddTaskSubmit);
     index.main($(".main-index"), IndexFunctions.onIndexAddTaskClicked, IndexFunctions.removeTaskFromServer);
-    nav.main($(".main-nav"), NavFunctions.onCalendarClicked);
+    nav.main($(".main-nav"), NavFunctions.onCalendarClicked, NavFunctions.onSchedulerClicked);
     calendar.main($(".main-calendar"), CalendarFunctions.loadFromServer, CalendarFunctions.updateTaskOnServer);
     IndexFunctions.loadFromServer();
     switchToView(View.Index);
@@ -585,7 +593,7 @@ $(document).ready(main);
 var MOBILE_MAX_WIDTH = 768; // pixels
 var ANIM_TIME = 350; // milliseconds
 var Nav = (function () {
-    function Nav($navContainer, onCalendarClicked) {
+    function Nav($navContainer, onCalendarClicked, onSchedulerClicked) {
         var _this = this;
         this.$navContainer = $navContainer;
         this.isOpen = false;
@@ -594,6 +602,7 @@ var Nav = (function () {
         var onWindowResize = function (e) { _this.toggleSidebarVsHeader(); };
         $(window).resize(onWindowResize);
         $navContainer.find(".nav-calendar-button").click(onCalendarClicked);
+        $navContainer.find(".nav-scheduler-button").click(onSchedulerClicked);
     }
     Nav.prototype.toggleSidebarExpansion = function () {
         var $nav = this.$navContainer.find("nav");
@@ -616,9 +625,9 @@ var Nav = (function () {
     };
     return Nav;
 }());
-function main($targetContainer, onCalendarClicked) {
+function main($targetContainer, onCalendarClicked, onSchedulerClicked) {
     var $navContainer = $targetContainer.find(".nav");
-    var nav = new Nav($navContainer, onCalendarClicked);
+    var nav = new Nav($navContainer, onCalendarClicked, onSchedulerClicked);
 }
 exports.main = main;
 

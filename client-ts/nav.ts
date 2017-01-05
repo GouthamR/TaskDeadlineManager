@@ -7,7 +7,8 @@ class Nav
     private $navContainer: JQuery;
     private isOpen: boolean;
 
-    public constructor($navContainer: JQuery, onCalendarClicked: (event: JQueryEventObject) => void)
+    public constructor($navContainer: JQuery, onCalendarClicked: (event: JQueryEventObject) => void,
+                        onSchedulerClicked: (event: JQueryEventObject) => void)
     {
         this.$navContainer = $navContainer;
         this.isOpen = false;
@@ -19,6 +20,7 @@ class Nav
         $(window).resize(onWindowResize);
 
         $navContainer.find(".nav-calendar-button").click(onCalendarClicked);
+        $navContainer.find(".nav-scheduler-button").click(onSchedulerClicked);
     }
 
     private toggleSidebarExpansion(): void
@@ -49,8 +51,9 @@ class Nav
     }
 }
 
-export function main($targetContainer: JQuery, onCalendarClicked: (event: JQueryEventObject) => void): void
+export function main($targetContainer: JQuery, onCalendarClicked: (event: JQueryEventObject) => void,
+                        onSchedulerClicked: (event: JQueryEventObject) => void): void
 {
     let $navContainer: JQuery = $targetContainer.find(".nav");
-    let nav: Nav = new Nav($navContainer, onCalendarClicked);
+    let nav: Nav = new Nav($navContainer, onCalendarClicked, onSchedulerClicked);
 }
