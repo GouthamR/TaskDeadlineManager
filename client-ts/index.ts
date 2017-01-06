@@ -46,16 +46,21 @@ class View
     {
         li.empty();
 
+        let $form = $("<form>");
         let $titleInput = $("<input>", {type: "text", value: item.getTitle()});
-        li.append($titleInput);
-        let doneButton: JQuery = $("<input>", {type: "button", value: "Done"});
-        doneButton.click((e: JQueryEventObject) => this.onCloseSettingsClicked(li, item));
-        li.append(doneButton);
+        $form.append($titleInput);
+        let doneButton: JQuery = $("<input>", {type: "submit", value: "Done"});
+        doneButton.click((e: JQueryEventObject) => this.onCloseSettingsClicked(e, li, item));
+        $form.append(doneButton);
+
+        li.append($form);
     }
 
-    private onCloseSettingsClicked(li: JQuery, item: Item)
+    private onCloseSettingsClicked(event: JQueryEventObject, li: JQuery, item: Item)
     {
         // STUB (does not update deadlines correctly):
+
+        event.preventDefault(); // prevents form submission
 
         let $titleInput = li.find("input[type='text']");
         item.setTitle($titleInput.val());

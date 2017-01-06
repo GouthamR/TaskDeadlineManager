@@ -202,14 +202,17 @@ var View = (function () {
     View.prototype.onOpenSettingsClicked = function (item, li) {
         var _this = this;
         li.empty();
+        var $form = $("<form>");
         var $titleInput = $("<input>", { type: "text", value: item.getTitle() });
-        li.append($titleInput);
-        var doneButton = $("<input>", { type: "button", value: "Done" });
-        doneButton.click(function (e) { return _this.onCloseSettingsClicked(li, item); });
-        li.append(doneButton);
+        $form.append($titleInput);
+        var doneButton = $("<input>", { type: "submit", value: "Done" });
+        doneButton.click(function (e) { return _this.onCloseSettingsClicked(e, li, item); });
+        $form.append(doneButton);
+        li.append($form);
     };
-    View.prototype.onCloseSettingsClicked = function (li, item) {
+    View.prototype.onCloseSettingsClicked = function (event, li, item) {
         // STUB (does not update deadlines correctly):
+        event.preventDefault(); // prevents form submission
         var $titleInput = li.find("input[type='text']");
         item.setTitle($titleInput.val());
         console.log(item);
