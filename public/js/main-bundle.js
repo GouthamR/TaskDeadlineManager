@@ -385,11 +385,52 @@ var TaskSerializer = (function () {
     return TaskSerializer;
 }());
 exports.TaskSerializer = TaskSerializer;
+var SubTask = (function (_super) {
+    __extends(SubTask, _super);
+    function SubTask(title, start, end, isAllDay, id, deadlineId, isDone) {
+        if (isDone === void 0) { isDone = false; }
+        _super.call(this, title, start, end, isAllDay, id);
+        this.deadlineId = deadlineId;
+        this.isDone = isDone;
+    }
+    SubTask.prototype.getDeadlineID = function () { return this.deadlineId; };
+    SubTask.prototype.getIsDone = function () { return this.isDone; };
+    SubTask.prototype.getDayTimeString = function () {
+        var begin = _super.prototype.getDayTimeString.call(this);
+        var end = "[" + this.deadlineId + "]";
+        return (begin + end);
+    };
+    return SubTask;
+}(Task));
+exports.SubTask = SubTask;
+var SubTaskSerializer = (function () {
+    function SubTaskSerializer() {
+    }
+    SubTaskSerializer.prototype.toJSON = function (obj) {
+        var json = {
+            title: obj.getTitle(),
+            startEpochMillis: obj.getStart().getTime().toString(),
+            endEpochMillis: obj.getEnd().getTime().toString(),
+            isAllDay: obj.getIsAllDay().toString(),
+            deadlineId: obj.getDeadlineID(),
+            isDone: obj.getIsDone().toString(),
+            _id: obj.getID()
+        };
+        return json;
+    };
+    SubTaskSerializer.prototype.fromJSON = function (json) {
+        return new SubTask(json.title, new Date(parseInt(json.startEpochMillis)), new Date(parseInt(json.endEpochMillis)), json.isAllDay == "true", json._id, json.deadlineId, json.isDone == "true");
+    };
+    return SubTaskSerializer;
+}());
+exports.SubTaskSerializer = SubTaskSerializer;
 var Deadline = (function (_super) {
     __extends(Deadline, _super);
-    function Deadline(title, start, isAllDay, id) {
+    function Deadline(title, start, isAllDay, id, subTasks) {
         _super.call(this, title, start, isAllDay, id);
+        this.subTasks = subTasks;
     }
+    Deadline.prototype.getSubTasks = function () { return this.subTasks; };
     return Deadline;
 }(Item));
 exports.Deadline = Deadline;
@@ -397,16 +438,31 @@ var DeadlineSerializer = (function () {
     function DeadlineSerializer() {
     }
     DeadlineSerializer.prototype.toJSON = function (obj) {
+        var subTasksJsons = [];
+        var subTaskSerializer = new SubTaskSerializer();
+        for (var _i = 0, _a = obj.getSubTasks(); _i < _a.length; _i++) {
+            var currSubTask = _a[_i];
+            var currSubTaskJson = subTaskSerializer.toJSON(currSubTask);
+            subTasksJsons.push(currSubTaskJson);
+        }
         var json = {
             title: obj.getTitle(),
             startEpochMillis: obj.getStart().getTime().toString(),
             isAllDay: obj.getIsAllDay().toString(),
-            _id: obj.getID()
+            _id: obj.getID(),
+            subTasks: subTasksJsons
         };
         return json;
     };
-    DeadlineSerializer.prototype.fromJSON = function (deadlineJson) {
-        return new Deadline(deadlineJson.title, new Date(parseInt(deadlineJson.startEpochMillis)), deadlineJson.isAllDay == "true", deadlineJson._id);
+    DeadlineSerializer.prototype.fromJSON = function (json) {
+        var subTasks = [];
+        var subTaskSerializer = new SubTaskSerializer();
+        for (var _i = 0, _a = json.subTasks; _i < _a.length; _i++) {
+            var currSubTaskJson = _a[_i];
+            var currSubTask = subTaskSerializer.fromJSON(currSubTaskJson);
+            subTasks.push(currSubTask);
+        }
+        return new Deadline(json.title, new Date(parseInt(json.startEpochMillis)), json.isAllDay == "true", json._id, subTasks);
     };
     return DeadlineSerializer;
 }());

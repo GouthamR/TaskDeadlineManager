@@ -130,12 +130,83 @@ export class TaskSerializer implements JSONSerializer<Task, TaskJSON>
     }
 }
 
+export class SubTask extends Task
+{
+    private deadlineId: string;
+    private isDone: boolean;
+
+    public constructor(title: string, start: Date, end: Date,
+                        isAllDay: boolean, id: string, deadlineId: string,
+                        isDone: boolean = false)
+    {
+        super(title, start, end, isAllDay, id);
+        this.deadlineId = deadlineId;
+        this.isDone = isDone;
+    }
+
+    public getDeadlineID(): string { return this.deadlineId; }
+    public getIsDone(): boolean { return this.isDone; }
+
+    public getDayTimeString(): string
+    {
+        let begin: string = super.getDayTimeString();
+        let end: string = "[" + this.deadlineId + "]";
+        return (begin + end);
+    }
+}
+
+export interface SubTaskJSONWithoutID extends TaskJSONWithoutID
+{
+    deadlineId: string;
+    isDone: string;
+}
+
+export interface SubTaskJSON extends SubTaskJSONWithoutID
+{
+    _id: string;
+}
+
+export class SubTaskSerializer implements JSONSerializer<SubTask, SubTaskJSON>
+{
+    toJSON(obj: SubTask): SubTaskJSON
+    {
+        let json: SubTaskJSON =
+        {
+            title: obj.getTitle(),
+            startEpochMillis: obj.getStart().getTime().toString(),
+            endEpochMillis: obj.getEnd().getTime().toString(),
+            isAllDay: obj.getIsAllDay().toString(),
+            deadlineId: obj.getDeadlineID(),
+            isDone: obj.getIsDone().toString(),
+            _id: obj.getID()
+        };
+        return json;
+    }
+
+    fromJSON(json: SubTaskJSON): SubTask
+    {
+        return new SubTask(json.title, 
+                            new Date(parseInt(json.startEpochMillis)),
+                            new Date(parseInt(json.endEpochMillis)), 
+                            json.isAllDay == "true",
+                            json._id,
+                            json.deadlineId,
+                            json.isDone == "true");
+    }
+}
+
 export class Deadline extends Item
 {
-    public constructor(title: string, start: Date, isAllDay: boolean, id: string)
+    private subTasks: SubTask[];
+
+    public constructor(title: string, start: Date, isAllDay: boolean, 
+                        id: string, subTasks: SubTask[])
     {
         super(title, start, isAllDay, id);
+        this.subTasks = subTasks;
     }
+
+    public getSubTasks(): SubTask[] { return this.subTasks; }
 }
 
 export interface DeadlineJSON
@@ -144,26 +215,45 @@ export interface DeadlineJSON
     startEpochMillis: string;
     isAllDay: string;
     _id: string;
+    subTasks: SubTaskJSON[];
 }
 
 export class DeadlineSerializer implements JSONSerializer<Deadline, DeadlineJSON>
 {
     toJSON(obj: Deadline): DeadlineJSON
     {
+        let subTasksJsons: SubTaskJSON[] = [];
+        let subTaskSerializer: SubTaskSerializer = new SubTaskSerializer();
+        for(let currSubTask of obj.getSubTasks())
+        {
+            let currSubTaskJson: SubTaskJSON = subTaskSerializer.toJSON(currSubTask);
+            subTasksJsons.push(currSubTaskJson);
+        }
+
         let json: DeadlineJSON =
         {
             title: obj.getTitle(),
             startEpochMillis: obj.getStart().getTime().toString(),
             isAllDay: obj.getIsAllDay().toString(),
-            _id: obj.getID()
+            _id: obj.getID(),
+            subTasks: subTasksJsons
         };
         return json;
     }
-    fromJSON(deadlineJson: DeadlineJSON): Deadline
+    fromJSON(json: DeadlineJSON): Deadline
     {
-        return new Deadline(deadlineJson.title, 
-                            new Date(parseInt(deadlineJson.startEpochMillis)),
-                            deadlineJson.isAllDay == "true",
-                            deadlineJson._id);
+        let subTasks: SubTask[] = [];
+        let subTaskSerializer: SubTaskSerializer = new SubTaskSerializer();
+        for(let currSubTaskJson of json.subTasks)
+        {
+            let currSubTask: SubTask = subTaskSerializer.fromJSON(currSubTaskJson);
+            subTasks.push(currSubTask);
+        }
+
+        return new Deadline(json.title, 
+                            new Date(parseInt(json.startEpochMillis)),
+                            json.isAllDay == "true",
+                            json._id,
+                            subTasks);
     }
 }
