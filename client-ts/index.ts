@@ -77,7 +77,15 @@ class View
 
     private openSettings(item: Item, li: JQuery)
     {
-        new ItemEditor(item, li, this.fillLi.bind(this));
+        new ItemEditor(item, li, 
+                        (l: JQuery, i: Item) => this.onCloseSettings(l, i));
+    }
+
+    private onCloseSettings(li: JQuery, item: Item)
+    {
+        // STUB (does not update deadlines correctly):
+        this.fillLi(li, item);
+        this.mainModel.updateTaskOnServer(item as Task);
     }
 
     private createLi(item: Item): JQuery

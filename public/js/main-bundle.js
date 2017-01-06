@@ -220,7 +220,13 @@ var View = (function () {
         li.append(check, middle, settings);
     };
     View.prototype.openSettings = function (item, li) {
-        new ItemEditor(item, li, this.fillLi.bind(this));
+        var _this = this;
+        new ItemEditor(item, li, function (l, i) { return _this.onCloseSettings(l, i); });
+    };
+    View.prototype.onCloseSettings = function (li, item) {
+        // STUB (does not update deadlines correctly):
+        this.fillLi(li, item);
+        this.mainModel.updateTaskOnServer(item);
     };
     View.prototype.createLi = function (item) {
         var li = $("<li>");
