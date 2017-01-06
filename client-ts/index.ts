@@ -18,6 +18,8 @@ class View
 
         let $addTaskButton: JQuery = this.$indexContainer.find(".index-task-container > a");
         $addTaskButton.click((event: JQueryEventObject) => this.mainModel.switchToView(main.View.AddTask));
+        let $addDeadlineButton: JQuery = this.$indexContainer.find(".index-deadline-container > a");
+        $addDeadlineButton.click((event: JQueryEventObject) => this.mainModel.switchToView(main.View.AddDeadline));
     }
 
     private markItemDone(item: Item, li: JQuery): void

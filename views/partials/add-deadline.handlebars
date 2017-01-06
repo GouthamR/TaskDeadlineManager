@@ -1,0 +1,46 @@
+{{#section 'links'}}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js"></script>
+{{/section}}
+
+<!-- body: -->
+<div class="add-deadline">
+	<h1>Add Deadline</h1>
+	<form class="add-deadline-form" action="/add-deadline" method="post">
+		<fieldset class="add-deadline-form-deadline-fields">
+			<legend>Deadline Info:</legend>
+			<label>
+				Title
+				<input type="text" class="add-deadline-form-deadline-title-input" name="title" autofocus="true">
+			</label>
+			<label>
+				Start
+				<input type="date" class="add-deadline-form-deadline-start-date-input" name="start-date">
+			</label>
+			<input type="time" class="add-deadline-form-deadline-start-time-input" name="start-time">
+		</fieldset>
+		<fieldset class="add-deadline-form-subtask-fields">
+			<legend>SubTask Info:</legend>
+			<fieldset class="add-deadline-form-subtask-fields-1">
+				<legend>SubTask 1:</legend>
+				<label>
+					Title
+					<input type="text" class="add-deadline-form-subtask-title-input" name="title" autofocus="true">
+				</label>
+				<label>
+					Start
+					<input type="date" class="add-deadline-form-subtask-start-date-input" name="start-date">
+				</label>
+				<input type="time" class="add-deadline-form-subtask-start-time-input" name="start-time">
+				<label>
+					End
+					<input type="date" class="add-deadline-form-subtask-end-date-input" name="end-date">
+				</label>
+				<input type="time" class="add-deadline-form-subtask-end-time-input" name="end-time">
+				<input type="button" class="add-deadline-form-subtask-remove-button" value="-">
+			</fieldset>
+		<input type="button" class="add-deadline-form-subtask-add-button" value="+">
+		</fieldset>
+		<input type="submit" value="Done">
+	</form>
+</div>

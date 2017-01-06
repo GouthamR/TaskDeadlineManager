@@ -183,6 +183,8 @@ var View = (function () {
         this.mainModel = mainModel;
         var $addTaskButton = this.$indexContainer.find(".index-task-container > a");
         $addTaskButton.click(function (event) { return _this.mainModel.switchToView(main.View.AddTask); });
+        var $addDeadlineButton = this.$indexContainer.find(".index-deadline-container > a");
+        $addDeadlineButton.click(function (event) { return _this.mainModel.switchToView(main.View.AddDeadline); });
     }
     View.prototype.markItemDone = function (item, li) {
         // STUB (does not remove deadlines correctly):
@@ -479,7 +481,8 @@ var item_2 = require("./item");
 (function (View) {
     View[View["Index"] = 0] = "Index";
     View[View["AddTask"] = 1] = "AddTask";
-    View[View["Calendar"] = 2] = "Calendar";
+    View[View["AddDeadline"] = 2] = "AddDeadline";
+    View[View["Calendar"] = 3] = "Calendar";
 })(exports.View || (exports.View = {}));
 var View = exports.View;
 var MainModel = (function () {
@@ -504,6 +507,7 @@ var MainModel = (function () {
         var CLASS_NAME_TO_VIEW_VALUE_MAP = {
             ".main-index": View.Index,
             ".main-add-task": View.AddTask,
+            ".main-add-deadline": View.AddDeadline,
             ".main-calendar": View.Calendar
         };
         for (var className in CLASS_NAME_TO_VIEW_VALUE_MAP) {

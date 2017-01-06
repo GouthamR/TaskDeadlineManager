@@ -11,7 +11,7 @@ import { DeadlineSerializer } from "./item";
 
 export enum View
 {
-	Index, AddTask, Calendar
+	Index, AddTask, AddDeadline, Calendar
 }
 
 export class MainModel
@@ -44,6 +44,7 @@ export class MainModel
 		{
 			".main-index": View.Index,
 			".main-add-task": View.AddTask,
+			".main-add-deadline": View.AddDeadline,
 			".main-calendar": View.Calendar
 		};
 
