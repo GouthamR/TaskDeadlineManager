@@ -175,26 +175,6 @@ exports.init = init;
 },{}],3:[function(require,module,exports){
 "use strict";
 var main = require("./main");
-var ItemEditor = (function () {
-    function ItemEditor(item, li, doneCallback) {
-        this.item = item;
-        this.li = li;
-        this.li.empty();
-        this.titleInput = $("<input>", { type: "text", value: this.item.getTitle() });
-        this.li.append(this.titleInput);
-        var doneButton = $("<input>", { type: "button", value: "Done" });
-        doneButton.click(this.doneButtonClickFn.bind(this));
-        this.li.append(doneButton);
-        this.doneCallback = doneCallback;
-    }
-    ItemEditor.prototype.doneButtonClickFn = function () {
-        this.item.setTitle(this.titleInput.val());
-        this.li.empty();
-        console.log(this.item);
-        this.doneCallback(this.li, this.item);
-    };
-    return ItemEditor;
-}());
 var View = (function () {
     function View($targetContainer, indexModel, mainModel) {
         var _this = this;
@@ -216,15 +196,24 @@ var View = (function () {
         var check = $("<img>", { class: "td-check", src: "img/check.png" });
         var settings = $("<img>", { class: "td-settings", src: "img/gear.png" });
         check.click(this.markItemDone.bind(this, item, li));
-        settings.click(this.openSettings.bind(this, item, li));
+        settings.click(this.onOpenSettingsClicked.bind(this, item, li));
         li.append(check, middle, settings);
     };
-    View.prototype.openSettings = function (item, li) {
+    View.prototype.onOpenSettingsClicked = function (item, li) {
         var _this = this;
-        new ItemEditor(item, li, function (l, i) { return _this.onCloseSettings(l, i); });
+        li.empty();
+        var $titleInput = $("<input>", { type: "text", value: item.getTitle() });
+        li.append($titleInput);
+        var doneButton = $("<input>", { type: "button", value: "Done" });
+        doneButton.click(function (e) { return _this.onCloseSettingsClicked(li, item); });
+        li.append(doneButton);
     };
-    View.prototype.onCloseSettings = function (li, item) {
+    View.prototype.onCloseSettingsClicked = function (li, item) {
         // STUB (does not update deadlines correctly):
+        var $titleInput = li.find("input[type='text']");
+        item.setTitle($titleInput.val());
+        console.log(item);
+        li.empty();
         this.fillLi(li, item);
         this.mainModel.updateTaskOnServer(item);
     };

@@ -3,39 +3,6 @@ import { Task } from "./item";
 import { Deadline } from "./item";
 import * as main from "./main"
 
-class ItemEditor
-{
-    private item: Item;
-    private li: JQuery;
-    private titleInput: JQuery;
-    private doneCallback: (li: JQuery, item: Item)=>void;
-
-    public constructor(item: Item, li: JQuery, doneCallback: (li: JQuery, item: Item)=>void)
-    {
-        this.item = item;
-        this.li = li;
-
-        this.li.empty();
-
-        this.titleInput = $("<input>", {type: "text", value: this.item.getTitle()});
-        this.li.append(this.titleInput);
-
-        let doneButton: JQuery = $("<input>", {type: "button", value: "Done"});
-        doneButton.click(this.doneButtonClickFn.bind(this));
-        this.li.append(doneButton);
-
-        this.doneCallback = doneCallback;
-    }
-
-    private doneButtonClickFn(): void
-    {
-        this.item.setTitle(this.titleInput.val());
-        this.li.empty();
-        console.log(this.item);
-        this.doneCallback(this.li, this.item);
-    }
-}
-
 class View
 {
     private $indexContainer: JQuery;
@@ -70,20 +37,31 @@ class View
         let settings: JQuery = $("<img>", {class: "td-settings", src: "img/gear.png"});
 
         check.click(this.markItemDone.bind(this, item, li));
-        settings.click(this.openSettings.bind(this, item, li));
+        settings.click(this.onOpenSettingsClicked.bind(this, item, li));
 
         li.append(check, middle, settings);
     }
 
-    private openSettings(item: Item, li: JQuery)
+    private onOpenSettingsClicked(item: Item, li: JQuery)
     {
-        new ItemEditor(item, li, 
-                        (l: JQuery, i: Item) => this.onCloseSettings(l, i));
+        li.empty();
+
+        let $titleInput = $("<input>", {type: "text", value: item.getTitle()});
+        li.append($titleInput);
+        let doneButton: JQuery = $("<input>", {type: "button", value: "Done"});
+        doneButton.click((e: JQueryEventObject) => this.onCloseSettingsClicked(li, item));
+        li.append(doneButton);
     }
 
-    private onCloseSettings(li: JQuery, item: Item)
+    private onCloseSettingsClicked(li: JQuery, item: Item)
     {
         // STUB (does not update deadlines correctly):
+
+        let $titleInput = li.find("input[type='text']");
+        item.setTitle($titleInput.val());
+        console.log(item);
+
+        li.empty();
         this.fillLi(li, item);
         this.mainModel.updateTaskOnServer(item as Task);
     }
