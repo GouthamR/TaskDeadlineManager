@@ -7,6 +7,20 @@ var getTaskJSONWithMongoObjectID = function(request)
 	return taskJSON;
 };
 
+var deadlineJSONWithoutIDToDeadlineJSON = function(deadlineJSONWithoutID)
+{
+	var deadlineJSON = deadlineJSONWithoutID;
+	deadlineJSON._id = new mongodb.ObjectId();
+	for (var i = 0; i < deadlineJSON.subTasks.length; i++)
+	{
+		deadlineJSON.subTasks[i].deadlineId = deadlineJSON._id;
+		deadlineJSON.subTasks[i]._id = new mongodb.ObjectId();
+	};
+	return deadlineJSON;
+}
+
+// STUB (does not handle mongodb errors):
+
 var config = function(app, db)
 {
 	app.get('/', function(request, response)
@@ -45,6 +59,23 @@ var config = function(app, db)
 		{
 			// insertion automatically adds _id field
 			collection.insert(taskObject, {}, function(insert_error, result)
+			{
+				response.json(result);
+			});
+		});
+	});
+
+	// Argument: DeadlineJSONWithoutID
+	app.post('/add-deadline', function(request, response)
+	{
+		var deadlineObjWithoutId = request.body;
+		console.log("Deadline to add: ")
+		console.log(deadlineObjWithoutId);
+		
+		db.collection("deadlines", function(collection_error, collection)
+		{
+			var deadlineJSON = deadlineJSONWithoutIDToDeadlineJSON(deadlineObjWithoutId);
+			collection.insert(deadlineJSON, {}, function(insert_error, result)
 			{
 				response.json(result);
 			});

@@ -184,11 +184,21 @@ export class MainModel
 		});
 	}
 
-	public addDeadlineToServer(deadline: DeadlineJSONWithoutID): void
+	public addDeadlineToServer(json: DeadlineJSONWithoutID): void
 	{
-		// STUB:
-		console.log("addDeadlineToServer:");
-		console.log(deadline);
+		$.post("add-deadline", json)
+		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
+		{
+			console.log("Add Deadline success:");
+			console.log(data);
+			index.reloadFromServer();
+		})
+		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
+		{
+			let errorDetails: string = textStatus + ", " + error;
+			alert("ERROR: Add Deadline failed.\nDetails: " + errorDetails);
+			console.log(errorDetails);
+		});
 	}
 }
 

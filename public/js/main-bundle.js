@@ -671,10 +671,18 @@ var MainModel = (function () {
             console.log(errorDetails);
         });
     };
-    MainModel.prototype.addDeadlineToServer = function (deadline) {
-        // STUB:
-        console.log("addDeadlineToServer:");
-        console.log(deadline);
+    MainModel.prototype.addDeadlineToServer = function (json) {
+        $.post("add-deadline", json)
+            .done(function (data, textStatus, jqXHR) {
+            console.log("Add Deadline success:");
+            console.log(data);
+            index.reloadFromServer();
+        })
+            .fail(function (jqXHR, textStatus, error) {
+            var errorDetails = textStatus + ", " + error;
+            alert("ERROR: Add Deadline failed.\nDetails: " + errorDetails);
+            console.log(errorDetails);
+        });
     };
     return MainModel;
 }());
