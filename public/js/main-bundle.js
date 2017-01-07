@@ -305,6 +305,17 @@ var View = (function () {
         var $taskContainer = this.$indexContainer.find(".index-task-container");
         this.addItemToContainer(task, $taskContainer);
     };
+    View.prototype.addDeadlineToDeadlinesView = function (deadline) {
+        var $deadlineContainer = this.$indexContainer.find(".index-deadline-container");
+        this.addItemToContainer(deadline, $deadlineContainer);
+    };
+    View.prototype.addDeadlineSubTasksToTasksView = function (deadline) {
+        var $taskContainer = this.$indexContainer.find(".index-task-container");
+        for (var _i = 0, _a = deadline.getSubTasks(); _i < _a.length; _i++) {
+            var subTask = _a[_i];
+            this.addItemToContainer(subTask, $taskContainer);
+        }
+    };
     View.prototype.clearAndShowLoadingOnContainer = function ($container) {
         var $ul = $container.find("ul");
         $ul.empty();
@@ -346,11 +357,16 @@ var View = (function () {
     };
     View.prototype.loadView = function (tasks, deadlines) {
         this.clearAndShowLoading();
-        for (var i = 0; i < tasks.length; i++) {
-            this.addTaskToView(tasks[i]);
+        for (var _i = 0, tasks_1 = tasks; _i < tasks_1.length; _i++) {
+            var task = tasks_1[_i];
+            this.addTaskToView(task);
         }
         this.removeTaskLoadingText();
-        // STUB (does not add deadlines to view):
+        for (var _a = 0, deadlines_1 = deadlines; _a < deadlines_1.length; _a++) {
+            var deadline = deadlines_1[_a];
+            this.addDeadlineToDeadlinesView(deadline);
+            this.addDeadlineSubTasksToTasksView(deadline);
+        }
         this.removeDeadlineLoadingText();
     };
     View.prototype.reloadFromServer = function () {

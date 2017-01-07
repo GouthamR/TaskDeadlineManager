@@ -93,6 +93,22 @@ class View
         this.addItemToContainer(task as Item, $taskContainer);
     }
 
+    private addDeadlineToDeadlinesView(deadline: Deadline): void
+    {
+        let $deadlineContainer: JQuery = this.$indexContainer.find(".index-deadline-container");
+        this.addItemToContainer(deadline as Item, $deadlineContainer);
+    }
+
+    private addDeadlineSubTasksToTasksView(deadline: Deadline): void
+    {
+        let $taskContainer: JQuery = this.$indexContainer.find(".index-task-container");
+        
+        for(let subTask of deadline.getSubTasks())
+        {
+            this.addItemToContainer(subTask as Item, $taskContainer);
+        }
+    }
+
     private clearAndShowLoadingOnContainer($container: JQuery): void
     {
         let $ul: JQuery = $container.find("ul");
@@ -154,13 +170,17 @@ class View
     {
         this.clearAndShowLoading();
 
-        for (let i: number = 0; i < tasks.length; i++)
+        for(let task of tasks)
         {
-            this.addTaskToView(tasks[i]);
+            this.addTaskToView(task);
         }
         this.removeTaskLoadingText();
 
-        // STUB (does not add deadlines to view):
+        for(let deadline of deadlines)
+        {
+            this.addDeadlineToDeadlinesView(deadline);
+            this.addDeadlineSubTasksToTasksView(deadline);
+        }
         this.removeDeadlineLoadingText();
     }
 
