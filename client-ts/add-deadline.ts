@@ -1,7 +1,7 @@
 /// <reference path="./moment_modified.d.ts" />
 
-import { Deadline } from "./item";
 import { DeadlineJSONWithoutID } from "./item";
+import { SubTaskJSONWithoutID } from "./item";
 import { DeadlineSerializer } from "./item";
 import * as main from "./main"
 
@@ -15,23 +15,40 @@ function toDate(dateWithoutTime: string, time: string): Date
     return moment(fullDate, "YYYY-MM-DD HH:mm").toDate();
 }
 
+function toSubTaskJSONWithoutID(formArray: Object, arrayStartIndex: number): SubTaskJSONWithoutID
+{
+    let title: string = formArray[arrayStartIndex].value;
+    let startDate: Date = toDate(formArray[arrayStartIndex + 1].value, formArray[arrayStartIndex + 2].value);
+    let endDate: Date = toDate(formArray[arrayStartIndex + 3].value, formArray[arrayStartIndex + 4].value);
+
+    let json: SubTaskJSONWithoutID = 
+    {
+        title: title,
+        startEpochMillis: startDate.getTime().toString(),
+        endEpochMillis: endDate.getTime().toString(),
+        isAllDay: "false",
+        isDone: "false"
+    };
+    return json;
+}
+
 function toDeadlineJSONWithoutID(formArray: Object): DeadlineJSONWithoutID
 {
-    // STUB:
+    // STUB (only considers one subtask):
+
+    let title: string = formArray[0].value;
+    let startDate: Date = toDate(formArray[1].value, formArray[2].value);
+
+    let subTask1Json: SubTaskJSONWithoutID = toSubTaskJSONWithoutID(formArray, 3);
+
     let json: DeadlineJSONWithoutID = 
     {
-        title: "deadline_title",
-        startEpochMillis: "100",
+        title: title,
+        startEpochMillis: startDate.getTime().toString(),
         isAllDay: "false",
         subTasks: 
         [
-            {
-                title: "subtask_title",
-                startEpochMillis: "50",
-                endEpochMillis: "70",
-                isAllDay: "false",
-                isDone: "false"
-            }
+            subTask1Json
         ]
     }
     return json;

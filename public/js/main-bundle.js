@@ -9,20 +9,30 @@ function toDate(dateWithoutTime, time) {
     var fullDate = dateWithoutTime + time;
     return moment(fullDate, "YYYY-MM-DD HH:mm").toDate();
 }
-function toDeadlineJSONWithoutID(formArray) {
-    // STUB:
+function toSubTaskJSONWithoutID(formArray, arrayStartIndex) {
+    var title = formArray[arrayStartIndex].value;
+    var startDate = toDate(formArray[arrayStartIndex + 1].value, formArray[arrayStartIndex + 2].value);
+    var endDate = toDate(formArray[arrayStartIndex + 3].value, formArray[arrayStartIndex + 4].value);
     var json = {
-        title: "deadline_title",
-        startEpochMillis: "100",
+        title: title,
+        startEpochMillis: startDate.getTime().toString(),
+        endEpochMillis: endDate.getTime().toString(),
+        isAllDay: "false",
+        isDone: "false"
+    };
+    return json;
+}
+function toDeadlineJSONWithoutID(formArray) {
+    // STUB (only considers one subtask):
+    var title = formArray[0].value;
+    var startDate = toDate(formArray[1].value, formArray[2].value);
+    var subTask1Json = toSubTaskJSONWithoutID(formArray, 3);
+    var json = {
+        title: title,
+        startEpochMillis: startDate.getTime().toString(),
         isAllDay: "false",
         subTasks: [
-            {
-                title: "subtask_title",
-                startEpochMillis: "50",
-                endEpochMillis: "70",
-                isAllDay: "false",
-                isDone: "false"
-            }
+            subTask1Json
         ]
     };
     return json;
