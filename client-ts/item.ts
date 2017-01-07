@@ -157,12 +157,12 @@ export class SubTask extends Task
 
 export interface SubTaskJSONWithoutID extends TaskJSONWithoutID
 {
-    deadlineId: string;
     isDone: string;
 }
 
 export interface SubTaskJSON extends SubTaskJSONWithoutID
 {
+    deadlineId: string;
     _id: string;
 }
 
@@ -209,13 +209,22 @@ export class Deadline extends Item
     public getSubTasks(): SubTask[] { return this.subTasks; }
 }
 
-export interface DeadlineJSON
+interface DeadlineJSONWithoutIDOrSubTask
 {
     title: string;
     startEpochMillis: string;
     isAllDay: string;
-    _id: string;
+}
+
+export interface DeadlineJSONWithoutID extends DeadlineJSONWithoutIDOrSubTask
+{
+    subTasks: SubTaskJSONWithoutID[];
+}
+
+export interface DeadlineJSON extends DeadlineJSONWithoutIDOrSubTask
+{
     subTasks: SubTaskJSON[];
+    _id: string;
 }
 
 export class DeadlineSerializer implements JSONSerializer<Deadline, DeadlineJSON>

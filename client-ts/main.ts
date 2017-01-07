@@ -1,4 +1,5 @@
 import * as AddTask from "./add-task"
+import * as AddDeadline from "./add-deadline"
 import * as index from "./index"
 import * as nav from "./nav"
 import * as calendar from "./calendar"
@@ -7,6 +8,7 @@ import { TaskJSONWithoutID } from "./item";
 import { TaskJSON } from "./item";
 import { TaskSerializer } from "./item";
 import { Deadline } from "./item";
+import { DeadlineJSONWithoutID } from "./item";
 import { DeadlineSerializer } from "./item";
 
 export enum View
@@ -181,6 +183,13 @@ export class MainModel
 			console.log(errorDetails);
 		});
 	}
+
+	public addDeadlineToServer(deadline: DeadlineJSONWithoutID): void
+	{
+		// STUB:
+		console.log("addDeadlineToServer:");
+		console.log(deadline);
+	}
 }
 
 export class IndexModel
@@ -236,6 +245,7 @@ function main(): void
 	addTaskModel = new AddTaskModel();
 
 	AddTask.init($(".main-add-task"), addTaskModel, mainModel);
+	AddDeadline.init($(".main-add-deadline"), mainModel);
 	index.init($(".main-index"), indexModel, mainModel);
 	nav.init($(".main-nav"), mainModel);
 	calendar.init($(".main-calendar"), mainModel);

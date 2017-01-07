@@ -3,6 +3,65 @@
 "use strict";
 var main = require("./main");
 // Module-scope variables:
+var $addDeadlineContainer;
+var mainModel;
+function toDate(dateWithoutTime, time) {
+    var fullDate = dateWithoutTime + time;
+    return moment(fullDate, "YYYY-MM-DD HH:mm").toDate();
+}
+function toDeadlineJSONWithoutID(formArray) {
+    // STUB:
+    var json = {
+        title: "deadline_title",
+        startEpochMillis: "100",
+        isAllDay: "false",
+        subTasks: [
+            {
+                title: "subtask_title",
+                startEpochMillis: "50",
+                endEpochMillis: "70",
+                isAllDay: "false",
+                isDone: "false"
+            }
+        ]
+    };
+    return json;
+}
+function getFormAsJSON() {
+    var formArray = $addDeadlineContainer.find(".add-deadline-form").serializeArray();
+    console.log(formArray);
+    return toDeadlineJSONWithoutID(formArray);
+}
+function setDefaultDateTimeInputValues() {
+    var dateInputs = $addDeadlineContainer.find(".add-deadline-form input[type='date']").toArray();
+    for (var _i = 0, dateInputs_1 = dateInputs; _i < dateInputs_1.length; _i++) {
+        var dateInput = dateInputs_1[_i];
+        $(dateInput).val(moment().format("YYYY-MM-DD"));
+    }
+    var $startTimeInput = $addDeadlineContainer.find(".add-deadline-form-deadline-start-time-input");
+    $startTimeInput.val(moment().startOf("hour").add(1, 'hours').format("HH:mm"));
+}
+function onAddDeadlineSubmit(event) {
+    event.preventDefault();
+    mainModel.switchToView(main.View.Index);
+    var json = getFormAsJSON();
+    mainModel.addDeadlineToServer(json);
+}
+function init($targetContainer, mainModelParam) {
+    "use strict";
+    $addDeadlineContainer = $targetContainer.find(".add-deadline");
+    mainModel = mainModelParam;
+    var $addDeadlineForm = $addDeadlineContainer.find(".add-deadline-form");
+    $addDeadlineForm.on("submit", function (event) { return onAddDeadlineSubmit(event); });
+    setDefaultDateTimeInputValues();
+}
+exports.init = init;
+
+},{"./main":6}],2:[function(require,module,exports){
+/// <reference path="./moment_modified.d.ts" />
+"use strict";
+var main = require("./main");
+// Module-scope variables:
 var $addTaskContainer;
 var addTaskModel;
 var mainModel;
@@ -54,7 +113,7 @@ function init($targetContainer, addTaskModelParam, mainModelParam) {
 }
 exports.init = init;
 
-},{"./main":5}],2:[function(require,module,exports){
+},{"./main":6}],3:[function(require,module,exports){
 /// <reference path="./fullcalendar_modified.d.ts" />
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
@@ -172,7 +231,7 @@ function init($targetContainer, mainModelParam) {
 }
 exports.init = init;
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 "use strict";
 var main = require("./main");
 var View = (function () {
@@ -303,7 +362,7 @@ function init($targetContainer, indexModel, mainModel) {
 }
 exports.init = init;
 
-},{"./main":5}],4:[function(require,module,exports){
+},{"./main":6}],5:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -470,9 +529,10 @@ var DeadlineSerializer = (function () {
 }());
 exports.DeadlineSerializer = DeadlineSerializer;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 var AddTask = require("./add-task");
+var AddDeadline = require("./add-deadline");
 var index = require("./index");
 var nav = require("./nav");
 var calendar = require("./calendar");
@@ -601,6 +661,11 @@ var MainModel = (function () {
             console.log(errorDetails);
         });
     };
+    MainModel.prototype.addDeadlineToServer = function (deadline) {
+        // STUB:
+        console.log("addDeadlineToServer:");
+        console.log(deadline);
+    };
     return MainModel;
 }());
 exports.MainModel = MainModel;
@@ -651,6 +716,7 @@ function main() {
     indexModel = new IndexModel();
     addTaskModel = new AddTaskModel();
     AddTask.init($(".main-add-task"), addTaskModel, mainModel);
+    AddDeadline.init($(".main-add-deadline"), mainModel);
     index.init($(".main-index"), indexModel, mainModel);
     nav.init($(".main-nav"), mainModel);
     calendar.init($(".main-calendar"), mainModel);
@@ -659,7 +725,7 @@ function main() {
 }
 $(document).ready(main);
 
-},{"./add-task":1,"./calendar":2,"./index":3,"./item":4,"./nav":6}],6:[function(require,module,exports){
+},{"./add-deadline":1,"./add-task":2,"./calendar":3,"./index":4,"./item":5,"./nav":7}],7:[function(require,module,exports){
 "use strict";
 var main = require("./main");
 // Module-scope variables:
@@ -713,4 +779,4 @@ function init($targetContainer, mainModel) {
 }
 exports.init = init;
 
-},{"./main":5}]},{},[5]);
+},{"./main":6}]},{},[6]);
