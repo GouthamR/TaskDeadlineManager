@@ -44,8 +44,15 @@ var config = function(app, db)
 
 	app.get('/load-deadlines', function(request, response)
 	{
-		var deadlines = [];
-		response.json(deadlines);
+		db.collection("deadlines", function(collection_error, collection)
+		{
+			collection.find().toArray(function(array_error, documents)
+			{
+				console.log("Loaded deadlines:");
+				console.log(documents);
+				response.json(documents);
+			});
+		});
 	});
 
 	// Argument: TaskJSONWithoutID
