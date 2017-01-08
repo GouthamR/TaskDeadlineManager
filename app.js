@@ -46,20 +46,7 @@ db.open(function()
 	console.log("Connected to db");
 });
 
-routes.config(app, db);
-
-app.use(function(req, res)
-{
-	res.status(404);
-	res.render("404");
-});
-
-app.use(function(err, req, res, next)
-{
-	console.error(err.stack);
-	res.status(500);
-	res.render("500");
-});
+routes.config(app, db); // ok to config before db is loaded (but not ok to go to routes before db is loaded)
 
 app.set("port", process.env.PORT || 3000);
 
