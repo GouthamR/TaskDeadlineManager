@@ -5,6 +5,25 @@ var main = require("./main");
 // Module-scope variables:
 var $addDeadlineContainer;
 var mainModel;
+var SUBTASK_FIELDSET_TEMPLATE = "";
+SUBTASK_FIELDSET_TEMPLATE += "<fieldset class=\"add-deadline-form-subtask\">";
+SUBTASK_FIELDSET_TEMPLATE += " <legend>SubTask:<\/legend>";
+SUBTASK_FIELDSET_TEMPLATE += " <label>";
+SUBTASK_FIELDSET_TEMPLATE += "     Title";
+SUBTASK_FIELDSET_TEMPLATE += "     <input type=\"text\" class=\"add-deadline-form-subtask-title-input\" name=\"title\" autofocus=\"true\">";
+SUBTASK_FIELDSET_TEMPLATE += " <\/label>";
+SUBTASK_FIELDSET_TEMPLATE += " <label>";
+SUBTASK_FIELDSET_TEMPLATE += "     Start";
+SUBTASK_FIELDSET_TEMPLATE += "     <input type=\"date\" class=\"add-deadline-form-subtask-start-date-input\" name=\"start-date\">";
+SUBTASK_FIELDSET_TEMPLATE += " <\/label>";
+SUBTASK_FIELDSET_TEMPLATE += " <input type=\"time\" class=\"add-deadline-form-subtask-start-time-input\" name=\"start-time\">";
+SUBTASK_FIELDSET_TEMPLATE += " <label>";
+SUBTASK_FIELDSET_TEMPLATE += "     End";
+SUBTASK_FIELDSET_TEMPLATE += "     <input type=\"date\" class=\"add-deadline-form-subtask-end-date-input\" name=\"end-date\">";
+SUBTASK_FIELDSET_TEMPLATE += " <\/label>";
+SUBTASK_FIELDSET_TEMPLATE += " <input type=\"time\" class=\"add-deadline-form-subtask-end-time-input\" name=\"end-time\">";
+SUBTASK_FIELDSET_TEMPLATE += " <input type=\"button\" class=\"add-deadline-form-subtask-remove-button\" value=\"-\">";
+SUBTASK_FIELDSET_TEMPLATE += "<\/fieldset>";
 function toDate(dateWithoutTime, time) {
     var fullDate = dateWithoutTime + time;
     return moment(fullDate, "YYYY-MM-DD HH:mm").toDate();
@@ -34,7 +53,7 @@ function toSubTaskJSONWithoutID($fieldset) {
 function getFormSubtasksJSONsWithoutID() {
     var jsons = [];
     var SUBTASK_FIELDSETS_SELECTOR = ".add-deadline-form-subtasks .add-deadline-form-subtask";
-    var $subTaskFieldsets = $(SUBTASK_FIELDSETS_SELECTOR);
+    var $subTaskFieldsets = $addDeadlineContainer.find(SUBTASK_FIELDSETS_SELECTOR);
     $subTaskFieldsets.each(function (index, element) {
         var $currFieldset = $(element);
         var currJson = toSubTaskJSONWithoutID($currFieldset);
@@ -59,12 +78,9 @@ function getFormAsJSON() {
     };
     return json;
 }
-function setDefaultDateTimeInputValues() {
-    var dateInputs = $addDeadlineContainer.find(".add-deadline-form input[type='date']").toArray();
-    for (var _i = 0, dateInputs_1 = dateInputs; _i < dateInputs_1.length; _i++) {
-        var dateInput = dateInputs_1[_i];
-        $(dateInput).val(moment().format("YYYY-MM-DD"));
-    }
+function setDefaultDeadlineDateTimeInputValues() {
+    var $dateInput = $addDeadlineContainer.find(".add-deadline-form-deadline-start-date-input");
+    $dateInput.val(moment().format("YYYY-MM-DD"));
     var $startTimeInput = $addDeadlineContainer.find(".add-deadline-form-deadline-start-time-input");
     $startTimeInput.val(moment().startOf("hour").add(1, 'hours').format("HH:mm"));
 }
@@ -74,13 +90,24 @@ function onAddDeadlineSubmit(event) {
     var json = getFormAsJSON();
     mainModel.addDeadlineToServer(json);
 }
+function onAddSubTaskClicked(event) {
+    var $newFieldSet = $($.parseHTML(SUBTASK_FIELDSET_TEMPLATE));
+    var $removeButton = $newFieldSet.find(".add-deadline-form-subtask-remove-button");
+    $removeButton.click(function (event) {
+        $newFieldSet.remove();
+    });
+    var $addButton = $addDeadlineContainer.find(".add-deadline-form-subtask-add-button");
+    $addButton.before($newFieldSet);
+}
 function init($targetContainer, mainModelParam) {
     "use strict";
     $addDeadlineContainer = $targetContainer.find(".add-deadline");
     mainModel = mainModelParam;
     var $addDeadlineForm = $addDeadlineContainer.find(".add-deadline-form");
     $addDeadlineForm.on("submit", function (event) { return onAddDeadlineSubmit(event); });
-    setDefaultDateTimeInputValues();
+    var $subTaskAddButton = $addDeadlineContainer.find(".add-deadline-form-subtask-add-button");
+    $subTaskAddButton.click(function (event) { return onAddSubTaskClicked(event); });
+    setDefaultDeadlineDateTimeInputValues();
 }
 exports.init = init;
 

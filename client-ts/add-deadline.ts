@@ -8,6 +8,25 @@ import * as main from "./main"
 // Module-scope variables:
 let $addDeadlineContainer: JQuery;
 let mainModel: main.MainModel;
+var SUBTASK_FIELDSET_TEMPLATE = "";
+SUBTASK_FIELDSET_TEMPLATE += "<fieldset class=\"add-deadline-form-subtask\">";
+SUBTASK_FIELDSET_TEMPLATE += " <legend>SubTask:<\/legend>";
+SUBTASK_FIELDSET_TEMPLATE += " <label>";
+SUBTASK_FIELDSET_TEMPLATE += "     Title";
+SUBTASK_FIELDSET_TEMPLATE += "     <input type=\"text\" class=\"add-deadline-form-subtask-title-input\" name=\"title\" autofocus=\"true\">";
+SUBTASK_FIELDSET_TEMPLATE += " <\/label>";
+SUBTASK_FIELDSET_TEMPLATE += " <label>";
+SUBTASK_FIELDSET_TEMPLATE += "     Start";
+SUBTASK_FIELDSET_TEMPLATE += "     <input type=\"date\" class=\"add-deadline-form-subtask-start-date-input\" name=\"start-date\">";
+SUBTASK_FIELDSET_TEMPLATE += " <\/label>";
+SUBTASK_FIELDSET_TEMPLATE += " <input type=\"time\" class=\"add-deadline-form-subtask-start-time-input\" name=\"start-time\">";
+SUBTASK_FIELDSET_TEMPLATE += " <label>";
+SUBTASK_FIELDSET_TEMPLATE += "     End";
+SUBTASK_FIELDSET_TEMPLATE += "     <input type=\"date\" class=\"add-deadline-form-subtask-end-date-input\" name=\"end-date\">";
+SUBTASK_FIELDSET_TEMPLATE += " <\/label>";
+SUBTASK_FIELDSET_TEMPLATE += " <input type=\"time\" class=\"add-deadline-form-subtask-end-time-input\" name=\"end-time\">";
+SUBTASK_FIELDSET_TEMPLATE += " <input type=\"button\" class=\"add-deadline-form-subtask-remove-button\" value=\"-\">";
+SUBTASK_FIELDSET_TEMPLATE += "<\/fieldset>";
 
 function toDate(dateWithoutTime: string, time: string): Date
 {
@@ -47,7 +66,7 @@ function getFormSubtasksJSONsWithoutID(): SubTaskJSONWithoutID[]
     let jsons: SubTaskJSONWithoutID[] = [];
 
     const SUBTASK_FIELDSETS_SELECTOR: string  = ".add-deadline-form-subtasks .add-deadline-form-subtask";
-    let $subTaskFieldsets: JQuery = $(SUBTASK_FIELDSETS_SELECTOR);
+    let $subTaskFieldsets: JQuery = $addDeadlineContainer.find(SUBTASK_FIELDSETS_SELECTOR);
     $subTaskFieldsets.each(function(index: number, element: Element)
     {
         let $currFieldset: JQuery = $(element);
@@ -81,13 +100,10 @@ function getFormAsJSON(): DeadlineJSONWithoutID
     return json;
 }
 
-function setDefaultDateTimeInputValues()
+function setDefaultDeadlineDateTimeInputValues()
 {
-    let dateInputs: HTMLElement[] = $addDeadlineContainer.find(".add-deadline-form input[type='date']").toArray();
-    for(let dateInput of dateInputs)
-    {
-        $(dateInput).val(moment().format("YYYY-MM-DD"));
-    }
+    let $dateInput: JQuery = $addDeadlineContainer.find(".add-deadline-form-deadline-start-date-input");
+    $dateInput.val(moment().format("YYYY-MM-DD"));
 
     let $startTimeInput: JQuery = $addDeadlineContainer.find(".add-deadline-form-deadline-start-time-input");
     $startTimeInput.val(moment().startOf("hour").add(1, 'hours').format("HH:mm"));
@@ -103,6 +119,20 @@ function onAddDeadlineSubmit(event: JQueryEventObject)
     mainModel.addDeadlineToServer(json);
 }
 
+function onAddSubTaskClicked(event: JQueryEventObject)
+{
+    let $newFieldSet: JQuery = $($.parseHTML(SUBTASK_FIELDSET_TEMPLATE));
+    
+    let $removeButton: JQuery = $newFieldSet.find(".add-deadline-form-subtask-remove-button");
+    $removeButton.click(function(event: JQueryEventObject)
+    {
+        $newFieldSet.remove();
+    });
+
+    let $addButton: JQuery = $addDeadlineContainer.find(".add-deadline-form-subtask-add-button");
+    $addButton.before($newFieldSet);
+}
+
 export function init($targetContainer: JQuery, mainModelParam: main.MainModel): void
 {
     "use strict";
@@ -114,5 +144,8 @@ export function init($targetContainer: JQuery, mainModelParam: main.MainModel): 
     $addDeadlineForm.on("submit", 
                         (event: JQueryEventObject) => onAddDeadlineSubmit(event));
 
-    setDefaultDateTimeInputValues();
+    let $subTaskAddButton: JQuery = $addDeadlineContainer.find(".add-deadline-form-subtask-add-button");
+    $subTaskAddButton.click((event: JQueryEventObject) => onAddSubTaskClicked(event));
+
+    setDefaultDeadlineDateTimeInputValues();
 }
