@@ -76,6 +76,12 @@ var config = function(app, db)
 	app.post('/add-deadline', function(request, response)
 	{
 		var deadlineObjWithoutId = request.body;
+		// since an empty array on the client side is passed in the request as undefined, reassign:
+		if(deadlineObjWithoutId.subTasks == undefined)
+		{
+			deadlineObjWithoutId.subTasks = [];
+		}
+
 		console.log("Deadline to add: ")
 		console.log(deadlineObjWithoutId);
 		
