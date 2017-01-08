@@ -27,7 +27,10 @@ class View
         // STUB (does not remove deadlines correctly):
         this.indexModel.removeTaskFromServer(item as Task);
         console.log(item.getTitle() + " removed");
-        li.slideUp();
+        li.slideUp({complete: function()
+        {
+            li.remove();
+        }});
     }
 
     private fillLi(li: JQuery, item: Item): void

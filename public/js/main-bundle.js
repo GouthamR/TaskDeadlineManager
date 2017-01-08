@@ -303,7 +303,9 @@ var View = (function () {
         // STUB (does not remove deadlines correctly):
         this.indexModel.removeTaskFromServer(item);
         console.log(item.getTitle() + " removed");
-        li.slideUp();
+        li.slideUp({ complete: function () {
+                li.remove();
+            } });
     };
     View.prototype.fillLi = function (li, item) {
         var middle = $("<div>", { class: "item-middle" });
