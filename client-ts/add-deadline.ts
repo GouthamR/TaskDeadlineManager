@@ -15,11 +15,21 @@ function toDate(dateWithoutTime: string, time: string): Date
     return moment(fullDate, "YYYY-MM-DD HH:mm").toDate();
 }
 
-function toSubTaskJSONWithoutID(formArray: Object, arrayStartIndex: number): SubTaskJSONWithoutID
+function toSubTaskJSONWithoutID($fieldset: JQuery): SubTaskJSONWithoutID
 {
-    let title: string = formArray[arrayStartIndex].value;
-    let startDate: Date = toDate(formArray[arrayStartIndex + 1].value, formArray[arrayStartIndex + 2].value);
-    let endDate: Date = toDate(formArray[arrayStartIndex + 3].value, formArray[arrayStartIndex + 4].value);
+    const TITLE_SELECTOR: string = ".add-deadline-form-subtask-title-input";
+    const START_DATE_WITHOUT_TIME_SELECTOR: string = ".add-deadline-form-subtask-start-date-input";
+    const START_TIME_SELECTOR: string = ".add-deadline-form-subtask-start-time-input";
+    const END_DATE_WITHOUT_TIME_SELECTOR: string = ".add-deadline-form-subtask-end-date-input";
+    const END_TIME_SELECTOR: string = ".add-deadline-form-subtask-end-time-input";
+
+    let title: string = $fieldset.find(TITLE_SELECTOR).val();
+    let startDateWithoutTime: string = $fieldset.find(START_DATE_WITHOUT_TIME_SELECTOR).val();
+    let startTime: string = $fieldset.find(START_TIME_SELECTOR).val();
+    let startDate: Date = toDate(startDateWithoutTime, startTime);
+    let endDateWithoutTime: string = $fieldset.find(END_DATE_WITHOUT_TIME_SELECTOR).val();
+    let endTime: string = $fieldset.find(END_TIME_SELECTOR).val();
+    let endDate: Date = toDate(endDateWithoutTime, endTime);
 
     let json: SubTaskJSONWithoutID = 
     {
@@ -32,33 +42,43 @@ function toSubTaskJSONWithoutID(formArray: Object, arrayStartIndex: number): Sub
     return json;
 }
 
-function toDeadlineJSONWithoutID(formArray: Object): DeadlineJSONWithoutID
+function getFormSubtasksJSONsWithoutID(): SubTaskJSONWithoutID[]
 {
-    // STUB (only considers one subtask):
+    let jsons: SubTaskJSONWithoutID[] = [];
 
-    let title: string = formArray[0].value;
-    let startDate: Date = toDate(formArray[1].value, formArray[2].value);
+    const SUBTASK_FIELDSETS_SELECTOR: string  = ".add-deadline-form-subtasks .add-deadline-form-subtask";
+    let $subTaskFieldsets: JQuery = $(SUBTASK_FIELDSETS_SELECTOR);
+    $subTaskFieldsets.each(function(index: number, element: Element)
+    {
+        let $currFieldset: JQuery = $(element);
+        let currJson: SubTaskJSONWithoutID = toSubTaskJSONWithoutID($currFieldset);
+        jsons.push(currJson);
+    });
 
-    let subTask1Json: SubTaskJSONWithoutID = toSubTaskJSONWithoutID(formArray, 3);
+    return jsons;
+}
+
+function getFormAsJSON(): DeadlineJSONWithoutID
+{
+    const TITLE_SELECTOR: string = ".add-deadline-form-deadline-title-input";
+    const DATE_WITHOUT_TIME_SELECTOR: string = ".add-deadline-form-deadline-start-date-input";
+    const TIME_SELECTOR: string = ".add-deadline-form-deadline-start-time-input";
+    
+    let title: string = $addDeadlineContainer.find(TITLE_SELECTOR).val();
+    let dateWithoutTime: string = $addDeadlineContainer.find(DATE_WITHOUT_TIME_SELECTOR).val();
+    let time: string = $addDeadlineContainer.find(TIME_SELECTOR).val();
+    let startDate: Date = toDate(dateWithoutTime, time);
+
+    let subTasksJsons: SubTaskJSONWithoutID[] = getFormSubtasksJSONsWithoutID();
 
     let json: DeadlineJSONWithoutID = 
     {
         title: title,
         startEpochMillis: startDate.getTime().toString(),
         isAllDay: "false",
-        subTasks: 
-        [
-            subTask1Json
-        ]
+        subTasks: subTasksJsons
     }
     return json;
-}
-
-function getFormAsJSON(): DeadlineJSONWithoutID
-{
-    let formArray = $addDeadlineContainer.find(".add-deadline-form").serializeArray();
-    console.log(formArray);
-    return toDeadlineJSONWithoutID(formArray);
 }
 
 function setDefaultDateTimeInputValues()

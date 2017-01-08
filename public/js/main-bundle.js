@@ -9,10 +9,19 @@ function toDate(dateWithoutTime, time) {
     var fullDate = dateWithoutTime + time;
     return moment(fullDate, "YYYY-MM-DD HH:mm").toDate();
 }
-function toSubTaskJSONWithoutID(formArray, arrayStartIndex) {
-    var title = formArray[arrayStartIndex].value;
-    var startDate = toDate(formArray[arrayStartIndex + 1].value, formArray[arrayStartIndex + 2].value);
-    var endDate = toDate(formArray[arrayStartIndex + 3].value, formArray[arrayStartIndex + 4].value);
+function toSubTaskJSONWithoutID($fieldset) {
+    var TITLE_SELECTOR = ".add-deadline-form-subtask-title-input";
+    var START_DATE_WITHOUT_TIME_SELECTOR = ".add-deadline-form-subtask-start-date-input";
+    var START_TIME_SELECTOR = ".add-deadline-form-subtask-start-time-input";
+    var END_DATE_WITHOUT_TIME_SELECTOR = ".add-deadline-form-subtask-end-date-input";
+    var END_TIME_SELECTOR = ".add-deadline-form-subtask-end-time-input";
+    var title = $fieldset.find(TITLE_SELECTOR).val();
+    var startDateWithoutTime = $fieldset.find(START_DATE_WITHOUT_TIME_SELECTOR).val();
+    var startTime = $fieldset.find(START_TIME_SELECTOR).val();
+    var startDate = toDate(startDateWithoutTime, startTime);
+    var endDateWithoutTime = $fieldset.find(END_DATE_WITHOUT_TIME_SELECTOR).val();
+    var endTime = $fieldset.find(END_TIME_SELECTOR).val();
+    var endDate = toDate(endDateWithoutTime, endTime);
     var json = {
         title: title,
         startEpochMillis: startDate.getTime().toString(),
@@ -22,25 +31,33 @@ function toSubTaskJSONWithoutID(formArray, arrayStartIndex) {
     };
     return json;
 }
-function toDeadlineJSONWithoutID(formArray) {
-    // STUB (only considers one subtask):
-    var title = formArray[0].value;
-    var startDate = toDate(formArray[1].value, formArray[2].value);
-    var subTask1Json = toSubTaskJSONWithoutID(formArray, 3);
+function getFormSubtasksJSONsWithoutID() {
+    var jsons = [];
+    var SUBTASK_FIELDSETS_SELECTOR = ".add-deadline-form-subtasks .add-deadline-form-subtask";
+    var $subTaskFieldsets = $(SUBTASK_FIELDSETS_SELECTOR);
+    $subTaskFieldsets.each(function (index, element) {
+        var $currFieldset = $(element);
+        var currJson = toSubTaskJSONWithoutID($currFieldset);
+        jsons.push(currJson);
+    });
+    return jsons;
+}
+function getFormAsJSON() {
+    var TITLE_SELECTOR = ".add-deadline-form-deadline-title-input";
+    var DATE_WITHOUT_TIME_SELECTOR = ".add-deadline-form-deadline-start-date-input";
+    var TIME_SELECTOR = ".add-deadline-form-deadline-start-time-input";
+    var title = $addDeadlineContainer.find(TITLE_SELECTOR).val();
+    var dateWithoutTime = $addDeadlineContainer.find(DATE_WITHOUT_TIME_SELECTOR).val();
+    var time = $addDeadlineContainer.find(TIME_SELECTOR).val();
+    var startDate = toDate(dateWithoutTime, time);
+    var subTasksJsons = getFormSubtasksJSONsWithoutID();
     var json = {
         title: title,
         startEpochMillis: startDate.getTime().toString(),
         isAllDay: "false",
-        subTasks: [
-            subTask1Json
-        ]
+        subTasks: subTasksJsons
     };
     return json;
-}
-function getFormAsJSON() {
-    var formArray = $addDeadlineContainer.find(".add-deadline-form").serializeArray();
-    console.log(formArray);
-    return toDeadlineJSONWithoutID(formArray);
 }
 function setDefaultDateTimeInputValues() {
     var dateInputs = $addDeadlineContainer.find(".add-deadline-form input[type='date']").toArray();

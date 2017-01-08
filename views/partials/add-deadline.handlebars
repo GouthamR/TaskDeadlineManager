@@ -7,7 +7,7 @@
 <div class="add-deadline">
 	<h1>Add Deadline</h1>
 	<form class="add-deadline-form" action="/add-deadline" method="post">
-		<fieldset class="add-deadline-form-deadline-fields">
+		<fieldset class="add-deadline-form-deadline">
 			<legend>Deadline Info:</legend>
 			<label>
 				Title
@@ -19,9 +19,9 @@
 			</label>
 			<input type="time" class="add-deadline-form-deadline-start-time-input" name="start-time">
 		</fieldset>
-		<fieldset class="add-deadline-form-subtask-fields">
+		<fieldset class="add-deadline-form-subtasks">
 			<legend>SubTask Info:</legend>
-			<fieldset class="add-deadline-form-subtask-fields-1">
+			<fieldset class="add-deadline-form-subtask">
 				<legend>SubTask 1:</legend>
 				<label>
 					Title
@@ -38,6 +38,25 @@
 				</label>
 				<input type="time" class="add-deadline-form-subtask-end-time-input" name="end-time">
 				<input type="button" class="add-deadline-form-subtask-remove-button" value="-">
+			</fieldset>
+			<fieldset class="add-deadline-form-subtask">
+				<legend>SubTask 2:</legend>
+				<label>
+					Title
+					<input type="text" class="add-deadline-form-subtask-title-input" name="title" autofocus="true">
+				</label>
+				<label>
+					Start
+					<input type="date" class="add-deadline-form-subtask-start-date-input" name="start-date">
+				</label>
+				<input type="time" class="add-deadline-form-subtask-start-time-input" name="start-time">
+				<label>
+					End
+					<input type="date" class="add-deadline-form-subtask-end-date-input" name="end-date">
+				</label>
+				<input type="time" class="add-deadline-form-subtask-end-time-input" name="end-time">
+				<input type="button" class="add-deadline-form-subtask-remove-button" value="-">
+			</fieldset>
 			</fieldset>
 		<input type="button" class="add-deadline-form-subtask-add-button" value="+">
 		</fieldset>
