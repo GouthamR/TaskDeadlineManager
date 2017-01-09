@@ -299,67 +299,61 @@ var View = (function () {
         var $addDeadlineButton = this.$indexContainer.find(".index-deadline-container > a");
         $addDeadlineButton.click(function (event) { return _this.mainModel.switchToView(main.View.AddDeadline); });
     }
-    View.prototype.markItemDone = function (item, li) {
-        // STUB (does not remove deadlines correctly):
-        this.indexModel.removeTaskFromServer(item);
-        console.log(item.getTitle() + " removed");
+    View.prototype.markTaskDone = function (task, li) {
+        this.indexModel.removeTaskFromServer(task);
+        console.log(task.getTitle() + " removed");
         li.slideUp({ complete: function () {
                 li.remove();
             } });
     };
-    View.prototype.fillLi = function (li, item) {
+    View.prototype.fillTaskLiForNormalMode = function (li, task) {
+        var _this = this;
+        li.empty();
         var middle = $("<div>", { class: "item-middle" });
-        middle.append($("<p>").html(item.getTitle()), $("<p>").html(item.getDayTimeString()));
+        middle.append($("<p>").html(task.getTitle()), $("<p>").html(task.getDayTimeString()));
         var check = $("<img>", { class: "td-check", src: "img/check.png" });
         var settings = $("<img>", { class: "td-settings", src: "img/gear.png" });
-        check.click(this.markItemDone.bind(this, item, li));
-        settings.click(this.onOpenSettingsClicked.bind(this, item, li));
+        check.click(function (e) { return _this.markTaskDone(task, li); });
+        settings.click(function (e) { return _this.onOpenTaskSettingsClicked(task, li); });
         li.append(check, middle, settings);
     };
-    View.prototype.onOpenSettingsClicked = function (item, li) {
+    View.prototype.fillTaskLiForEditMode = function (li, task) {
         var _this = this;
         li.empty();
         var $form = $("<form>");
-        var $titleInput = $("<input>", { type: "text", value: item.getTitle() });
+        var $titleInput = $("<input>", { type: "text", value: task.getTitle() });
         $form.append($titleInput);
         var doneButton = $("<input>", { type: "submit", value: "Done" });
-        doneButton.click(function (e) { return _this.onCloseSettingsClicked(e, li, item); });
+        doneButton.click(function (e) { return _this.onCloseTaskSettingsClicked(e, li, task); });
         $form.append(doneButton);
         li.append($form);
     };
-    View.prototype.onCloseSettingsClicked = function (event, li, item) {
-        // STUB (does not update deadlines correctly):
+    View.prototype.onOpenTaskSettingsClicked = function (task, li) {
+        this.fillTaskLiForEditMode(li, task);
+    };
+    View.prototype.onCloseTaskSettingsClicked = function (event, li, task) {
         event.preventDefault(); // prevents form submission
         var $titleInput = li.find("input[type='text']");
-        item.setTitle($titleInput.val());
-        console.log(item);
-        li.empty();
-        this.fillLi(li, item);
-        this.mainModel.updateTaskOnServer(item);
-    };
-    View.prototype.createLi = function (item) {
-        var li = $("<li>");
-        this.fillLi(li, item);
-        return li;
-    };
-    View.prototype.addItemToContainer = function (item, $container) {
-        var $newLi = this.createLi(item);
-        var $list = $container.find("ul");
-        $list.append($newLi);
+        task.setTitle($titleInput.val());
+        console.log(task);
+        this.fillTaskLiForNormalMode(li, task);
+        this.mainModel.updateTaskOnServer(task);
     };
     View.prototype.addTaskToView = function (task) {
-        var $taskContainer = this.$indexContainer.find(".index-task-container");
-        this.addItemToContainer(task, $taskContainer);
+        var $newLi = $("<li>");
+        this.fillTaskLiForNormalMode($newLi, task);
+        var $list = this.$indexContainer.find(".index-task-container ul");
+        $list.append($newLi);
     };
     View.prototype.addDeadlineToDeadlinesView = function (deadline) {
+        // STUB (does not add deadline):
         var $deadlineContainer = this.$indexContainer.find(".index-deadline-container");
-        this.addItemToContainer(deadline, $deadlineContainer);
     };
     View.prototype.addDeadlineSubTasksToTasksView = function (deadline) {
+        // STUB (does not add deadline subtasks):
         var $taskContainer = this.$indexContainer.find(".index-task-container");
         for (var _i = 0, _a = deadline.getSubTasks(); _i < _a.length; _i++) {
             var subTask = _a[_i];
-            this.addItemToContainer(subTask, $taskContainer);
         }
     };
     View.prototype.clearAndShowLoadingOnContainer = function ($container) {

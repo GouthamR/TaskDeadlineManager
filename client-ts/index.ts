@@ -22,93 +22,88 @@ class View
         $addDeadlineButton.click((event: JQueryEventObject) => this.mainModel.switchToView(main.View.AddDeadline));
     }
 
-    private markItemDone(item: Item, li: JQuery): void
+    private markTaskDone(task: Task, li: JQuery): void
     {
-        // STUB (does not remove deadlines correctly):
-        this.indexModel.removeTaskFromServer(item as Task);
-        console.log(item.getTitle() + " removed");
+        this.indexModel.removeTaskFromServer(task);
+        console.log(task.getTitle() + " removed");
         li.slideUp({complete: function()
         {
             li.remove();
         }});
     }
 
-    private fillLi(li: JQuery, item: Item): void
+    private fillTaskLiForNormalMode(li: JQuery, task: Task): void
     {
+        li.empty();
+
         let middle: JQuery = $("<div>", {class: "item-middle"});
-        middle.append($("<p>").html(item.getTitle()),
-                        $("<p>").html(item.getDayTimeString()));
+        middle.append($("<p>").html(task.getTitle()),
+                        $("<p>").html(task.getDayTimeString()));
         let check: JQuery = $("<img>", {class: "td-check", src: "img/check.png"});
         let settings: JQuery = $("<img>", {class: "td-settings", src: "img/gear.png"});
 
-        check.click(this.markItemDone.bind(this, item, li));
-        settings.click(this.onOpenSettingsClicked.bind(this, item, li));
+        check.click((e: JQueryEventObject) => this.markTaskDone(task, li));
+        settings.click((e: JQueryEventObject) => this.onOpenTaskSettingsClicked(task, li));
 
         li.append(check, middle, settings);
     }
 
-    private onOpenSettingsClicked(item: Item, li: JQuery)
+    private fillTaskLiForEditMode(li: JQuery, task: Task): void
     {
         li.empty();
 
         let $form = $("<form>");
-        let $titleInput = $("<input>", {type: "text", value: item.getTitle()});
+        let $titleInput = $("<input>", {type: "text", value: task.getTitle()});
         $form.append($titleInput);
         let doneButton: JQuery = $("<input>", {type: "submit", value: "Done"});
-        doneButton.click((e: JQueryEventObject) => this.onCloseSettingsClicked(e, li, item));
+        doneButton.click((e: JQueryEventObject) => this.onCloseTaskSettingsClicked(e, li, task));
         $form.append(doneButton);
 
         li.append($form);
     }
 
-    private onCloseSettingsClicked(event: JQueryEventObject, li: JQuery, item: Item)
+    private onOpenTaskSettingsClicked(task: Task, li: JQuery)
     {
-        // STUB (does not update deadlines correctly):
+        this.fillTaskLiForEditMode(li, task);
+    }
 
+    private onCloseTaskSettingsClicked(event: JQueryEventObject, li: JQuery, task: Task)
+    {
         event.preventDefault(); // prevents form submission
 
         let $titleInput = li.find("input[type='text']");
-        item.setTitle($titleInput.val());
-        console.log(item);
+        task.setTitle($titleInput.val());
+        console.log(task);
 
-        li.empty();
-        this.fillLi(li, item);
-        this.mainModel.updateTaskOnServer(item as Task);
-    }
-
-    private createLi(item: Item): JQuery
-    {
-        let li: JQuery = $("<li>");
-        this.fillLi(li, item);
-        return li;
-    }
-
-    private addItemToContainer(item: Item, $container: JQuery)
-    {
-        let $newLi: JQuery = this.createLi(item);
-        let $list: JQuery = $container.find("ul");
-        $list.append($newLi);
+        this.fillTaskLiForNormalMode(li, task);
+        this.mainModel.updateTaskOnServer(task);
     }
 
     private addTaskToView(task: Task): void
     {
-        let $taskContainer: JQuery = this.$indexContainer.find(".index-task-container");
-        this.addItemToContainer(task as Item, $taskContainer);
+        let $newLi: JQuery = $("<li>");
+        this.fillTaskLiForNormalMode($newLi, task);
+        
+        let $list: JQuery = this.$indexContainer.find(".index-task-container ul");
+        $list.append($newLi);
     }
 
     private addDeadlineToDeadlinesView(deadline: Deadline): void
     {
+        // STUB (does not add deadline):
+
         let $deadlineContainer: JQuery = this.$indexContainer.find(".index-deadline-container");
-        this.addItemToContainer(deadline as Item, $deadlineContainer);
     }
 
     private addDeadlineSubTasksToTasksView(deadline: Deadline): void
     {
+        // STUB (does not add deadline subtasks):
+
         let $taskContainer: JQuery = this.$indexContainer.find(".index-task-container");
         
         for(let subTask of deadline.getSubTasks())
         {
-            this.addItemToContainer(subTask as Item, $taskContainer);
+            
         }
     }
 
