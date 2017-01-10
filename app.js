@@ -3,7 +3,20 @@ var mongodb = require('mongodb');
 
 var routes = require("./routes");
 
-var dbConfig = require('./dbConfig.json'); // json format: {"url":"mongodb://..."}
+var dbConfig;
+if(process.env.MONGO_URL) // if has heroku config variable
+{
+	dbConfig = 
+	{
+		url: process.env.MONGO_URL
+	};
+}
+else // if heroku config not found
+{
+	// attempt to use config json file:
+	// config file format: {"url":"mongodb://..."}
+	dbConfig = require('./dbConfig.json');
+}
 
 var app = express();
 
