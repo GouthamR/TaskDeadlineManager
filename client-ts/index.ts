@@ -175,7 +175,7 @@ class View
         this.markItemDone(subTask as Item, subTaskLi, function()
         {
             subTask.markAsDone();
-            
+
             if(deadline.isDone())
             {
                 __this.markDeadlineDone(deadline, deadlineLi);
@@ -215,10 +215,13 @@ class View
 
         for(let subTask of deadline.getSubTasks())
         {
-            let $newLi: JQuery = $("<li>");
-            this.fillSubTaskLiForNormalMode($newLi, deadlineLi, subTask, deadline);
-            
-            $list.append($newLi);
+            if(!subTask.getIsDone())
+            {
+                let $newLi: JQuery = $("<li>");
+                this.fillSubTaskLiForNormalMode($newLi, deadlineLi, subTask, deadline);
+                
+                $list.append($newLi);
+            }
         }
     }
 

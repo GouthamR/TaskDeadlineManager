@@ -419,9 +419,11 @@ var View = (function () {
         var $list = this.$indexContainer.find(".index-task-container ul");
         for (var _i = 0, _a = deadline.getSubTasks(); _i < _a.length; _i++) {
             var subTask = _a[_i];
-            var $newLi = $("<li>");
-            this.fillSubTaskLiForNormalMode($newLi, deadlineLi, subTask, deadline);
-            $list.append($newLi);
+            if (!subTask.getIsDone()) {
+                var $newLi = $("<li>");
+                this.fillSubTaskLiForNormalMode($newLi, deadlineLi, subTask, deadline);
+                $list.append($newLi);
+            }
         }
     };
     // General methods:
