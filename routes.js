@@ -1,10 +1,9 @@
 var mongodb = require('mongodb');
 
-var getTaskJSONWithMongoObjectID = function(request)
+var convertIdToMongoObjectId = function(json)
 {
-	var taskJSON = request.body;
-	taskJSON._id = new mongodb.ObjectId(taskJSON._id);
-	return taskJSON;
+	json._id = new mongodb.ObjectId(json._id);
+	return json;
 };
 
 var deadlineJSONWithoutIDToDeadlineJSON = function(deadlineJSONWithoutID)
@@ -98,7 +97,7 @@ var config = function(app, db)
 	// Argument: TaskJSON
 	app.post('/update-task', function(request, response)
 	{
-		var taskJSON = getTaskJSONWithMongoObjectID(request);
+		var taskJSON = convertIdToMongoObjectId(request.body);
 		console.log("Task to update: ")
 		console.log(taskJSON);
 
@@ -115,13 +114,30 @@ var config = function(app, db)
 	// Argument: TaskJSON
 	app.post('/delete-task', function(request, response)
 	{
-		var taskJSON = getTaskJSONWithMongoObjectID(request);
+		var taskJSON = convertIdToMongoObjectId(request.body);
 		console.log("Task to delete: ")
 		console.log(taskJSON);
 
 		db.collection("tasks", function(collection_error, collection)
 		{
 			collection.remove({"_id": taskJSON._id}, {}, 
+								function(remove_error, result)
+			{
+				response.json(result);
+			});
+		});
+	});
+
+	// Argument: DeadlineJSON
+	app.post('/delete-deadline', function(request, response)
+	{
+		var deadlineJSON = convertIdToMongoObjectId(request.body);
+		console.log("Deadline to delete: ")
+		console.log(deadlineJSON);
+
+		db.collection("deadlines", function(collection_error, collection)
+		{
+			collection.remove({"_id": deadlineJSON._id}, {}, 
 								function(remove_error, result)
 			{
 				response.json(result);

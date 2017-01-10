@@ -9,6 +9,7 @@ import { TaskJSON } from "./item";
 import { TaskSerializer } from "./item";
 import { Deadline } from "./item";
 import { DeadlineJSONWithoutID } from "./item";
+import { DeadlineJSON } from "./item";
 import { DeadlineSerializer } from "./item";
 
 export enum View
@@ -213,9 +214,20 @@ export class IndexModel
 {
 	public removeDeadlineFromServer(deadlineToRemove: Deadline): void
 	{
-		// STUB (does not remove deadline):
-		console.log("removeDeadlineFromServer:");
-		console.log(deadlineToRemove);
+		let json: DeadlineJSON = new DeadlineSerializer().toJSON(deadlineToRemove);
+
+		$.post("delete-deadline", json)
+		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
+		{
+			console.log("Remove Deadline success:");
+			console.log(data);
+		})
+		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
+		{
+			let errorDetails: string = textStatus + ", " + error;
+			alert("ERROR: Remove Deadline failed.\nDetails: " + errorDetails);
+			console.log(errorDetails);
+		});
 	}
 
 	public removeTaskFromServer(taskToRemove: Task): void

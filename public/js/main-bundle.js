@@ -833,9 +833,17 @@ var IndexModel = (function () {
     function IndexModel() {
     }
     IndexModel.prototype.removeDeadlineFromServer = function (deadlineToRemove) {
-        // STUB (does not remove deadline):
-        console.log("removeDeadlineFromServer:");
-        console.log(deadlineToRemove);
+        var json = new item_2.DeadlineSerializer().toJSON(deadlineToRemove);
+        $.post("delete-deadline", json)
+            .done(function (data, textStatus, jqXHR) {
+            console.log("Remove Deadline success:");
+            console.log(data);
+        })
+            .fail(function (jqXHR, textStatus, error) {
+            var errorDetails = textStatus + ", " + error;
+            alert("ERROR: Remove Deadline failed.\nDetails: " + errorDetails);
+            console.log(errorDetails);
+        });
     };
     IndexModel.prototype.removeTaskFromServer = function (taskToRemove) {
         var json = new item_1.TaskSerializer().toJSON(taskToRemove);
