@@ -129,6 +129,23 @@ var config = function(app, db)
 	});
 
 	// Argument: DeadlineJSON
+	app.post('/update-deadline', function(request, response)
+	{
+		var deadlineJSON = convertIdToMongoObjectId(request.body);
+		console.log("Deadline to update: ")
+		console.log(deadlineJSON);
+
+		db.collection("deadlines", function(collection_error, collection)
+		{
+			collection.findOneAndReplace({"_id": deadlineJSON._id}, deadlineJSON, {}, 
+											function(replace_error, result)
+			{
+				response.json(result);
+			});
+		});
+	});
+
+	// Argument: DeadlineJSON
 	app.post('/delete-deadline', function(request, response)
 	{
 		var deadlineJSON = convertIdToMongoObjectId(request.body);

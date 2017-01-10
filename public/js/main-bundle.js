@@ -822,9 +822,18 @@ var MainModel = (function () {
         });
     };
     MainModel.prototype.updateDeadlineOnServer = function (updatedDeadline) {
-        // STUB (does not update deadline):
-        console.log("updateDeadlineOnServer:");
-        console.log(updatedDeadline);
+        var updatedJSON = new item_2.DeadlineSerializer().toJSON(updatedDeadline);
+        $.post("update-deadline", updatedJSON)
+            .done(function (data, textStatus, jqXHR) {
+            console.log("Update Deadline success:");
+            console.log(data);
+            calendar.reloadCalendar();
+        })
+            .fail(function (jqXHR, textStatus, error) {
+            var errorDetails = textStatus + ", " + error;
+            alert("ERROR: Update Deadline failed.\nDetails: " + errorDetails);
+            console.log(errorDetails);
+        });
     };
     return MainModel;
 }());

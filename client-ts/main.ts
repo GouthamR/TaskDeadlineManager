@@ -204,9 +204,21 @@ export class MainModel
 
 	public updateDeadlineOnServer(updatedDeadline: Deadline): void
 	{
-		// STUB (does not update deadline):
-		console.log("updateDeadlineOnServer:");
-		console.log(updatedDeadline);
+		let updatedJSON: DeadlineJSON = new DeadlineSerializer().toJSON(updatedDeadline);
+		
+		$.post("update-deadline", updatedJSON)
+		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
+		{
+			console.log("Update Deadline success:");
+			console.log(data);
+			calendar.reloadCalendar();
+		})
+		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
+		{
+			let errorDetails: string = textStatus + ", " + error;
+			alert("ERROR: Update Deadline failed.\nDetails: " + errorDetails);
+			console.log(errorDetails);
+		});
 	}
 }
 
