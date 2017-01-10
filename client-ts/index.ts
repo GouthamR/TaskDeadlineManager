@@ -126,6 +126,7 @@ class View
 
     private markDeadlineDone(deadline: Deadline, li: JQuery): void
     {
+        // STUB (does not visibly remove subtasks):
         this.markItemDone(deadline as Item, li, () => this.indexModel.removeDeadlineFromServer(deadline));
     }
 
@@ -154,26 +155,70 @@ class View
                                 (e: JQueryEventObject) => this.onOpenDeadlineSettingsClicked(deadline, li));
     }
 
-    private addDeadlineToDeadlinesView(deadline: Deadline): void
+    // Returns deadline's corresponding li
+    private addDeadlineToDeadlinesView(deadline: Deadline): JQuery
     {
         let $newLi: JQuery = $("<li>");
         this.fillDeadlineLiForNormalMode($newLi, deadline);
         
         let $list: JQuery = this.$indexContainer.find(".index-deadline-container ul");
         $list.append($newLi);
+
+        return $newLi;
     }
 
     // DEADLINE IN SUBTASK VIEW METHODS:
 
-    private addDeadlineSubTasksToTasksView(deadline: Deadline): void
+    private markSubTaskDone(subTask: SubTask, deadline: Deadline, subTaskLi: JQuery, deadlineLi): void
     {
-        // STUB (does not add deadline subtasks):
+        let __this: View = this;
+        this.markItemDone(subTask as Item, subTaskLi, function()
+        {
+            subTask.markAsDone();
+            
+            if(deadline.isDone())
+            {
+                __this.markDeadlineDone(deadline, deadlineLi);
+            }
+        });
+    }
 
-        let $taskContainer: JQuery = this.$indexContainer.find(".index-task-container");
-        
+    private onOpenSubTaskSettingsClicked(subTask: SubTask, deadline: Deadline, subTaskLi: JQuery, deadlineLi: JQuery)
+    {
+        this.fillSubTaskLiForEditMode(subTaskLi, deadlineLi, subTask, deadline);
+    }
+
+    private onCloseSubTaskSettingsClicked(event: JQueryEventObject, subTaskLi: JQuery, deadlineLi: JQuery,
+                                            subTask: SubTask, deadline: Deadline)
+    {
+        this.onCloseItemSettingsClicked(event, subTaskLi, subTask as Item, 
+                                        () => this.fillSubTaskLiForNormalMode(subTaskLi, deadlineLi, subTask, deadline),
+                                        () => this.mainModel.updateDeadlineOnServer(deadline));
+    }
+
+    private fillSubTaskLiForEditMode(subTaskLi: JQuery, deadlineLi: JQuery, subTask: SubTask, deadline: Deadline): void
+    {
+        this.fillItemLiForEditMode(subTaskLi, subTask as Item,
+                                    (e: JQueryEventObject) => this.onCloseSubTaskSettingsClicked(e, subTaskLi, deadlineLi, subTask, deadline));
+    }
+
+    private fillSubTaskLiForNormalMode(subTaskLi: JQuery, deadlineLi: JQuery, subTask: SubTask, deadline: Deadline): void
+    {
+        this.fillItemLiForNormalMode(subTaskLi, subTask as Item, 
+                                    (e: JQueryEventObject) => this.markSubTaskDone(subTask, deadline, subTaskLi, deadlineLi),
+                                    (e: JQueryEventObject) => this.onOpenSubTaskSettingsClicked(subTask, deadline, subTaskLi, deadlineLi));
+    }
+
+    private addDeadlineSubTasksToTasksView(deadline: Deadline, deadlineLi: JQuery): void
+    {
+        let $list: JQuery = this.$indexContainer.find(".index-task-container ul");
+
         for(let subTask of deadline.getSubTasks())
         {
+            let $newLi: JQuery = $("<li>");
+            this.fillSubTaskLiForNormalMode($newLi, deadlineLi, subTask, deadline);
             
+            $list.append($newLi);
         }
     }
 
@@ -248,8 +293,8 @@ class View
 
         for(let deadline of deadlines)
         {
-            this.addDeadlineToDeadlinesView(deadline);
-            this.addDeadlineSubTasksToTasksView(deadline);
+            let deadlineLi: JQuery = this.addDeadlineToDeadlinesView(deadline);
+            this.addDeadlineSubTasksToTasksView(deadline, deadlineLi);
         }
         this.removeDeadlineLoadingText();
     }

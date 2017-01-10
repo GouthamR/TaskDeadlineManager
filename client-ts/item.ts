@@ -146,6 +146,11 @@ export class SubTask extends Task
 
     public getDeadlineID(): string { return this.deadlineId; }
     public getIsDone(): boolean { return this.isDone; }
+    
+    public markAsDone(): void
+    {
+        this.isDone = true;
+    }
 
     public getDayTimeString(): string
     {
@@ -207,6 +212,18 @@ export class Deadline extends Item
     }
 
     public getSubTasks(): SubTask[] { return this.subTasks; }
+
+    public isDone(): boolean
+    {
+        for(let currSubTask of this.getSubTasks())
+        {
+            if(!currSubTask.getIsDone())
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 }
 
 interface DeadlineJSONWithoutIDOrSubTask

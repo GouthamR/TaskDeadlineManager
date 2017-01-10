@@ -364,6 +364,7 @@ var View = (function () {
     // DEADLINE IN DEADLINE VIEW METHODS:
     View.prototype.markDeadlineDone = function (deadline, li) {
         var _this = this;
+        // STUB (does not visibly remove subtasks):
         this.markItemDone(deadline, li, function () { return _this.indexModel.removeDeadlineFromServer(deadline); });
     };
     View.prototype.onOpenDeadlineSettingsClicked = function (deadline, li) {
@@ -381,18 +382,46 @@ var View = (function () {
         var _this = this;
         this.fillItemLiForNormalMode(li, deadline, function (e) { return _this.markDeadlineDone(deadline, li); }, function (e) { return _this.onOpenDeadlineSettingsClicked(deadline, li); });
     };
+    // Returns deadline's corresponding li
     View.prototype.addDeadlineToDeadlinesView = function (deadline) {
         var $newLi = $("<li>");
         this.fillDeadlineLiForNormalMode($newLi, deadline);
         var $list = this.$indexContainer.find(".index-deadline-container ul");
         $list.append($newLi);
+        return $newLi;
     };
     // DEADLINE IN SUBTASK VIEW METHODS:
-    View.prototype.addDeadlineSubTasksToTasksView = function (deadline) {
-        // STUB (does not add deadline subtasks):
-        var $taskContainer = this.$indexContainer.find(".index-task-container");
+    View.prototype.markSubTaskDone = function (subTask, deadline, subTaskLi, deadlineLi) {
+        var __this = this;
+        this.markItemDone(subTask, subTaskLi, function () {
+            subTask.markAsDone();
+            if (deadline.isDone()) {
+                __this.markDeadlineDone(deadline, deadlineLi);
+            }
+        });
+    };
+    View.prototype.onOpenSubTaskSettingsClicked = function (subTask, deadline, subTaskLi, deadlineLi) {
+        this.fillSubTaskLiForEditMode(subTaskLi, deadlineLi, subTask, deadline);
+    };
+    View.prototype.onCloseSubTaskSettingsClicked = function (event, subTaskLi, deadlineLi, subTask, deadline) {
+        var _this = this;
+        this.onCloseItemSettingsClicked(event, subTaskLi, subTask, function () { return _this.fillSubTaskLiForNormalMode(subTaskLi, deadlineLi, subTask, deadline); }, function () { return _this.mainModel.updateDeadlineOnServer(deadline); });
+    };
+    View.prototype.fillSubTaskLiForEditMode = function (subTaskLi, deadlineLi, subTask, deadline) {
+        var _this = this;
+        this.fillItemLiForEditMode(subTaskLi, subTask, function (e) { return _this.onCloseSubTaskSettingsClicked(e, subTaskLi, deadlineLi, subTask, deadline); });
+    };
+    View.prototype.fillSubTaskLiForNormalMode = function (subTaskLi, deadlineLi, subTask, deadline) {
+        var _this = this;
+        this.fillItemLiForNormalMode(subTaskLi, subTask, function (e) { return _this.markSubTaskDone(subTask, deadline, subTaskLi, deadlineLi); }, function (e) { return _this.onOpenSubTaskSettingsClicked(subTask, deadline, subTaskLi, deadlineLi); });
+    };
+    View.prototype.addDeadlineSubTasksToTasksView = function (deadline, deadlineLi) {
+        var $list = this.$indexContainer.find(".index-task-container ul");
         for (var _i = 0, _a = deadline.getSubTasks(); _i < _a.length; _i++) {
             var subTask = _a[_i];
+            var $newLi = $("<li>");
+            this.fillSubTaskLiForNormalMode($newLi, deadlineLi, subTask, deadline);
+            $list.append($newLi);
         }
     };
     // General methods:
@@ -444,8 +473,8 @@ var View = (function () {
         this.removeTaskLoadingText();
         for (var _a = 0, deadlines_1 = deadlines; _a < deadlines_1.length; _a++) {
             var deadline = deadlines_1[_a];
-            this.addDeadlineToDeadlinesView(deadline);
-            this.addDeadlineSubTasksToTasksView(deadline);
+            var deadlineLi = this.addDeadlineToDeadlinesView(deadline);
+            this.addDeadlineSubTasksToTasksView(deadline, deadlineLi);
         }
         this.removeDeadlineLoadingText();
     };
@@ -562,6 +591,9 @@ var SubTask = (function (_super) {
     }
     SubTask.prototype.getDeadlineID = function () { return this.deadlineId; };
     SubTask.prototype.getIsDone = function () { return this.isDone; };
+    SubTask.prototype.markAsDone = function () {
+        this.isDone = true;
+    };
     SubTask.prototype.getDayTimeString = function () {
         var begin = _super.prototype.getDayTimeString.call(this);
         var end = "[" + this.deadlineId + "]";
@@ -598,6 +630,15 @@ var Deadline = (function (_super) {
         this.subTasks = subTasks;
     }
     Deadline.prototype.getSubTasks = function () { return this.subTasks; };
+    Deadline.prototype.isDone = function () {
+        for (var _i = 0, _a = this.getSubTasks(); _i < _a.length; _i++) {
+            var currSubTask = _a[_i];
+            if (!currSubTask.getIsDone()) {
+                return false;
+            }
+        }
+        return true;
+    };
     return Deadline;
 }(Item));
 exports.Deadline = Deadline;
