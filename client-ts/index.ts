@@ -175,6 +175,7 @@ class View
         this.markItemDone(subTask as Item, subTaskLi, function()
         {
             subTask.markAsDone();
+            __this.mainModel.updateDeadlineOnServer(deadline);
 
             if(deadline.isDone())
             {

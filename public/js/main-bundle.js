@@ -395,6 +395,7 @@ var View = (function () {
         var __this = this;
         this.markItemDone(subTask, subTaskLi, function () {
             subTask.markAsDone();
+            __this.mainModel.updateDeadlineOnServer(deadline);
             if (deadline.isDone()) {
                 __this.markDeadlineDone(deadline, deadlineLi);
             }
