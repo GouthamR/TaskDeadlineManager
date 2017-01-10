@@ -299,45 +299,61 @@ var View = (function () {
         var $addDeadlineButton = this.$indexContainer.find(".index-deadline-container > a");
         $addDeadlineButton.click(function (event) { return _this.mainModel.switchToView(main.View.AddDeadline); });
     }
-    View.prototype.markTaskDone = function (task, li) {
-        this.indexModel.removeTaskFromServer(task);
-        console.log(task.getTitle() + " removed");
+    // GENERIC METHODS FOR TASK AND DEADLINE:
+    View.prototype.markItemDone = function (item, li, removeFromServer) {
+        removeFromServer();
+        console.log(item.getTitle() + " removed");
         li.slideUp({ complete: function () {
                 li.remove();
             } });
     };
-    View.prototype.fillTaskLiForNormalMode = function (li, task) {
-        var _this = this;
-        li.empty();
-        var middle = $("<div>", { class: "item-middle" });
-        middle.append($("<p>").html(task.getTitle()), $("<p>").html(task.getDayTimeString()));
-        var check = $("<img>", { class: "td-check", src: "img/check.png" });
-        var settings = $("<img>", { class: "td-settings", src: "img/gear.png" });
-        check.click(function (e) { return _this.markTaskDone(task, li); });
-        settings.click(function (e) { return _this.onOpenTaskSettingsClicked(task, li); });
-        li.append(check, middle, settings);
+    View.prototype.onCloseItemSettingsClicked = function (event, li, item, fillForNormalMode, updateOnServer) {
+        event.preventDefault(); // prevents form submission
+        var $titleInput = li.find("input[type='text']");
+        item.setTitle($titleInput.val());
+        console.log(item);
+        fillForNormalMode();
+        updateOnServer();
     };
-    View.prototype.fillTaskLiForEditMode = function (li, task) {
-        var _this = this;
+    View.prototype.fillItemLiForEditMode = function (li, item, onDoneClicked) {
         li.empty();
         var $form = $("<form>");
-        var $titleInput = $("<input>", { type: "text", value: task.getTitle() });
+        var $titleInput = $("<input>", { type: "text", value: item.getTitle() });
         $form.append($titleInput);
         var doneButton = $("<input>", { type: "submit", value: "Done" });
-        doneButton.click(function (e) { return _this.onCloseTaskSettingsClicked(e, li, task); });
+        doneButton.click(onDoneClicked);
         $form.append(doneButton);
         li.append($form);
+    };
+    View.prototype.fillItemLiForNormalMode = function (li, item, onMarkDoneClicked, onOpenSettingsClicked) {
+        li.empty();
+        var middle = $("<div>", { class: "item-middle" });
+        middle.append($("<p>").html(item.getTitle()), $("<p>").html(item.getDayTimeString()));
+        var check = $("<img>", { class: "td-check", src: "img/check.png" });
+        var settings = $("<img>", { class: "td-settings", src: "img/gear.png" });
+        check.click(onMarkDoneClicked);
+        settings.click(onOpenSettingsClicked);
+        li.append(check, middle, settings);
+    };
+    // TASK METHODS:
+    View.prototype.markTaskDone = function (task, li) {
+        var _this = this;
+        this.markItemDone(task, li, function () { return _this.indexModel.removeTaskFromServer(task); });
     };
     View.prototype.onOpenTaskSettingsClicked = function (task, li) {
         this.fillTaskLiForEditMode(li, task);
     };
     View.prototype.onCloseTaskSettingsClicked = function (event, li, task) {
-        event.preventDefault(); // prevents form submission
-        var $titleInput = li.find("input[type='text']");
-        task.setTitle($titleInput.val());
-        console.log(task);
-        this.fillTaskLiForNormalMode(li, task);
-        this.mainModel.updateTaskOnServer(task);
+        var _this = this;
+        this.onCloseItemSettingsClicked(event, li, task, function () { return _this.fillTaskLiForNormalMode(li, task); }, function () { return _this.mainModel.updateTaskOnServer(task); });
+    };
+    View.prototype.fillTaskLiForEditMode = function (li, task) {
+        var _this = this;
+        this.fillItemLiForEditMode(li, task, function (e) { return _this.onCloseTaskSettingsClicked(e, li, task); });
+    };
+    View.prototype.fillTaskLiForNormalMode = function (li, task) {
+        var _this = this;
+        this.fillItemLiForNormalMode(li, task, function (e) { return _this.markTaskDone(task, li); }, function (e) { return _this.onOpenTaskSettingsClicked(task, li); });
     };
     View.prototype.addTaskToView = function (task) {
         var $newLi = $("<li>");
@@ -345,10 +361,33 @@ var View = (function () {
         var $list = this.$indexContainer.find(".index-task-container ul");
         $list.append($newLi);
     };
-    View.prototype.addDeadlineToDeadlinesView = function (deadline) {
-        // STUB (does not add deadline):
-        var $deadlineContainer = this.$indexContainer.find(".index-deadline-container");
+    // DEADLINE IN DEADLINE VIEW METHODS:
+    View.prototype.markDeadlineDone = function (deadline, li) {
+        var _this = this;
+        this.markItemDone(deadline, li, function () { return _this.indexModel.removeDeadlineFromServer(deadline); });
     };
+    View.prototype.onOpenDeadlineSettingsClicked = function (deadline, li) {
+        this.fillDeadlineLiForEditMode(li, deadline);
+    };
+    View.prototype.onCloseDeadlineSettingsClicked = function (event, li, deadline) {
+        var _this = this;
+        this.onCloseItemSettingsClicked(event, li, deadline, function () { return _this.fillDeadlineLiForNormalMode(li, deadline); }, function () { return _this.mainModel.updateDeadlineOnServer(deadline); });
+    };
+    View.prototype.fillDeadlineLiForEditMode = function (li, deadline) {
+        var _this = this;
+        this.fillItemLiForEditMode(li, deadline, function (e) { return _this.onCloseDeadlineSettingsClicked(e, li, deadline); });
+    };
+    View.prototype.fillDeadlineLiForNormalMode = function (li, deadline) {
+        var _this = this;
+        this.fillItemLiForNormalMode(li, deadline, function (e) { return _this.markDeadlineDone(deadline, li); }, function (e) { return _this.onOpenDeadlineSettingsClicked(deadline, li); });
+    };
+    View.prototype.addDeadlineToDeadlinesView = function (deadline) {
+        var $newLi = $("<li>");
+        this.fillDeadlineLiForNormalMode($newLi, deadline);
+        var $list = this.$indexContainer.find(".index-deadline-container ul");
+        $list.append($newLi);
+    };
+    // DEADLINE IN SUBTASK VIEW METHODS:
     View.prototype.addDeadlineSubTasksToTasksView = function (deadline) {
         // STUB (does not add deadline subtasks):
         var $taskContainer = this.$indexContainer.find(".index-task-container");
@@ -356,6 +395,7 @@ var View = (function () {
             var subTask = _a[_i];
         }
     };
+    // General methods:
     View.prototype.clearAndShowLoadingOnContainer = function ($container) {
         var $ul = $container.find("ul");
         $ul.empty();
@@ -740,12 +780,22 @@ var MainModel = (function () {
             console.log(errorDetails);
         });
     };
+    MainModel.prototype.updateDeadlineOnServer = function (updatedDeadline) {
+        // STUB (does not update deadline):
+        console.log("updateDeadlineOnServer:");
+        console.log(updatedDeadline);
+    };
     return MainModel;
 }());
 exports.MainModel = MainModel;
 var IndexModel = (function () {
     function IndexModel() {
     }
+    IndexModel.prototype.removeDeadlineFromServer = function (deadlineToRemove) {
+        // STUB (does not remove deadline):
+        console.log("removeDeadlineFromServer:");
+        console.log(deadlineToRemove);
+    };
     IndexModel.prototype.removeTaskFromServer = function (taskToRemove) {
         var json = new item_1.TaskSerializer().toJSON(taskToRemove);
         $.post("delete-task", json)

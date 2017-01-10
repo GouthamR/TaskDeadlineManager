@@ -200,10 +200,24 @@ export class MainModel
 			console.log(errorDetails);
 		});
 	}
+
+	public updateDeadlineOnServer(updatedDeadline: Deadline): void
+	{
+		// STUB (does not update deadline):
+		console.log("updateDeadlineOnServer:");
+		console.log(updatedDeadline);
+	}
 }
 
 export class IndexModel
 {
+	public removeDeadlineFromServer(deadlineToRemove: Deadline): void
+	{
+		// STUB (does not remove deadline):
+		console.log("removeDeadlineFromServer:");
+		console.log(deadlineToRemove);
+	}
+
 	public removeTaskFromServer(taskToRemove: Task): void
 	{
 		let json: TaskJSON = new TaskSerializer().toJSON(taskToRemove);

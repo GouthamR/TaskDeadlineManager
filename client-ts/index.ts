@@ -1,6 +1,7 @@
 import { Item } from "./item";
 import { Task } from "./item";
 import { Deadline } from "./item";
+import { SubTask } from "./item";
 import * as main from "./main"
 
 class View
@@ -22,44 +23,69 @@ class View
         $addDeadlineButton.click((event: JQueryEventObject) => this.mainModel.switchToView(main.View.AddDeadline));
     }
 
-    private markTaskDone(task: Task, li: JQuery): void
+    // GENERIC METHODS FOR TASK AND DEADLINE:
+
+    private markItemDone(item: Item, li: JQuery, removeFromServer: () => void): void
     {
-        this.indexModel.removeTaskFromServer(task);
-        console.log(task.getTitle() + " removed");
+        removeFromServer();
+        console.log(item.getTitle() + " removed");
         li.slideUp({complete: function()
         {
             li.remove();
         }});
     }
 
-    private fillTaskLiForNormalMode(li: JQuery, task: Task): void
+    private onCloseItemSettingsClicked(event: JQueryEventObject, li: JQuery, item: Item,
+                                        fillForNormalMode: () => void, updateOnServer: () => void): void
     {
-        li.empty();
+        event.preventDefault(); // prevents form submission
 
-        let middle: JQuery = $("<div>", {class: "item-middle"});
-        middle.append($("<p>").html(task.getTitle()),
-                        $("<p>").html(task.getDayTimeString()));
-        let check: JQuery = $("<img>", {class: "td-check", src: "img/check.png"});
-        let settings: JQuery = $("<img>", {class: "td-settings", src: "img/gear.png"});
+        let $titleInput = li.find("input[type='text']");
+        item.setTitle($titleInput.val());
+        console.log(item);
 
-        check.click((e: JQueryEventObject) => this.markTaskDone(task, li));
-        settings.click((e: JQueryEventObject) => this.onOpenTaskSettingsClicked(task, li));
-
-        li.append(check, middle, settings);
+        fillForNormalMode();
+        updateOnServer();
     }
 
-    private fillTaskLiForEditMode(li: JQuery, task: Task): void
+    private fillItemLiForEditMode(li: JQuery, item: Item,
+                                    onDoneClicked: (e: JQueryEventObject) => void): void
     {
         li.empty();
 
         let $form = $("<form>");
-        let $titleInput = $("<input>", {type: "text", value: task.getTitle()});
+        let $titleInput = $("<input>", {type: "text", value: item.getTitle()});
         $form.append($titleInput);
         let doneButton: JQuery = $("<input>", {type: "submit", value: "Done"});
-        doneButton.click((e: JQueryEventObject) => this.onCloseTaskSettingsClicked(e, li, task));
+        doneButton.click(onDoneClicked);
         $form.append(doneButton);
 
         li.append($form);
+    }
+
+    private fillItemLiForNormalMode(li: JQuery, item: Item, 
+                                    onMarkDoneClicked: (event: JQueryEventObject) => void, 
+                                    onOpenSettingsClicked: (event: JQueryEventObject) => void): void
+    {
+        li.empty();
+
+        let middle: JQuery = $("<div>", {class: "item-middle"});
+        middle.append($("<p>").html(item.getTitle()),
+                        $("<p>").html(item.getDayTimeString()));
+        let check: JQuery = $("<img>", {class: "td-check", src: "img/check.png"});
+        let settings: JQuery = $("<img>", {class: "td-settings", src: "img/gear.png"});
+
+        check.click(onMarkDoneClicked);
+        settings.click(onOpenSettingsClicked);
+
+        li.append(check, middle, settings);
+    }
+
+    // TASK METHODS:
+
+    private markTaskDone(task: Task, li: JQuery): void
+    {
+        this.markItemDone(task as Item, li, () => this.indexModel.removeTaskFromServer(task));
     }
 
     private onOpenTaskSettingsClicked(task: Task, li: JQuery)
@@ -69,14 +95,22 @@ class View
 
     private onCloseTaskSettingsClicked(event: JQueryEventObject, li: JQuery, task: Task)
     {
-        event.preventDefault(); // prevents form submission
+        this.onCloseItemSettingsClicked(event, li, task as Item, 
+                                    () => this.fillTaskLiForNormalMode(li, task),
+                                    () => this.mainModel.updateTaskOnServer(task));
+    }
 
-        let $titleInput = li.find("input[type='text']");
-        task.setTitle($titleInput.val());
-        console.log(task);
+    private fillTaskLiForEditMode(li: JQuery, task: Task): void
+    {
+        this.fillItemLiForEditMode(li, task as Item,
+                                (e: JQueryEventObject) => this.onCloseTaskSettingsClicked(e, li, task));
+    }
 
-        this.fillTaskLiForNormalMode(li, task);
-        this.mainModel.updateTaskOnServer(task);
+    private fillTaskLiForNormalMode(li: JQuery, task: Task): void
+    {
+        this.fillItemLiForNormalMode(li, task as Item, 
+                                (e: JQueryEventObject) => this.markTaskDone(task, li),
+                                (e: JQueryEventObject) => this.onOpenTaskSettingsClicked(task, li));
     }
 
     private addTaskToView(task: Task): void
@@ -88,12 +122,48 @@ class View
         $list.append($newLi);
     }
 
+    // DEADLINE IN DEADLINE VIEW METHODS:
+
+    private markDeadlineDone(deadline: Deadline, li: JQuery): void
+    {
+        this.markItemDone(deadline as Item, li, () => this.indexModel.removeDeadlineFromServer(deadline));
+    }
+
+    private onOpenDeadlineSettingsClicked(deadline: Deadline, li: JQuery)
+    {
+        this.fillDeadlineLiForEditMode(li, deadline);
+    }
+
+    private onCloseDeadlineSettingsClicked(event: JQueryEventObject, li: JQuery, deadline: Deadline)
+    {
+        this.onCloseItemSettingsClicked(event, li, deadline as Item, 
+                                    () => this.fillDeadlineLiForNormalMode(li, deadline),
+                                    () => this.mainModel.updateDeadlineOnServer(deadline));
+    }
+
+    private fillDeadlineLiForEditMode(li: JQuery, deadline: Deadline): void
+    {
+        this.fillItemLiForEditMode(li, deadline as Item,
+                                    (e: JQueryEventObject) => this.onCloseDeadlineSettingsClicked(e, li, deadline));
+    }
+
+    private fillDeadlineLiForNormalMode(li: JQuery, deadline: Deadline): void
+    {
+        this.fillItemLiForNormalMode(li, deadline as Item, 
+                                (e: JQueryEventObject) => this.markDeadlineDone(deadline, li),
+                                (e: JQueryEventObject) => this.onOpenDeadlineSettingsClicked(deadline, li));
+    }
+
     private addDeadlineToDeadlinesView(deadline: Deadline): void
     {
-        // STUB (does not add deadline):
-
-        let $deadlineContainer: JQuery = this.$indexContainer.find(".index-deadline-container");
+        let $newLi: JQuery = $("<li>");
+        this.fillDeadlineLiForNormalMode($newLi, deadline);
+        
+        let $list: JQuery = this.$indexContainer.find(".index-deadline-container ul");
+        $list.append($newLi);
     }
+
+    // DEADLINE IN SUBTASK VIEW METHODS:
 
     private addDeadlineSubTasksToTasksView(deadline: Deadline): void
     {
@@ -106,6 +176,8 @@ class View
             
         }
     }
+
+    // General methods:
 
     private clearAndShowLoadingOnContainer($container: JQuery): void
     {
