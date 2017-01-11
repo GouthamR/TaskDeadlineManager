@@ -192,37 +192,36 @@ function isAllDay(event) {
 function convertMomentToDate(momentObj) {
     return moment(momentObj.format()).toDate();
 }
-var ItemType;
-(function (ItemType) {
-    ItemType[ItemType["Task"] = 0] = "Task";
-    ItemType[ItemType["Deadline"] = 1] = "Deadline";
-})(ItemType || (ItemType = {}));
 var ItemEventObject = (function () {
-    function ItemEventObject(title, start, allDay, itemType, item) {
+    function ItemEventObject(title, start, allDay, item) {
         this.title = title;
         this.start = start;
         this.allDay = allDay;
-        this.itemType = itemType;
         this.item = item;
     }
     ItemEventObject.prototype.updateItemToMatchEvent = function () {
-        console.log("Item updateItemToMatchEvent");
         this.item.setStart(convertMomentToDate(this.start));
         this.item.setIsAllDay(isAllDay(this));
+    };
+    ItemEventObject.prototype.updateItemOnServer = function () {
+        // do nothing. to be implemented by subclasses.
     };
     return ItemEventObject;
 }());
 var TaskEventObject = (function (_super) {
     __extends(TaskEventObject, _super);
-    function TaskEventObject(title, start, allDay, end, itemType, task) {
-        _super.call(this, title, start, allDay, itemType, task);
+    function TaskEventObject(title, start, allDay, end, task) {
+        _super.call(this, title, start, allDay, task);
         this.end = end;
     }
     TaskEventObject.prototype.updateItemToMatchEvent = function () {
-        console.log("Task updateItemToMatchEvent");
         _super.prototype.updateItemToMatchEvent.call(this);
         var task = this.item;
         task.setEnd(convertMomentToDate(this.end));
+    };
+    TaskEventObject.prototype.updateItemOnServer = function () {
+        var updatedTask = this.item;
+        mainModel.updateTaskOnServer(updatedTask);
     };
     return TaskEventObject;
 }(ItemEventObject));
@@ -242,7 +241,7 @@ function getEventsFromServer(start, end, timezone, callback) {
         var events = [];
         for (var _i = 0, tasks_1 = tasks; _i < tasks_1.length; _i++) {
             var task = tasks_1[_i];
-            var event_1 = new TaskEventObject(task.getTitle(), moment(task.getStart()), task.getIsAllDay(), moment(task.getEnd()), ItemType.Task, task);
+            var event_1 = new TaskEventObject(task.getTitle(), moment(task.getStart()), task.getIsAllDay(), moment(task.getEnd()), task);
             events.push(event_1);
         }
         callback(events);
@@ -258,10 +257,7 @@ function onEventChanged(event, delta, revertFunc, jsEvent, ui, view) {
     console.log("Event changed: ");
     console.log(itemEvent);
     itemEvent.updateItemToMatchEvent();
-    if (itemEvent.itemType == ItemType.Task) {
-        var updatedTask = itemEvent.item;
-        mainModel.updateTaskOnServer(updatedTask);
-    }
+    itemEvent.updateItemOnServer();
 }
 function initFullCalendar() {
     $calendarContainer.find(".calendar-fullcalendar").fullCalendar({

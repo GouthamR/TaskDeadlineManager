@@ -28,26 +28,19 @@ function convertMomentToDate(momentObj: moment.Moment): Date
 	return moment(momentObj.format()).toDate();
 }
 
-enum ItemType
-{
-	Task, Deadline
-}
-
 class ItemEventObject implements FC.EventObject
 {
 	public title: string;
 	public start: moment.Moment;
 	public allDay: boolean;
-	public itemType: ItemType;
 	public item: Item;
 
 	public constructor(title: string, start: moment.Moment, allDay: boolean,
-						itemType: ItemType, item: Item)
+						item: Item)
 	{
 		this.title = title;
 		this.start = start;
 		this.allDay = allDay;
-		this.itemType = itemType;
 		this.item = item;
 	}
 
@@ -56,6 +49,11 @@ class ItemEventObject implements FC.EventObject
 		this.item.setStart(convertMomentToDate(this.start));
 		this.item.setIsAllDay(isAllDay(this as FC.EventObject));
 	}
+
+	public updateItemOnServer()
+	{
+		// do nothing. to be implemented by subclasses.
+	}
 }
 
 class TaskEventObject extends ItemEventObject
@@ -63,9 +61,9 @@ class TaskEventObject extends ItemEventObject
 	public end: moment.Moment;
 
 	public constructor(title: string, start: moment.Moment, allDay: boolean,
-						end: moment.Moment, itemType: ItemType, task: Task)
+						end: moment.Moment, task: Task)
 	{
-		super(title, start, allDay, itemType, task as Item);
+		super(title, start, allDay, task as Item);
 		this.end = end;
 	}
 
@@ -75,6 +73,12 @@ class TaskEventObject extends ItemEventObject
 		
 		let task: Task = this.item as Task;
 		task.setEnd(convertMomentToDate(this.end as moment.Moment));
+	}
+
+	public updateItemOnServer()
+	{
+		let updatedTask: Task = this.item as Task;
+		mainModel.updateTaskOnServer(updatedTask);
 	}
 }
 
@@ -110,7 +114,6 @@ function getEventsFromServer(start: moment.Moment, end: moment.Moment,
 																moment(task.getStart()),
 																task.getIsAllDay(),
 																moment(task.getEnd()),
-																ItemType.Task,
 																task)
 			events.push(event);
 		}
@@ -136,12 +139,7 @@ function onEventChanged(event: FC.EventObject, delta: moment.Duration,
 	console.log(itemEvent);
 	
 	itemEvent.updateItemToMatchEvent();
-	
-	if(itemEvent.itemType == ItemType.Task)
-	{
-		let updatedTask: Task = itemEvent.item as Task;
-		mainModel.updateTaskOnServer(updatedTask);
-	}
+	itemEvent.updateItemOnServer();
 }
 
 function initFullCalendar(): void
