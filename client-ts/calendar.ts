@@ -11,15 +11,71 @@ const LOADING_CLASS_NAME: string = "calendar-loading";
 let $calendarContainer: JQuery;
 let mainModel: main.MainModel;
 
+// While FC.EventObject has an allDay field, that field yields inaccurate values.
+function isAllDay(event: FC.EventObject)
+{
+	const NUM_CHARS_IN_ALL_DAY_FORMAT: number = 10;
+
+	let formatted: string = (event.start as moment.Moment).format();
+	let numCharsInFormat: number = formatted.length;
+	return (numCharsInFormat == NUM_CHARS_IN_ALL_DAY_FORMAT);
+}
+
+// This function uses the momentObj.format() to convert to date, since that
+// method always returns correct results, unlike momentObj.toDate().
+function convertMomentToDate(momentObj: moment.Moment): Date
+{
+	return moment(momentObj.format()).toDate();
+}
+
 enum ItemType
 {
 	Task, Deadline
 }
 
-interface ItemEventObject extends FC.EventObject
+class ItemEventObject implements FC.EventObject
 {
-	itemType: ItemType;
-	item: Item;
+	public title: string;
+	public start: moment.Moment;
+	public allDay: boolean;
+	public itemType: ItemType;
+	public item: Item;
+
+	public constructor(title: string, start: moment.Moment, allDay: boolean,
+						itemType: ItemType, item: Item)
+	{
+		this.title = title;
+		this.start = start;
+		this.allDay = allDay;
+		this.itemType = itemType;
+		this.item = item;
+	}
+
+	public updateItemToMatchEvent()
+	{
+		this.item.setStart(convertMomentToDate(this.start));
+		this.item.setIsAllDay(isAllDay(this as FC.EventObject));
+	}
+}
+
+class TaskEventObject extends ItemEventObject
+{
+	public end: moment.Moment;
+
+	public constructor(title: string, start: moment.Moment, allDay: boolean,
+						end: moment.Moment, itemType: ItemType, task: Task)
+	{
+		super(title, start, allDay, itemType, task as Item);
+		this.end = end;
+	}
+
+	public updateItemToMatchEvent()
+	{
+		super.updateItemToMatchEvent();
+		
+		let task: Task = this.item as Task;
+		task.setEnd(convertMomentToDate(this.end as moment.Moment));
+	}
 }
 
 function clearAndShowLoading(): void
@@ -50,15 +106,12 @@ function getEventsFromServer(start: moment.Moment, end: moment.Moment,
 
 		for(let task of tasks)
 		{
-			let event: ItemEventObject = 
-			{
-				title: task.getTitle(),
-				start: moment(task.getStart()),
-				allDay: task.getIsAllDay(),
-				end: moment(task.getEnd()),
-				itemType: ItemType.Task,
-				item: task
-			};
+			let event: TaskEventObject = new TaskEventObject(task.getTitle(),
+																moment(task.getStart()),
+																task.getIsAllDay(),
+																moment(task.getEnd()),
+																ItemType.Task,
+																task)
 			events.push(event);
 		}
 
@@ -74,58 +127,19 @@ function getEventsFromServer(start: moment.Moment, end: moment.Moment,
 	mainModel.loadTasksAndDeadlinesFromServer(onSuccess, onFailure);
 }
 
-// While FC.EventObject has an allDay field, that field yields inaccurate values.
-function isAllDay(event: FC.EventObject)
-{
-	const NUM_CHARS_IN_ALL_DAY_FORMAT: number = 10;
-
-	let formatted: string = (event.start as moment.Moment).format();
-	let numCharsInFormat: number = formatted.length;
-	return (numCharsInFormat == NUM_CHARS_IN_ALL_DAY_FORMAT);
-}
-
-// This function uses the momentObj.format() to convert to date, since that
-// method always returns correct results, unlike momentObj.toDate().
-function convertMomentToDate(momentObj: moment.Moment): Date
-{
-	return moment(momentObj.format()).toDate();
-}
-
-// While event.start.toDate would seemingly work, it often returns invalid results.
-// But event.start.format() is always valid, so this mehod uses that to get the equivalent date.
-function convertStartToDate(event: FC.EventObject): Date
-{
-	return convertMomentToDate(event.start as moment.Moment);
-}
-
-// While event.end.toDate would seemingly work, it often returns invalid results.
-// But event.end.format() is always valid, so this mehod uses that to get the equivalent date.
-function convertEndToDate(event: FC.EventObject): Date
-{
-	return convertMomentToDate(event.end as moment.Moment);
-}
-
-function convertToTask(itemEvent: ItemEventObject): Task
-{
-	let task: Task = itemEvent.item as Task;
-
-	task.setStart(convertStartToDate(itemEvent as FC.EventObject));
-	task.setEnd(convertEndToDate(itemEvent as FC.EventObject));
-	task.setIsAllDay(isAllDay(itemEvent as FC.EventObject));
-
-	return task;
-}
-
 function onEventChanged(event: FC.EventObject, delta: moment.Duration, 
 						revertFunc: Function, jsEvent: Event, ui: any, 
 						view: FC.ViewObject): void
 {
-	let itemEventObj = event as ItemEventObject;
+	let itemEvent = event as ItemEventObject;
 	console.log("Event changed: ");
-	console.log(itemEventObj);
-	if(itemEventObj.itemType == ItemType.Task)
+	console.log(itemEvent);
+	
+	itemEvent.updateItemToMatchEvent();
+	
+	if(itemEvent.itemType == ItemType.Task)
 	{
-		let updatedTask: Task = convertToTask(itemEventObj);
+		let updatedTask: Task = itemEvent.item as Task;
 		mainModel.updateTaskOnServer(updatedTask);
 	}
 }
