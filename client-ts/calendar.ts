@@ -4,6 +4,7 @@
 import { Item } from "./item";
 import { Task } from "./item";
 import { Deadline } from "./item";
+import { SubTask } from "./item";
 import * as main from "./main"
 
 // Module-level variables:
@@ -82,6 +83,38 @@ class TaskEventObject extends ItemEventObject
 	}
 }
 
+class DeadlineEventObject extends ItemEventObject
+{
+	public constructor(title: string, start: moment.Moment, allDay: boolean,
+						deadline: Deadline)
+	{
+		super(title, start, allDay, deadline as Item);
+	}
+
+	public updateItemOnServer()
+	{
+		let updatedDeadline: Deadline = this.item as Deadline;
+		mainModel.updateDeadlineOnServer(updatedDeadline);
+	}
+}
+
+class SubTaskEventObject extends TaskEventObject
+{
+	private deadline: Deadline;
+
+	public constructor(title: string, start: moment.Moment, allDay: boolean,
+						end: moment.Moment, deadline: Deadline, subTask: SubTask)
+	{
+		super(title, start, allDay, end, subTask as Task);
+		this.deadline = deadline;
+	}
+
+	public updateItemOnServer()
+	{
+		mainModel.updateDeadlineOnServer(this.deadline);
+	}
+}
+
 function clearAndShowLoading(): void
 {
 	// STUB (does not clear):
@@ -104,8 +137,6 @@ function getEventsFromServer(start: moment.Moment, end: moment.Moment,
 {
 	function onSuccess (tasks: Task[], deadlines: Deadline[])
 	{
-		// STUB: (does not add deadlines to calendar)
-
 		let events: ItemEventObject[] = [];
 
 		for(let task of tasks)
@@ -114,8 +145,27 @@ function getEventsFromServer(start: moment.Moment, end: moment.Moment,
 																moment(task.getStart()),
 																task.getIsAllDay(),
 																moment(task.getEnd()),
-																task)
+																task);
 			events.push(event);
+		}
+
+		for(let deadline of deadlines)
+		{
+			let deadlineEvent: DeadlineEventObject = new DeadlineEventObject(deadline.getTitle(),
+																				moment(deadline.getStart()),
+																				deadline.getIsAllDay(),
+																				deadline);
+			events.push(deadlineEvent);
+			for(let subTask of deadline.getSubTasks())
+			{
+				let subTaskEvent: SubTaskEventObject = new SubTaskEventObject(subTask.getTitle(),
+																				moment(subTask.getStart()),
+																				subTask.getIsAllDay(),
+																				moment(subTask.getEnd()),
+																				deadline,
+																				subTask);
+				events.push(subTaskEvent);
+			}
 		}
 
 		callback(events);

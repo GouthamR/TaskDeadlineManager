@@ -225,6 +225,28 @@ var TaskEventObject = (function (_super) {
     };
     return TaskEventObject;
 }(ItemEventObject));
+var DeadlineEventObject = (function (_super) {
+    __extends(DeadlineEventObject, _super);
+    function DeadlineEventObject(title, start, allDay, deadline) {
+        _super.call(this, title, start, allDay, deadline);
+    }
+    DeadlineEventObject.prototype.updateItemOnServer = function () {
+        var updatedDeadline = this.item;
+        mainModel.updateDeadlineOnServer(updatedDeadline);
+    };
+    return DeadlineEventObject;
+}(ItemEventObject));
+var SubTaskEventObject = (function (_super) {
+    __extends(SubTaskEventObject, _super);
+    function SubTaskEventObject(title, start, allDay, end, deadline, subTask) {
+        _super.call(this, title, start, allDay, end, subTask);
+        this.deadline = deadline;
+    }
+    SubTaskEventObject.prototype.updateItemOnServer = function () {
+        mainModel.updateDeadlineOnServer(this.deadline);
+    };
+    return SubTaskEventObject;
+}(TaskEventObject));
 function clearAndShowLoading() {
     // STUB (does not clear):
     var $fullCalendarDiv = $calendarContainer.find(".calendar-fullcalendar");
@@ -237,12 +259,21 @@ function removeLoading() {
 }
 function getEventsFromServer(start, end, timezone, callback) {
     function onSuccess(tasks, deadlines) {
-        // STUB: (does not add deadlines to calendar)
         var events = [];
         for (var _i = 0, tasks_1 = tasks; _i < tasks_1.length; _i++) {
             var task = tasks_1[_i];
             var event_1 = new TaskEventObject(task.getTitle(), moment(task.getStart()), task.getIsAllDay(), moment(task.getEnd()), task);
             events.push(event_1);
+        }
+        for (var _a = 0, deadlines_1 = deadlines; _a < deadlines_1.length; _a++) {
+            var deadline = deadlines_1[_a];
+            var deadlineEvent = new DeadlineEventObject(deadline.getTitle(), moment(deadline.getStart()), deadline.getIsAllDay(), deadline);
+            events.push(deadlineEvent);
+            for (var _b = 0, _c = deadline.getSubTasks(); _b < _c.length; _b++) {
+                var subTask = _c[_b];
+                var subTaskEvent = new SubTaskEventObject(subTask.getTitle(), moment(subTask.getStart()), subTask.getIsAllDay(), moment(subTask.getEnd()), deadline, subTask);
+                events.push(subTaskEvent);
+            }
         }
         callback(events);
     }
