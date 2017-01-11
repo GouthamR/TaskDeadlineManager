@@ -540,6 +540,7 @@ function init($targetContainer, indexModel, mainModel) {
 exports.init = init;
 
 },{"./main":6}],5:[function(require,module,exports){
+/// <reference path="./moment_modified.d.ts" />
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -554,15 +555,17 @@ var Item = (function () {
         this.id = id;
     }
     Item.prototype.getDayTimeString = function () {
-        // stub:
-        var allDayEnding;
+        // STUB (does not hide times when all day):
+        var allDayStr;
         if (this.getIsAllDay()) {
-            allDayEnding = '_ALL_DAY';
+            allDayStr = '_ALL_DAY';
         }
         else {
-            allDayEnding = '';
+            allDayStr = '';
         }
-        return this.getStart().toString() + allDayEnding;
+        var startStr = moment(this.getStart())
+            .format("dddd, MMMM Do YYYY, h:mm:ss a");
+        return startStr + allDayStr;
     };
     Item.prototype.getTitle = function () { return this.title; };
     Item.prototype.getStart = function () { return this.start; };
@@ -591,15 +594,18 @@ var Task = (function (_super) {
         this.end = end;
     };
     Task.prototype.getDayTimeString = function () {
-        // stub:
-        var allDayEnding;
+        // STUB (does not hide times when all day):
+        var allDayStr;
         if (this.getIsAllDay()) {
-            allDayEnding = '_ALL_DAY';
+            allDayStr = '_ALL_DAY';
         }
         else {
-            allDayEnding = '';
+            allDayStr = '';
         }
-        return this.getStart().toString() + " - " + this.getEnd().toString() + allDayEnding;
+        var DATETIME_FORMAT = "dddd, MMMM Do YYYY, h:mm:ss a";
+        var startStr = moment(this.getStart()).format(DATETIME_FORMAT);
+        var endStr = moment(this.getEnd()).format(DATETIME_FORMAT);
+        return startStr + " - " + endStr + allDayStr;
     };
     return Task;
 }(Item));
@@ -635,11 +641,6 @@ var SubTask = (function (_super) {
     SubTask.prototype.getIsDone = function () { return this.isDone; };
     SubTask.prototype.markAsDone = function () {
         this.isDone = true;
-    };
-    SubTask.prototype.getDayTimeString = function () {
-        var begin = _super.prototype.getDayTimeString.call(this);
-        var end = "[" + this.deadlineId + "]";
-        return (begin + end);
     };
     return SubTask;
 }(Task));

@@ -1,3 +1,5 @@
+/// <reference path="./moment_modified.d.ts" />
+
 export class Item
 {
     private title: string;
@@ -15,18 +17,22 @@ export class Item
 
     public getDayTimeString() : string
     {
-        // stub:
-        let allDayEnding: string;
+        // STUB (does not hide times when all day):
+        
+        let allDayStr: string;
         if (this.getIsAllDay())
         {
-            allDayEnding = '_ALL_DAY';
+            allDayStr = '_ALL_DAY';
         }
         else
         {
-            allDayEnding = '';
+            allDayStr = '';
         }
 
-        return this.getStart().toString() + allDayEnding;
+        let startStr: string = moment(this.getStart())
+                                .format("dddd, MMMM Do YYYY, h:mm:ss a");
+
+        return startStr + allDayStr;
     }
 
     public getTitle() : string { return this.title; }
@@ -77,18 +83,23 @@ export class Task extends Item
 
     public getDayTimeString(): string
     {
-        // stub:
-        let allDayEnding: string;
+        // STUB (does not hide times when all day):
+        
+        let allDayStr: string;
         if (this.getIsAllDay())
         {
-            allDayEnding = '_ALL_DAY';
+            allDayStr = '_ALL_DAY';
         }
         else
         {
-            allDayEnding = '';
+            allDayStr = '';
         }
 
-        return this.getStart().toString() + " - " + this.getEnd().toString() + allDayEnding;
+        const DATETIME_FORMAT: string = "dddd, MMMM Do YYYY, h:mm:ss a";
+        let startStr: string = moment(this.getStart()).format(DATETIME_FORMAT);
+        let endStr: string = moment(this.getEnd()).format(DATETIME_FORMAT);
+        
+        return startStr + " - " + endStr + allDayStr;
     }
 }
 
@@ -150,13 +161,6 @@ export class SubTask extends Task
     public markAsDone(): void
     {
         this.isDone = true;
-    }
-
-    public getDayTimeString(): string
-    {
-        let begin: string = super.getDayTimeString();
-        let end: string = "[" + this.deadlineId + "]";
-        return (begin + end);
     }
 }
 
