@@ -1,3 +1,5 @@
+/// <reference path="./moment_modified.d.ts" />
+
 import { Item } from "./item";
 import { Task } from "./item";
 import { Deadline } from "./item";
@@ -21,6 +23,9 @@ class View
         $addTaskButton.click((event: JQueryEventObject) => this.mainModel.switchToView(main.View.AddTask));
         let $addDeadlineButton: JQuery = this.$indexContainer.find(".index-deadline-container > a");
         $addDeadlineButton.click((event: JQueryEventObject) => this.mainModel.switchToView(main.View.AddDeadline));
+
+        let $helloHeading = this.$indexContainer.find(".index-name-heading");
+        $helloHeading.html("Hello, " + this.mainModel.getUserName());
     }
 
     // GENERIC METHODS FOR TASK AND DEADLINE:
@@ -303,11 +308,18 @@ class View
         this.removeDeadlineLoadingText();
     }
 
+    private loadDateHeading(): void
+    {
+        let $dateHeading = this.$indexContainer.find(".index-date-heading");
+        $dateHeading.html(moment().format("MMMM Do, YYYY"));
+    }
+
     public reloadFromServer(): void
     {
         this.clearAndShowLoading();
-        this.mainModel.loadTasksAndDeadlinesFromServer((t: Task[], d: Deadline[]) => this.loadView(t, d), 
+        this.mainModel.loadTasksAndDeadlinesFromServer((t: Task[], d: Deadline[]) => this.loadView(t, d),
                                                         (e: string) => this.showLoadError(e));
+        this.loadDateHeading(); // loads date heading on every reload in case date changes (e.g. at midnight)
     }
 }
 

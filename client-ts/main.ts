@@ -220,6 +220,11 @@ export class MainModel
 			console.log(errorDetails);
 		});
 	}
+
+	public getUserName(): string
+	{
+		return "Goutham";
+	}
 }
 
 export class IndexModel
