@@ -85,10 +85,14 @@ class TaskEventObject extends ItemEventObject
 
 class DeadlineEventObject extends ItemEventObject
 {
+	public color: string;
+
 	public constructor(title: string, start: moment.Moment, allDay: boolean,
 						deadline: Deadline)
 	{
 		super(title, start, allDay, deadline as Item);
+
+		this.color = "green";
 	}
 
 	public updateItemOnServer()

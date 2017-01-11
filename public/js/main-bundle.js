@@ -229,6 +229,7 @@ var DeadlineEventObject = (function (_super) {
     __extends(DeadlineEventObject, _super);
     function DeadlineEventObject(title, start, allDay, deadline) {
         _super.call(this, title, start, allDay, deadline);
+        this.color = "green";
     }
     DeadlineEventObject.prototype.updateItemOnServer = function () {
         var updatedDeadline = this.item;
