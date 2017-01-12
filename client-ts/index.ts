@@ -294,9 +294,15 @@ class View
     {
         this.clearAndShowLoading();
 
+        let startOfDay: moment.Moment = moment().startOf("day");
+        let endOfDay: moment.Moment = moment().endOf("day");
+
         for(let task of tasks)
         {
-            this.addTaskToView(task);
+            if(task.occursDuring(startOfDay, endOfDay))
+            {
+                this.addTaskToView(task);
+            }
         }
 
         for(let deadline of deadlines)

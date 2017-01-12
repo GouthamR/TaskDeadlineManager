@@ -52,6 +52,13 @@ export class Item
     {
         this.isAllDay = isAllDay;
     }
+
+    // Returns true if the start of the item occurs within the argument range.
+    public occursDuring(start: moment.Moment, end: moment.Moment): boolean
+    {
+        let itemStart: moment.Moment = moment(this.getStart());
+        return itemStart.isBetween(start, end);
+    }
 }
 
 interface JSONSerializer<ObjectType, JSONType>
@@ -100,6 +107,14 @@ export class Task extends Item
         let endStr: string = moment(this.getEnd()).format(DATETIME_FORMAT);
         
         return startStr + " - " + endStr + allDayStr;
+    }
+
+    // Returns true if a part of the task occurs within the argument range.
+    public occursDuring(start: moment.Moment, end: moment.Moment): boolean
+    {
+        let taskEnd: moment.Moment = moment(this.getEnd());
+        let taskEndDuring: boolean = taskEnd.isBetween(start, end);
+        return (taskEndDuring || super.occursDuring(start, end));
     }
 }
 

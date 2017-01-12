@@ -511,9 +511,13 @@ var View = (function () {
     };
     View.prototype.loadView = function (tasks, deadlines) {
         this.clearAndShowLoading();
+        var startOfDay = moment().startOf("day");
+        var endOfDay = moment().endOf("day");
         for (var _i = 0, tasks_1 = tasks; _i < tasks_1.length; _i++) {
             var task = tasks_1[_i];
-            this.addTaskToView(task);
+            if (task.occursDuring(startOfDay, endOfDay)) {
+                this.addTaskToView(task);
+            }
         }
         for (var _a = 0, deadlines_1 = deadlines; _a < deadlines_1.length; _a++) {
             var deadline = deadlines_1[_a];
@@ -588,6 +592,11 @@ var Item = (function () {
     Item.prototype.setIsAllDay = function (isAllDay) {
         this.isAllDay = isAllDay;
     };
+    // Returns true if the start of the item occurs within the argument range.
+    Item.prototype.occursDuring = function (start, end) {
+        var itemStart = moment(this.getStart());
+        return itemStart.isBetween(start, end);
+    };
     return Item;
 }());
 exports.Item = Item;
@@ -614,6 +623,12 @@ var Task = (function (_super) {
         var startStr = moment(this.getStart()).format(DATETIME_FORMAT);
         var endStr = moment(this.getEnd()).format(DATETIME_FORMAT);
         return startStr + " - " + endStr + allDayStr;
+    };
+    // Returns true if a part of the task occurs within the argument range.
+    Task.prototype.occursDuring = function (start, end) {
+        var taskEnd = moment(this.getEnd());
+        var taskEndDuring = taskEnd.isBetween(start, end);
+        return (taskEndDuring || _super.prototype.occursDuring.call(this, start, end));
     };
     return Task;
 }(Item));
