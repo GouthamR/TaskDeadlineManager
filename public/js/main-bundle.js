@@ -492,19 +492,19 @@ var View = (function () {
     View.prototype.removeLoadingText = function ($container) {
         $container.find(".index-loading").remove();
     };
-    View.prototype.removeTaskLoadingText = function () {
+    View.prototype.removeTaskViewLoadingText = function () {
         var $taskContainer = this.$indexContainer.find(".index-task-container");
         this.removeLoadingText($taskContainer);
     };
-    View.prototype.removeDeadlineLoadingText = function () {
+    View.prototype.removeDeadlineViewLoadingText = function () {
         var $deadlineContainer = this.$indexContainer.find(".index-deadline-container");
         this.removeLoadingText($deadlineContainer);
     };
     // Note: appends error after any existing errors.
     View.prototype.showLoadError = function (errorMessage) {
         console.log("loadError!");
-        this.removeTaskLoadingText();
-        this.removeDeadlineLoadingText();
+        this.removeTaskViewLoadingText();
+        this.removeDeadlineViewLoadingText();
         var $indexErrorContainer = this.$indexContainer.find(".index-error-container");
         $indexErrorContainer.append($("<p>").html(errorMessage));
         $indexErrorContainer.removeClass("hidden");
@@ -515,13 +515,13 @@ var View = (function () {
             var task = tasks_1[_i];
             this.addTaskToView(task);
         }
-        this.removeTaskLoadingText();
         for (var _a = 0, deadlines_1 = deadlines; _a < deadlines_1.length; _a++) {
             var deadline = deadlines_1[_a];
             var deadlineLi = this.addDeadlineToDeadlinesView(deadline);
             this.addDeadlineSubTasksToTasksView(deadline, deadlineLi);
         }
-        this.removeDeadlineLoadingText();
+        this.removeTaskViewLoadingText(); // only remove after loading deadlines because deadlines may contain subtasks
+        this.removeDeadlineViewLoadingText();
     };
     View.prototype.loadDateHeading = function () {
         var $dateHeading = this.$indexContainer.find(".index-date-heading");

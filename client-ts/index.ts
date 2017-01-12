@@ -267,13 +267,13 @@ class View
         $container.find(".index-loading").remove();
     }
 
-    private removeTaskLoadingText(): void
+    private removeTaskViewLoadingText(): void
     {
         let $taskContainer: JQuery = this.$indexContainer.find(".index-task-container");
         this.removeLoadingText($taskContainer);
     }
 
-    private removeDeadlineLoadingText(): void
+    private removeDeadlineViewLoadingText(): void
     {
         let $deadlineContainer: JQuery = this.$indexContainer.find(".index-deadline-container");
         this.removeLoadingText($deadlineContainer);
@@ -283,8 +283,8 @@ class View
     public showLoadError(errorMessage: string): void
     {
         console.log("loadError!");
-        this.removeTaskLoadingText();
-        this.removeDeadlineLoadingText();
+        this.removeTaskViewLoadingText();
+        this.removeDeadlineViewLoadingText();
         let $indexErrorContainer = this.$indexContainer.find(".index-error-container");
         $indexErrorContainer.append($("<p>").html(errorMessage));
         $indexErrorContainer.removeClass("hidden");
@@ -298,14 +298,14 @@ class View
         {
             this.addTaskToView(task);
         }
-        this.removeTaskLoadingText();
 
         for(let deadline of deadlines)
         {
             let deadlineLi: JQuery = this.addDeadlineToDeadlinesView(deadline);
             this.addDeadlineSubTasksToTasksView(deadline, deadlineLi);
         }
-        this.removeDeadlineLoadingText();
+        this.removeTaskViewLoadingText(); // only remove after loading deadlines because deadlines may contain subtasks
+        this.removeDeadlineViewLoadingText();
     }
 
     private loadDateHeading(): void
