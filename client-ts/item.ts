@@ -1,5 +1,14 @@
 /// <reference path="./moment_modified.d.ts" />
 
+// Returns true if dateTime is within first millisecond of today and last
+// millisecond of today, inclusive.
+function dateTimeInToday(dateTime: moment.Moment): boolean
+{
+    let startOfDay: moment.Moment = moment().startOf("day");
+    let endOfDay: moment.Moment = moment().endOf("day");
+    return dateTime.isBetween(startOfDay, endOfDay, null, "[]");
+}
+
 export class Item
 {
     private title: string;
@@ -53,18 +62,10 @@ export class Item
         this.isAllDay = isAllDay;
     }
 
-    protected occursDuring(start: moment.Moment, end: moment.Moment): boolean
-    {
-        let itemStart: moment.Moment = moment(this.getStart());
-        return itemStart.isBetween(start, end);
-    }
-
     public occursToday(): boolean
     {
-        let startOfDay: moment.Moment = moment().startOf("day");
-        let endOfDay: moment.Moment = moment().endOf("day");
-        
-        return this.occursDuring(startOfDay, endOfDay);
+        let itemStart: moment.Moment = moment(this.getStart());
+        return dateTimeInToday(itemStart); // inclusive of 12:00am, to be compatible with all-day events.
     }
 }
 
@@ -116,11 +117,10 @@ export class Task extends Item
         return startStr + " - " + endStr + allDayStr;
     }
 
-    protected occursDuring(start: moment.Moment, end: moment.Moment): boolean
+    public occursToday(): boolean
     {
         let taskEnd: moment.Moment = moment(this.getEnd());
-        let taskEndDuring: boolean = taskEnd.isBetween(start, end);
-        return (taskEndDuring || super.occursDuring(start, end));
+        return (dateTimeInToday(taskEnd) || super.occursToday());
     }
 }
 

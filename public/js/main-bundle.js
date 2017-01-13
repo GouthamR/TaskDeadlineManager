@@ -557,6 +557,13 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+// Returns true if dateTime is within first millisecond of today and last
+// millisecond of today, inclusive.
+function dateTimeInToday(dateTime) {
+    var startOfDay = moment().startOf("day");
+    var endOfDay = moment().endOf("day");
+    return dateTime.isBetween(startOfDay, endOfDay, null, "[]");
+}
 var Item = (function () {
     function Item(title, start, isAllDay, id) {
         this.title = title;
@@ -590,14 +597,9 @@ var Item = (function () {
     Item.prototype.setIsAllDay = function (isAllDay) {
         this.isAllDay = isAllDay;
     };
-    Item.prototype.occursDuring = function (start, end) {
-        var itemStart = moment(this.getStart());
-        return itemStart.isBetween(start, end);
-    };
     Item.prototype.occursToday = function () {
-        var startOfDay = moment().startOf("day");
-        var endOfDay = moment().endOf("day");
-        return this.occursDuring(startOfDay, endOfDay);
+        var itemStart = moment(this.getStart());
+        return dateTimeInToday(itemStart); // inclusive of 12:00am, to be compatible with all-day events.
     };
     return Item;
 }());
@@ -626,10 +628,9 @@ var Task = (function (_super) {
         var endStr = moment(this.getEnd()).format(DATETIME_FORMAT);
         return startStr + " - " + endStr + allDayStr;
     };
-    Task.prototype.occursDuring = function (start, end) {
+    Task.prototype.occursToday = function () {
         var taskEnd = moment(this.getEnd());
-        var taskEndDuring = taskEnd.isBetween(start, end);
-        return (taskEndDuring || _super.prototype.occursDuring.call(this, start, end));
+        return (dateTimeInToday(taskEnd) || _super.prototype.occursToday.call(this));
     };
     return Task;
 }(Item));
