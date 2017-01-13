@@ -243,6 +243,19 @@ export class Deadline extends Item
         }
         return true;
     }
+
+    public getUnfinishedSubTasks(): SubTask[]
+    {
+        let unfinished: SubTask[] = [];
+        for(let subTask of this.getSubTasks())
+        {
+            if(!subTask.getIsDone())
+            {
+                unfinished.push(subTask);
+            }
+        }
+        return unfinished;
+    }
 }
 
 interface DeadlineJSONWithoutIDOrSubTask

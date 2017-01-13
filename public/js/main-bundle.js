@@ -270,7 +270,7 @@ function getEventsFromServer(start, end, timezone, callback) {
             var deadline = deadlines_1[_a];
             var deadlineEvent = new DeadlineEventObject(deadline.getTitle(), moment(deadline.getStart()), deadline.getIsAllDay(), deadline);
             events.push(deadlineEvent);
-            for (var _b = 0, _c = deadline.getSubTasks(); _b < _c.length; _b++) {
+            for (var _b = 0, _c = deadline.getUnfinishedSubTasks(); _b < _c.length; _b++) {
                 var subTask = _c[_b];
                 var subTaskEvent = new SubTaskEventObject(subTask.getTitle(), moment(subTask.getStart()), subTask.getIsAllDay(), moment(subTask.getEnd()), deadline, subTask);
                 events.push(subTaskEvent);
@@ -460,13 +460,11 @@ var View = (function () {
     };
     View.prototype.addDeadlineSubTasksToTasksView = function (deadline, deadlineLi) {
         var $list = this.$indexContainer.find(".index-task-container ul");
-        for (var _i = 0, _a = deadline.getSubTasks(); _i < _a.length; _i++) {
+        for (var _i = 0, _a = deadline.getUnfinishedSubTasks(); _i < _a.length; _i++) {
             var subTask = _a[_i];
-            if (!subTask.getIsDone()) {
-                var $newLi = $("<li>");
-                this.fillSubTaskLiForNormalMode($newLi, deadlineLi, subTask, deadline);
-                $list.append($newLi);
-            }
+            var $newLi = $("<li>");
+            this.fillSubTaskLiForNormalMode($newLi, deadlineLi, subTask, deadline);
+            $list.append($newLi);
         }
     };
     // General methods:
@@ -704,6 +702,16 @@ var Deadline = (function (_super) {
             }
         }
         return true;
+    };
+    Deadline.prototype.getUnfinishedSubTasks = function () {
+        var unfinished = [];
+        for (var _i = 0, _a = this.getSubTasks(); _i < _a.length; _i++) {
+            var subTask = _a[_i];
+            if (!subTask.getIsDone()) {
+                unfinished.push(subTask);
+            }
+        }
+        return unfinished;
     };
     return Deadline;
 }(Item));

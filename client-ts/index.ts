@@ -219,15 +219,12 @@ class View
     {
         let $list: JQuery = this.$indexContainer.find(".index-task-container ul");
 
-        for(let subTask of deadline.getSubTasks())
+        for(let subTask of deadline.getUnfinishedSubTasks())
         {
-            if(!subTask.getIsDone())
-            {
-                let $newLi: JQuery = $("<li>");
-                this.fillSubTaskLiForNormalMode($newLi, deadlineLi, subTask, deadline);
-                
-                $list.append($newLi);
-            }
+            let $newLi: JQuery = $("<li>");
+            this.fillSubTaskLiForNormalMode($newLi, deadlineLi, subTask, deadline);
+            
+            $list.append($newLi);
         }
     }
 

@@ -160,7 +160,7 @@ function getEventsFromServer(start: moment.Moment, end: moment.Moment,
 																				deadline.getIsAllDay(),
 																				deadline);
 			events.push(deadlineEvent);
-			for(let subTask of deadline.getSubTasks())
+			for(let subTask of deadline.getUnfinishedSubTasks()) // only display unfinished subtasks in calendar
 			{
 				let subTaskEvent: SubTaskEventObject = new SubTaskEventObject(subTask.getTitle(),
 																				moment(subTask.getStart()),
