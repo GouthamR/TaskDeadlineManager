@@ -221,10 +221,13 @@ class View
 
         for(let subTask of deadline.getUnfinishedSubTasks())
         {
-            let $newLi: JQuery = $("<li>");
-            this.fillSubTaskLiForNormalMode($newLi, deadlineLi, subTask, deadline);
-            
-            $list.append($newLi);
+            if(subTask.occursToday())
+            {
+                let $newLi: JQuery = $("<li>");
+                this.fillSubTaskLiForNormalMode($newLi, deadlineLi, subTask, deadline);
+                
+                $list.append($newLi);
+            }
         }
     }
 
@@ -291,12 +294,9 @@ class View
     {
         this.clearAndShowLoading();
 
-        let startOfDay: moment.Moment = moment().startOf("day");
-        let endOfDay: moment.Moment = moment().endOf("day");
-
         for(let task of tasks)
         {
-            if(task.occursDuring(startOfDay, endOfDay))
+            if(task.occursToday())
             {
                 this.addTaskToView(task);
             }

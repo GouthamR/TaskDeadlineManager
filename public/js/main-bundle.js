@@ -462,9 +462,11 @@ var View = (function () {
         var $list = this.$indexContainer.find(".index-task-container ul");
         for (var _i = 0, _a = deadline.getUnfinishedSubTasks(); _i < _a.length; _i++) {
             var subTask = _a[_i];
-            var $newLi = $("<li>");
-            this.fillSubTaskLiForNormalMode($newLi, deadlineLi, subTask, deadline);
-            $list.append($newLi);
+            if (subTask.occursToday()) {
+                var $newLi = $("<li>");
+                this.fillSubTaskLiForNormalMode($newLi, deadlineLi, subTask, deadline);
+                $list.append($newLi);
+            }
         }
     };
     // General methods:
@@ -509,11 +511,9 @@ var View = (function () {
     };
     View.prototype.loadView = function (tasks, deadlines) {
         this.clearAndShowLoading();
-        var startOfDay = moment().startOf("day");
-        var endOfDay = moment().endOf("day");
         for (var _i = 0, tasks_1 = tasks; _i < tasks_1.length; _i++) {
             var task = tasks_1[_i];
-            if (task.occursDuring(startOfDay, endOfDay)) {
+            if (task.occursToday()) {
                 this.addTaskToView(task);
             }
         }
@@ -590,10 +590,14 @@ var Item = (function () {
     Item.prototype.setIsAllDay = function (isAllDay) {
         this.isAllDay = isAllDay;
     };
-    // Returns true if the start of the item occurs within the argument range.
     Item.prototype.occursDuring = function (start, end) {
         var itemStart = moment(this.getStart());
         return itemStart.isBetween(start, end);
+    };
+    Item.prototype.occursToday = function () {
+        var startOfDay = moment().startOf("day");
+        var endOfDay = moment().endOf("day");
+        return this.occursDuring(startOfDay, endOfDay);
     };
     return Item;
 }());
@@ -622,7 +626,6 @@ var Task = (function (_super) {
         var endStr = moment(this.getEnd()).format(DATETIME_FORMAT);
         return startStr + " - " + endStr + allDayStr;
     };
-    // Returns true if a part of the task occurs within the argument range.
     Task.prototype.occursDuring = function (start, end) {
         var taskEnd = moment(this.getEnd());
         var taskEndDuring = taskEnd.isBetween(start, end);

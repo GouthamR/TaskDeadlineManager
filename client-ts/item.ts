@@ -53,11 +53,18 @@ export class Item
         this.isAllDay = isAllDay;
     }
 
-    // Returns true if the start of the item occurs within the argument range.
-    public occursDuring(start: moment.Moment, end: moment.Moment): boolean
+    protected occursDuring(start: moment.Moment, end: moment.Moment): boolean
     {
         let itemStart: moment.Moment = moment(this.getStart());
         return itemStart.isBetween(start, end);
+    }
+
+    public occursToday(): boolean
+    {
+        let startOfDay: moment.Moment = moment().startOf("day");
+        let endOfDay: moment.Moment = moment().endOf("day");
+        
+        return this.occursDuring(startOfDay, endOfDay);
     }
 }
 
@@ -109,8 +116,7 @@ export class Task extends Item
         return startStr + " - " + endStr + allDayStr;
     }
 
-    // Returns true if a part of the task occurs within the argument range.
-    public occursDuring(start: moment.Moment, end: moment.Moment): boolean
+    protected occursDuring(start: moment.Moment, end: moment.Moment): boolean
     {
         let taskEnd: moment.Moment = moment(this.getEnd());
         let taskEndDuring: boolean = taskEnd.isBetween(start, end);
