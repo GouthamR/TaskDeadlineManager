@@ -1,79 +1,35 @@
 /// <reference path="./moment_modified.d.ts" />
 
-import { Task } from "./item";
 import { TaskJSONWithoutID } from "./item";
-import { TaskSerializer } from "./item";
+import { TaskEditor } from "./task-editor"
 import * as main from "./main"
 
-// Module-scope variables:
-let $addTaskContainer: JQuery;
-let addTaskModel: main.AddTaskModel;
-let mainModel: main.MainModel;
-
-function toDate(dateWithoutTime: string, time: string): Date
+function onTaskEditorSubmit(json: TaskJSONWithoutID, 
+                            addTaskModel: main.AddTaskModel,
+                            mainModel: main.MainModel)
 {
-    let fullDate: string = dateWithoutTime + time;
-    return moment(fullDate, "YYYY-MM-DD HH:mm").toDate();
-}
-
-function toTaskJSONWithoutID(formArray: Object): TaskJSONWithoutID
-{
-    let title: string = formArray[0].value;
-    let startDate: Date = toDate(formArray[1].value, formArray[2].value);
-    let endDate: Date = toDate(formArray[3].value, formArray[4].value);
-
-    let json: TaskJSONWithoutID = 
-    {
-        title: title,
-        startEpochMillis: startDate.getTime().toString(),
-        endEpochMillis: endDate.getTime().toString(),
-        isAllDay: "false"
-    }
-    return json;
-}
-
-function getFormAsJSON(): TaskJSONWithoutID
-{
-    let formArray = $addTaskContainer.find(".add-task-form").serializeArray();
-    return toTaskJSONWithoutID(formArray);
-}
-
-function setDefaultDateTimeInputValues()
-{
-    let dateInputs: HTMLElement[] = $addTaskContainer.find(".add-task-form input[type='date']").toArray();
-    for(let dateInput of dateInputs)
-    {
-        $(dateInput).val(moment().format("YYYY-MM-DD"));
-    }
-
-    let $startTimeInput: JQuery = $addTaskContainer.find(".add-task-form-start-time-input");
-    let $endTimeInput: JQuery = $addTaskContainer.find(".add-task-form-end-time-input");
-    $startTimeInput.val(moment().startOf("hour").add(1, 'hours').format("HH:mm"));
-    $endTimeInput.val(moment().startOf("hour").add(2, 'hours').format("HH:mm"));
-}
-
-function onAddTaskSubmit(event: JQueryEventObject)
-{
-    event.preventDefault();
-
     mainModel.switchToView(main.View.Index);
-
-    let json: TaskJSONWithoutID = getFormAsJSON();
+    
     addTaskModel.addTask(json);
 }
 
-export function init($targetContainer: JQuery, addTaskModelParam: main.AddTaskModel,
-                        mainModelParam: main.MainModel): void
+export function init($targetContainer: JQuery, 
+                        addTaskModel: main.AddTaskModel,
+                        mainModel: main.MainModel): void
 {
-    "use strict";
+    let $addTaskContainer = $targetContainer.find(".add-task");
 
-    $addTaskContainer = $targetContainer.find(".add-task");
-    addTaskModel = addTaskModelParam;
-    mainModel = mainModelParam;
+    let start: moment.Moment = moment().startOf("hour").add(1, 'hours');
+    let end: moment.Moment = moment().startOf("hour").add(2, 'hours');
+    let taskJSON: TaskJSONWithoutID = 
+    {
+        title: "",
+        startEpochMillis: start.valueOf().toString(),
+        endEpochMillis: end.valueOf().toString(),
+        isAllDay: "false"
+    };
 
-    let addTaskForm: JQuery = $addTaskContainer.find(".add-task-form");
-    addTaskForm.on("submit", 
-                    (event: JQueryEventObject) => onAddTaskSubmit(event));
-
-    setDefaultDateTimeInputValues();
+    let $taskEditorTarget: JQuery = $addTaskContainer.find(".add-task-editor");
+    new TaskEditor($taskEditorTarget, taskJSON,
+                    (t: TaskJSONWithoutID) => onTaskEditorSubmit(t, addTaskModel, mainModel));
 }

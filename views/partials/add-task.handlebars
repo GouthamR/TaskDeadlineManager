@@ -6,21 +6,7 @@
 <!-- body: -->
 <div class="add-task">
 	<h1>Add Task</h1>
-	<form class="add-task-form" action="/add-task" method="post">
-		<label>
-			Title
-			<input type="text" class="add-task-form-title-input" name="title" autofocus="true">
-		</label>
-		<label>
-			Start
-			<input type="date" class="add-task-form-start-date-input" name="start-date">
-		</label>
-		<input type="time" class="add-task-form-start-time-input" name="start-time">
-		<label>
-			End
-			<input type="date" class="add-task-form-end-date-input" name="end-date">
-		</label>
-		<input type="time" class="add-task-form-end-time-input" name="end-time">
-		<input type="submit" value="Done">
-	</form>
+	<div class="add-task-editor">
+		{{> task-editor }}
+	</div>
 </div>

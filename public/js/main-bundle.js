@@ -114,60 +114,28 @@ exports.init = init;
 },{"./main":6}],2:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
+var task_editor_1 = require("./task-editor");
 var main = require("./main");
-// Module-scope variables:
-var $addTaskContainer;
-var addTaskModel;
-var mainModel;
-function toDate(dateWithoutTime, time) {
-    var fullDate = dateWithoutTime + time;
-    return moment(fullDate, "YYYY-MM-DD HH:mm").toDate();
-}
-function toTaskJSONWithoutID(formArray) {
-    var title = formArray[0].value;
-    var startDate = toDate(formArray[1].value, formArray[2].value);
-    var endDate = toDate(formArray[3].value, formArray[4].value);
-    var json = {
-        title: title,
-        startEpochMillis: startDate.getTime().toString(),
-        endEpochMillis: endDate.getTime().toString(),
-        isAllDay: "false"
-    };
-    return json;
-}
-function getFormAsJSON() {
-    var formArray = $addTaskContainer.find(".add-task-form").serializeArray();
-    return toTaskJSONWithoutID(formArray);
-}
-function setDefaultDateTimeInputValues() {
-    var dateInputs = $addTaskContainer.find(".add-task-form input[type='date']").toArray();
-    for (var _i = 0, dateInputs_1 = dateInputs; _i < dateInputs_1.length; _i++) {
-        var dateInput = dateInputs_1[_i];
-        $(dateInput).val(moment().format("YYYY-MM-DD"));
-    }
-    var $startTimeInput = $addTaskContainer.find(".add-task-form-start-time-input");
-    var $endTimeInput = $addTaskContainer.find(".add-task-form-end-time-input");
-    $startTimeInput.val(moment().startOf("hour").add(1, 'hours').format("HH:mm"));
-    $endTimeInput.val(moment().startOf("hour").add(2, 'hours').format("HH:mm"));
-}
-function onAddTaskSubmit(event) {
-    event.preventDefault();
+function onTaskEditorSubmit(json, addTaskModel, mainModel) {
     mainModel.switchToView(main.View.Index);
-    var json = getFormAsJSON();
     addTaskModel.addTask(json);
 }
-function init($targetContainer, addTaskModelParam, mainModelParam) {
-    "use strict";
-    $addTaskContainer = $targetContainer.find(".add-task");
-    addTaskModel = addTaskModelParam;
-    mainModel = mainModelParam;
-    var addTaskForm = $addTaskContainer.find(".add-task-form");
-    addTaskForm.on("submit", function (event) { return onAddTaskSubmit(event); });
-    setDefaultDateTimeInputValues();
+function init($targetContainer, addTaskModel, mainModel) {
+    var $addTaskContainer = $targetContainer.find(".add-task");
+    var start = moment().startOf("hour").add(1, 'hours');
+    var end = moment().startOf("hour").add(2, 'hours');
+    var taskJSON = {
+        title: "",
+        startEpochMillis: start.valueOf().toString(),
+        endEpochMillis: end.valueOf().toString(),
+        isAllDay: "false"
+    };
+    var $taskEditorTarget = $addTaskContainer.find(".add-task-editor");
+    new task_editor_1.TaskEditor($taskEditorTarget, taskJSON, function (t) { return onTaskEditorSubmit(t, addTaskModel, mainModel); });
 }
 exports.init = init;
 
-},{"./main":6}],3:[function(require,module,exports){
+},{"./main":6,"./task-editor":8}],3:[function(require,module,exports){
 /// <reference path="./fullcalendar_modified.d.ts" />
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
@@ -1042,4 +1010,59 @@ function init($targetContainer, mainModel) {
 }
 exports.init = init;
 
-},{"./main":6}]},{},[6]);
+},{"./main":6}],8:[function(require,module,exports){
+/// <reference path="./moment_modified.d.ts" />
+"use strict";
+var TaskEditor = (function () {
+    function TaskEditor($targetContainer, taskJSON, doneCallback) {
+        var _this = this;
+        this.$topContainer = $targetContainer.find(".task-editor");
+        this.setFormValues(taskJSON);
+        var form = this.$topContainer.find(".task-editor-form");
+        form.on("submit", function (event) { return _this.onFormSubmit(event, doneCallback); });
+    }
+    TaskEditor.prototype.setFormValues = function (taskJSON) {
+        this.$topContainer.find(".task-editor-form-title-input").val(taskJSON.title);
+        this.$topContainer.find(".task-editor-form-start-date-input")
+            .val(this.toDateInputValue(taskJSON.startEpochMillis));
+        this.$topContainer.find(".task-editor-form-end-date-input")
+            .val(this.toDateInputValue(taskJSON.endEpochMillis));
+        this.$topContainer.find(".task-editor-form-start-time-input")
+            .val(this.toTimeInputValue(taskJSON.startEpochMillis));
+        this.$topContainer.find(".task-editor-form-end-time-input")
+            .val(this.toTimeInputValue(taskJSON.endEpochMillis));
+    };
+    TaskEditor.prototype.toDateInputValue = function (dateTime) {
+        var FORMAT = "YYYY-MM-DD";
+        return moment(parseInt(dateTime)).format(FORMAT);
+    };
+    TaskEditor.prototype.toTimeInputValue = function (dateTime) {
+        var FORMAT = "HH:mm";
+        return moment(parseInt(dateTime)).format(FORMAT);
+    };
+    TaskEditor.prototype.onFormSubmit = function (event, doneCallback) {
+        event.preventDefault();
+        doneCallback(this.getFormAsJSON());
+    };
+    TaskEditor.prototype.getFormAsJSON = function () {
+        var formArray = this.$topContainer.find(".task-editor-form").serializeArray();
+        var title = formArray[0].value;
+        var startDate = this.toDate(formArray[1].value, formArray[2].value);
+        var endDate = this.toDate(formArray[3].value, formArray[4].value);
+        var json = {
+            title: title,
+            startEpochMillis: startDate.getTime().toString(),
+            endEpochMillis: endDate.getTime().toString(),
+            isAllDay: "false"
+        };
+        return json;
+    };
+    TaskEditor.prototype.toDate = function (dateWithoutTime, time) {
+        var fullDate = dateWithoutTime + time;
+        return moment(fullDate, "YYYY-MM-DD HH:mm").toDate();
+    };
+    return TaskEditor;
+}());
+exports.TaskEditor = TaskEditor;
+
+},{}]},{},[6]);

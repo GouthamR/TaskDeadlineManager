@@ -1,0 +1,25 @@
+{{#section 'links'}}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js"></script>
+{{/section}}
+
+<!-- body: -->
+<div class="task-editor">
+	<form class="task-editor-form" action="" method="post">
+		<label>
+			Title
+			<input type="text" class="task-editor-form-title-input" name="title" autofocus="true">
+		</label>
+		<label>
+			Start
+			<input type="date" class="task-editor-form-start-date-input" name="start-date">
+		</label>
+		<input type="time" class="task-editor-form-start-time-input" name="start-time">
+		<label>
+			End
+			<input type="date" class="task-editor-form-end-date-input" name="end-date">
+		</label>
+		<input type="time" class="task-editor-form-end-time-input" name="end-time">
+		<input type="submit" value="Done">
+	</form>
+</div>
