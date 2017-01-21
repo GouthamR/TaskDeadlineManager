@@ -6,7 +6,7 @@ import { Deadline } from "./item";
 import { SubTask } from "./item";
 import * as main from "./main"
 
-class ItemLi
+abstract class ItemLi
 {
     private item: Item;
     private $li: JQuery;
@@ -44,10 +44,7 @@ class ItemLi
         }});
     }
 
-    protected onOpenSettingsClicked(event: JQueryEventObject): void
-    {
-        console.log("open settings clicked");
-    }
+    protected abstract onOpenSettingsClicked(event: JQueryEventObject): void;
 
     protected onEditTitleClicked(event: JQueryEventObject): void
     {
@@ -101,6 +98,9 @@ class ItemLi
 
 class TaskLi extends ItemLi
 {
+    private indexModel: main.IndexModel;
+    private mainModel: main.MainModel;
+
     public constructor (task: Task, $targetUl: JQuery,
                         indexModel: main.IndexModel,
                         mainModel: main.MainModel)
@@ -108,6 +108,16 @@ class TaskLi extends ItemLi
         super(task as Item, $targetUl, 
                 () => indexModel.removeTaskFromServer(task),
                 () => mainModel.updateTaskOnServer(task));
+
+        this.indexModel = indexModel;
+        this.mainModel = mainModel;
+    }
+
+    // Override
+    protected onOpenSettingsClicked(event: JQueryEventObject): void
+    {
+        this.indexModel.initEditTask(this.getItem() as Task);
+        this.mainModel.switchToView(main.View.EditTask);
     }
 }
 
@@ -154,6 +164,12 @@ class SubTaskLi extends ItemLi
             this.animateOutDeadlineLi();
         }
     }
+
+    // Override
+    protected onOpenSettingsClicked(event: JQueryEventObject): void
+    {
+        console.log("subtask open settings clicked");
+    }
 }
 
 class DeadlineLi extends ItemLi
@@ -178,6 +194,12 @@ class DeadlineLi extends ItemLi
         super.onMarkDoneClicked(event); // calls removeDeadlineFromServer
 
         this.animateOutSubtaskLis();
+    }
+
+    // Override
+    protected onOpenSettingsClicked(event: JQueryEventObject): void
+    {
+        console.log("deadline open settings clicked");
     }
 }
 

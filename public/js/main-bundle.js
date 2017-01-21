@@ -111,7 +111,7 @@ function init($targetContainer, mainModelParam) {
 }
 exports.init = init;
 
-},{"./main":6}],2:[function(require,module,exports){
+},{"./main":7}],2:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 var task_editor_1 = require("./task-editor");
@@ -135,7 +135,7 @@ function init($targetContainer, addTaskModel, mainModel) {
 }
 exports.init = init;
 
-},{"./main":6,"./task-editor":8}],3:[function(require,module,exports){
+},{"./main":7,"./task-editor":9}],3:[function(require,module,exports){
 /// <reference path="./fullcalendar_modified.d.ts" />
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
@@ -295,6 +295,26 @@ exports.init = init;
 },{}],4:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
+var item_1 = require("./item");
+var task_editor_1 = require("./task-editor");
+var main = require("./main");
+function onTaskEditorSubmit(updatedJsonWithoutID, origTask, mainModel) {
+    var updatedJson = $.extend({}, updatedJsonWithoutID, { _id: origTask.getID() });
+    var updatedTask = new item_1.TaskSerializer().fromJSON(updatedJson);
+    mainModel.updateTaskOnServer(updatedTask);
+    mainModel.switchToView(main.View.Index);
+}
+function init($targetContainer, task, mainModel) {
+    var $topContainer = $targetContainer.find(".edit-task");
+    var taskJSON = new item_1.TaskSerializer().toJSONWithoutID(task);
+    var $taskEditorTarget = $topContainer.find(".edit-task-editor");
+    new task_editor_1.TaskEditor($taskEditorTarget, taskJSON, function (t) { return onTaskEditorSubmit(t, task, mainModel); });
+}
+exports.init = init;
+
+},{"./item":6,"./main":7,"./task-editor":9}],5:[function(require,module,exports){
+/// <reference path="./moment_modified.d.ts" />
+"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -320,9 +340,6 @@ var ItemLi = (function () {
         this.$li.slideUp({ complete: function () {
                 this.$li.remove();
             } });
-    };
-    ItemLi.prototype.onOpenSettingsClicked = function (event) {
-        console.log("open settings clicked");
     };
     ItemLi.prototype.onEditTitleClicked = function (event) {
         this.fillLiForTitleEditMode();
@@ -366,7 +383,14 @@ var TaskLi = (function (_super) {
     __extends(TaskLi, _super);
     function TaskLi(task, $targetUl, indexModel, mainModel) {
         _super.call(this, task, $targetUl, function () { return indexModel.removeTaskFromServer(task); }, function () { return mainModel.updateTaskOnServer(task); });
+        this.indexModel = indexModel;
+        this.mainModel = mainModel;
     }
+    // Override
+    TaskLi.prototype.onOpenSettingsClicked = function (event) {
+        this.indexModel.initEditTask(this.getItem());
+        this.mainModel.switchToView(main.View.EditTask);
+    };
     return TaskLi;
 }(ItemLi));
 var SubTaskLi = (function (_super) {
@@ -393,6 +417,10 @@ var SubTaskLi = (function (_super) {
             this.animateOutDeadlineLi();
         }
     };
+    // Override
+    SubTaskLi.prototype.onOpenSettingsClicked = function (event) {
+        console.log("subtask open settings clicked");
+    };
     return SubTaskLi;
 }(ItemLi));
 var DeadlineLi = (function (_super) {
@@ -405,6 +433,10 @@ var DeadlineLi = (function (_super) {
     DeadlineLi.prototype.onMarkDoneClicked = function (event) {
         _super.prototype.onMarkDoneClicked.call(this, event); // calls removeDeadlineFromServer
         this.animateOutSubtaskLis();
+    };
+    // Override
+    DeadlineLi.prototype.onOpenSettingsClicked = function (event) {
+        console.log("deadline open settings clicked");
     };
     return DeadlineLi;
 }(ItemLi));
@@ -525,7 +557,7 @@ function init($targetContainer, indexModel, mainModel) {
 }
 exports.init = init;
 
-},{"./main":6}],5:[function(require,module,exports){
+},{"./main":7}],6:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
@@ -624,6 +656,12 @@ var TaskSerializer = (function () {
         };
         return json;
     };
+    TaskSerializer.prototype.toJSONWithoutID = function (obj) {
+        var objWithoutId = this.toJSON(obj);
+        delete objWithoutId._id;
+        var jsonWithoutId = objWithoutId;
+        return jsonWithoutId;
+    };
     TaskSerializer.prototype.fromJSON = function (taskJson) {
         return new Task(taskJson.title, new Date(parseInt(taskJson.startEpochMillis)), new Date(parseInt(taskJson.endEpochMillis)), taskJson.isAllDay == "true", taskJson._id);
     };
@@ -646,6 +684,13 @@ var SubTask = (function (_super) {
     return SubTask;
 }(Task));
 exports.SubTask = SubTask;
+function convertSubTaskToWithoutIds(json) {
+    var objWithoutId = $.extend({}, json);
+    delete objWithoutId._id;
+    delete objWithoutId.deadlineId;
+    var subTaskJsonWithoutId = objWithoutId;
+    return subTaskJsonWithoutId;
+}
 var SubTaskSerializer = (function () {
     function SubTaskSerializer() {
     }
@@ -660,6 +705,11 @@ var SubTaskSerializer = (function () {
             _id: obj.getID()
         };
         return json;
+    };
+    SubTaskSerializer.prototype.toJSONWithoutID = function (obj) {
+        var objWithId = this.toJSON(obj);
+        var objWithoutId = convertSubTaskToWithoutIds(objWithId);
+        return objWithoutId;
     };
     SubTaskSerializer.prototype.fromJSON = function (json) {
         return new SubTask(json.title, new Date(parseInt(json.startEpochMillis)), new Date(parseInt(json.endEpochMillis)), json.isAllDay == "true", json._id, json.deadlineId, json.isDone == "true");
@@ -716,6 +766,16 @@ var DeadlineSerializer = (function () {
         };
         return json;
     };
+    DeadlineSerializer.prototype.toJSONWithoutID = function (obj) {
+        var objWithoutId = $.extend({}, this.toJSON(obj));
+        delete objWithoutId._id;
+        for (var i = 0; i < objWithoutId.subTasks.length; i++) {
+            var subTaskWithId = objWithoutId.subTasks[i];
+            objWithoutId.subTasks[i] = convertSubTaskToWithoutIds(subTaskWithId);
+        }
+        var jsonWithoutId = objWithoutId;
+        return jsonWithoutId;
+    };
     DeadlineSerializer.prototype.fromJSON = function (json) {
         var subTasks = [];
         var subTaskSerializer = new SubTaskSerializer();
@@ -730,9 +790,10 @@ var DeadlineSerializer = (function () {
 }());
 exports.DeadlineSerializer = DeadlineSerializer;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 "use strict";
 var AddTask = require("./add-task");
+var EditTask = require("./edit-task");
 var AddDeadline = require("./add-deadline");
 var index = require("./index");
 var nav = require("./nav");
@@ -742,8 +803,9 @@ var item_2 = require("./item");
 (function (View) {
     View[View["Index"] = 0] = "Index";
     View[View["AddTask"] = 1] = "AddTask";
-    View[View["AddDeadline"] = 2] = "AddDeadline";
-    View[View["Calendar"] = 3] = "Calendar";
+    View[View["EditTask"] = 2] = "EditTask";
+    View[View["AddDeadline"] = 3] = "AddDeadline";
+    View[View["Calendar"] = 4] = "Calendar";
 })(exports.View || (exports.View = {}));
 var View = exports.View;
 var MainModel = (function () {
@@ -768,6 +830,7 @@ var MainModel = (function () {
         var CLASS_NAME_TO_VIEW_VALUE_MAP = {
             ".main-index": View.Index,
             ".main-add-task": View.AddTask,
+            ".main-edit-task": View.EditTask,
             ".main-add-deadline": View.AddDeadline,
             ".main-calendar": View.Calendar
         };
@@ -924,6 +987,9 @@ var IndexModel = (function () {
             console.log(errorDetails);
         });
     };
+    IndexModel.prototype.initEditTask = function (task) {
+        EditTask.init($(".main-edit-task"), task, mainModel);
+    };
     return IndexModel;
 }());
 exports.IndexModel = IndexModel;
@@ -964,7 +1030,7 @@ function main() {
 }
 $(document).ready(main);
 
-},{"./add-deadline":1,"./add-task":2,"./calendar":3,"./index":4,"./item":5,"./nav":7}],7:[function(require,module,exports){
+},{"./add-deadline":1,"./add-task":2,"./calendar":3,"./edit-task":4,"./index":5,"./item":6,"./nav":8}],8:[function(require,module,exports){
 "use strict";
 var main = require("./main");
 // Module-scope variables:
@@ -1018,7 +1084,7 @@ function init($targetContainer, mainModel) {
 }
 exports.init = init;
 
-},{"./main":6}],8:[function(require,module,exports){
+},{"./main":7}],9:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 var TaskEditor = (function () {
@@ -1073,4 +1139,4 @@ var TaskEditor = (function () {
 }());
 exports.TaskEditor = TaskEditor;
 
-},{}]},{},[6]);
+},{}]},{},[7]);

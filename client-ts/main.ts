@@ -1,4 +1,5 @@
 import * as AddTask from "./add-task"
+import * as EditTask from "./edit-task"
 import * as AddDeadline from "./add-deadline"
 import * as index from "./index"
 import * as nav from "./nav"
@@ -14,7 +15,7 @@ import { DeadlineSerializer } from "./item";
 
 export enum View
 {
-	Index, AddTask, AddDeadline, Calendar
+	Index, AddTask, EditTask, AddDeadline, Calendar
 }
 
 export class MainModel
@@ -47,6 +48,7 @@ export class MainModel
 		{
 			".main-index": View.Index,
 			".main-add-task": View.AddTask,
+			".main-edit-task": View.EditTask,
 			".main-add-deadline": View.AddDeadline,
 			".main-calendar": View.Calendar
 		};
@@ -263,6 +265,11 @@ export class IndexModel
 			alert("ERROR: Remove Task failed.\nDetails: " + errorDetails);
 			console.log(errorDetails);
 		});
+	}
+
+	public initEditTask(task: Task)
+	{
+		EditTask.init($(".main-edit-task"), task, mainModel);
 	}
 }
 

@@ -69,9 +69,10 @@ export class Item
     }
 }
 
-interface JSONSerializer<ObjectType, JSONType>
+interface JSONSerializer<ObjectType, JSONType, JSONWithoutIDType>
 {
     toJSON(obj: ObjectType): JSONType;
+    toJSONWithoutID(obj: ObjectType): JSONWithoutIDType;
     fromJSON(json: JSONType): ObjectType;
 }
 
@@ -137,7 +138,7 @@ export interface TaskJSON extends TaskJSONWithoutID
     _id: string;
 }
 
-export class TaskSerializer implements JSONSerializer<Task, TaskJSON>
+export class TaskSerializer implements JSONSerializer<Task, TaskJSON, TaskJSONWithoutID>
 {
     toJSON(obj: Task): TaskJSON
     {
@@ -150,6 +151,14 @@ export class TaskSerializer implements JSONSerializer<Task, TaskJSON>
             _id: obj.getID()
         };
         return json;
+    }
+
+    toJSONWithoutID(obj: Task): TaskJSONWithoutID
+    {
+        let objWithoutId = this.toJSON(obj);
+        delete objWithoutId._id;
+        let jsonWithoutId: TaskJSONWithoutID = objWithoutId as TaskJSONWithoutID;
+        return jsonWithoutId;
     }
 
     fromJSON(taskJson: TaskJSON): Task
@@ -196,7 +205,16 @@ export interface SubTaskJSON extends SubTaskJSONWithoutID
     _id: string;
 }
 
-export class SubTaskSerializer implements JSONSerializer<SubTask, SubTaskJSON>
+function convertSubTaskToWithoutIds(json: SubTaskJSON): SubTaskJSONWithoutID
+{
+    let objWithoutId: any = $.extend({}, json);
+    delete objWithoutId._id;
+    delete objWithoutId.deadlineId;
+    let subTaskJsonWithoutId: SubTaskJSONWithoutID = objWithoutId as SubTaskJSONWithoutID;
+    return subTaskJsonWithoutId;
+}
+
+export class SubTaskSerializer implements JSONSerializer<SubTask, SubTaskJSON, SubTaskJSONWithoutID>
 {
     toJSON(obj: SubTask): SubTaskJSON
     {
@@ -211,6 +229,13 @@ export class SubTaskSerializer implements JSONSerializer<SubTask, SubTaskJSON>
             _id: obj.getID()
         };
         return json;
+    }
+
+    toJSONWithoutID(obj: SubTask): SubTaskJSONWithoutID
+    {
+        let objWithId: SubTaskJSON = this.toJSON(obj);
+        let objWithoutId: SubTaskJSONWithoutID = convertSubTaskToWithoutIds(objWithId);
+        return objWithoutId;
     }
 
     fromJSON(json: SubTaskJSON): SubTask
@@ -282,7 +307,7 @@ export interface DeadlineJSON extends DeadlineJSONWithoutIDOrSubTask
     _id: string;
 }
 
-export class DeadlineSerializer implements JSONSerializer<Deadline, DeadlineJSON>
+export class DeadlineSerializer implements JSONSerializer<Deadline, DeadlineJSON, DeadlineJSONWithoutID>
 {
     toJSON(obj: Deadline): DeadlineJSON
     {
@@ -304,6 +329,20 @@ export class DeadlineSerializer implements JSONSerializer<Deadline, DeadlineJSON
         };
         return json;
     }
+
+    toJSONWithoutID(obj: Deadline): DeadlineJSONWithoutID
+    {
+        let objWithoutId: any = $.extend({}, this.toJSON(obj));
+        delete objWithoutId._id;
+        for(let i = 0; i < objWithoutId.subTasks.length; i++)
+        {
+            let subTaskWithId = objWithoutId.subTasks[i];
+            objWithoutId.subTasks[i] = convertSubTaskToWithoutIds(subTaskWithId);
+        }
+        let jsonWithoutId: DeadlineJSONWithoutID = objWithoutId as DeadlineJSONWithoutID;
+        return jsonWithoutId;
+    }
+
     fromJSON(json: DeadlineJSON): Deadline
     {
         let subTasks: SubTask[] = [];
