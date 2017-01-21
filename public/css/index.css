@@ -146,6 +146,10 @@
     margin-left: 20%;
 }
 
+.index .item-title {
+    cursor: pointer;
+}
+
 @media (max-width: 768px) {
     .index .index-taskdeadline-container {
         margin-left: 1em;

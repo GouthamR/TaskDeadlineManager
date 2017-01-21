@@ -46,10 +46,15 @@ class ItemLi
 
     protected onOpenSettingsClicked(event: JQueryEventObject): void
     {
-        this.fillLiForEditMode();
+        console.log("open settings clicked");
     }
 
-    protected onCloseSettingsClicked(event: JQueryEventObject): void
+    protected onEditTitleClicked(event: JQueryEventObject): void
+    {
+        this.fillLiForTitleEditMode();
+    }
+
+    protected onCloseTitleEditClicked(event: JQueryEventObject): void
     {
         event.preventDefault(); // prevents form submission
 
@@ -61,7 +66,7 @@ class ItemLi
         this.updateOnServer();
     }
 
-    protected fillLiForEditMode(): void
+    protected fillLiForTitleEditMode(): void
     {
         this.$li.empty();
 
@@ -69,7 +74,7 @@ class ItemLi
         let $titleInput = $("<input>", {type: "text", value: this.item.getTitle()});
         $form.append($titleInput);
         let doneButton: JQuery = $("<input>", {type: "submit", value: "Done"});
-        doneButton.click((e) => this.onCloseSettingsClicked(e));
+        doneButton.click((e) => this.onCloseTitleEditClicked(e));
         $form.append(doneButton);
 
         this.$li.append($form);
@@ -80,12 +85,14 @@ class ItemLi
         this.$li.empty();
 
         let middle: JQuery = $("<div>", {class: "item-middle"});
-        middle.append($("<p>").html(this.item.getTitle()),
-                        $("<p>").html(this.item.getDayTimeString()));
+        let title: JQuery = $("<p>", {class: "item-title"}).html(this.item.getTitle());
+        let dayTime: JQuery = $("<p>").html(this.item.getDayTimeString());
+        middle.append(title, dayTime);
         let check: JQuery = $("<img>", {class: "td-check", src: "img/check.png"});
         let settings: JQuery = $("<img>", {class: "td-settings", src: "img/gear.png"});
 
         check.click((e) => this.onMarkDoneClicked(e));
+        title.click((e) => this.onEditTitleClicked(e));
         settings.click((e) => this.onOpenSettingsClicked(e));
 
         this.$li.append(check, middle, settings);
