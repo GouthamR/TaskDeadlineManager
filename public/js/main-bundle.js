@@ -1,117 +1,31 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
+var DeadlineEditor = require("./deadline-editor");
 var main = require("./main");
 // Module-scope variables:
-var $addDeadlineContainer;
 var mainModel;
-var SUBTASK_FIELDSET_TEMPLATE = "";
-SUBTASK_FIELDSET_TEMPLATE += "<fieldset class=\"add-deadline-form-subtask\">";
-SUBTASK_FIELDSET_TEMPLATE += " <legend>SubTask:<\/legend>";
-SUBTASK_FIELDSET_TEMPLATE += " <label>";
-SUBTASK_FIELDSET_TEMPLATE += "     Title";
-SUBTASK_FIELDSET_TEMPLATE += "     <input type=\"text\" class=\"add-deadline-form-subtask-title-input\" name=\"title\" autofocus=\"true\">";
-SUBTASK_FIELDSET_TEMPLATE += " <\/label>";
-SUBTASK_FIELDSET_TEMPLATE += " <label>";
-SUBTASK_FIELDSET_TEMPLATE += "     Start";
-SUBTASK_FIELDSET_TEMPLATE += "     <input type=\"date\" class=\"add-deadline-form-subtask-start-date-input\" name=\"start-date\">";
-SUBTASK_FIELDSET_TEMPLATE += " <\/label>";
-SUBTASK_FIELDSET_TEMPLATE += " <input type=\"time\" class=\"add-deadline-form-subtask-start-time-input\" name=\"start-time\">";
-SUBTASK_FIELDSET_TEMPLATE += " <label>";
-SUBTASK_FIELDSET_TEMPLATE += "     End";
-SUBTASK_FIELDSET_TEMPLATE += "     <input type=\"date\" class=\"add-deadline-form-subtask-end-date-input\" name=\"end-date\">";
-SUBTASK_FIELDSET_TEMPLATE += " <\/label>";
-SUBTASK_FIELDSET_TEMPLATE += " <input type=\"time\" class=\"add-deadline-form-subtask-end-time-input\" name=\"end-time\">";
-SUBTASK_FIELDSET_TEMPLATE += " <input type=\"button\" class=\"add-deadline-form-subtask-remove-button\" value=\"-\">";
-SUBTASK_FIELDSET_TEMPLATE += "<\/fieldset>";
-function toDate(dateWithoutTime, time) {
-    var fullDate = dateWithoutTime + time;
-    return moment(fullDate, "YYYY-MM-DD HH:mm").toDate();
-}
-function toSubTaskJSONWithoutID($fieldset) {
-    var TITLE_SELECTOR = ".add-deadline-form-subtask-title-input";
-    var START_DATE_WITHOUT_TIME_SELECTOR = ".add-deadline-form-subtask-start-date-input";
-    var START_TIME_SELECTOR = ".add-deadline-form-subtask-start-time-input";
-    var END_DATE_WITHOUT_TIME_SELECTOR = ".add-deadline-form-subtask-end-date-input";
-    var END_TIME_SELECTOR = ".add-deadline-form-subtask-end-time-input";
-    var title = $fieldset.find(TITLE_SELECTOR).val();
-    var startDateWithoutTime = $fieldset.find(START_DATE_WITHOUT_TIME_SELECTOR).val();
-    var startTime = $fieldset.find(START_TIME_SELECTOR).val();
-    var startDate = toDate(startDateWithoutTime, startTime);
-    var endDateWithoutTime = $fieldset.find(END_DATE_WITHOUT_TIME_SELECTOR).val();
-    var endTime = $fieldset.find(END_TIME_SELECTOR).val();
-    var endDate = toDate(endDateWithoutTime, endTime);
-    var json = {
-        title: title,
-        startEpochMillis: startDate.getTime().toString(),
-        endEpochMillis: endDate.getTime().toString(),
-        isAllDay: "false",
-        isDone: "false"
-    };
-    return json;
-}
-function getFormSubtasksJSONsWithoutID() {
-    var jsons = [];
-    var SUBTASK_FIELDSETS_SELECTOR = ".add-deadline-form-subtasks .add-deadline-form-subtask";
-    var $subTaskFieldsets = $addDeadlineContainer.find(SUBTASK_FIELDSETS_SELECTOR);
-    $subTaskFieldsets.each(function (index, element) {
-        var $currFieldset = $(element);
-        var currJson = toSubTaskJSONWithoutID($currFieldset);
-        jsons.push(currJson);
-    });
-    return jsons;
-}
-function getFormAsJSON() {
-    var TITLE_SELECTOR = ".add-deadline-form-deadline-title-input";
-    var DATE_WITHOUT_TIME_SELECTOR = ".add-deadline-form-deadline-start-date-input";
-    var TIME_SELECTOR = ".add-deadline-form-deadline-start-time-input";
-    var title = $addDeadlineContainer.find(TITLE_SELECTOR).val();
-    var dateWithoutTime = $addDeadlineContainer.find(DATE_WITHOUT_TIME_SELECTOR).val();
-    var time = $addDeadlineContainer.find(TIME_SELECTOR).val();
-    var startDate = toDate(dateWithoutTime, time);
-    var subTasksJsons = getFormSubtasksJSONsWithoutID();
-    var json = {
-        title: title,
-        startEpochMillis: startDate.getTime().toString(),
-        isAllDay: "false",
-        subTasks: subTasksJsons
-    };
-    return json;
-}
-function setDefaultDeadlineDateTimeInputValues() {
-    var $dateInput = $addDeadlineContainer.find(".add-deadline-form-deadline-start-date-input");
-    $dateInput.val(moment().format("YYYY-MM-DD"));
-    var $startTimeInput = $addDeadlineContainer.find(".add-deadline-form-deadline-start-time-input");
-    $startTimeInput.val(moment().startOf("hour").add(1, 'hours').format("HH:mm"));
-}
-function onAddDeadlineSubmit(event) {
+function onDeadlineEditorSubmit(json) {
     event.preventDefault();
-    mainModel.switchToView(main.View.Index);
-    var json = getFormAsJSON();
     mainModel.addDeadlineToServer(json);
-}
-function onAddSubTaskClicked(event) {
-    var $newFieldSet = $($.parseHTML(SUBTASK_FIELDSET_TEMPLATE));
-    var $removeButton = $newFieldSet.find(".add-deadline-form-subtask-remove-button");
-    $removeButton.click(function (event) {
-        $newFieldSet.remove();
-    });
-    var $addButton = $addDeadlineContainer.find(".add-deadline-form-subtask-add-button");
-    $addButton.before($newFieldSet);
+    mainModel.switchToView(main.View.Index);
 }
 function init($targetContainer, mainModelParam) {
-    "use strict";
-    $addDeadlineContainer = $targetContainer.find(".add-deadline");
     mainModel = mainModelParam;
-    var $addDeadlineForm = $addDeadlineContainer.find(".add-deadline-form");
-    $addDeadlineForm.on("submit", function (event) { return onAddDeadlineSubmit(event); });
-    var $subTaskAddButton = $addDeadlineContainer.find(".add-deadline-form-subtask-add-button");
-    $subTaskAddButton.click(function (event) { return onAddSubTaskClicked(event); });
-    setDefaultDeadlineDateTimeInputValues();
+    var $addDeadlineContainer = $targetContainer.find(".add-deadline");
+    var start = moment().startOf("hour").add(1, 'hours');
+    var deadlineJSON = {
+        title: "",
+        startEpochMillis: start.valueOf().toString(),
+        isAllDay: "false",
+        subTasks: []
+    };
+    var $deadlineEditorTarget = $addDeadlineContainer.find(".add-deadline-editor");
+    DeadlineEditor.init($deadlineEditorTarget, deadlineJSON, function (d) { return onDeadlineEditorSubmit(d); });
 }
 exports.init = init;
 
-},{"./main":7}],2:[function(require,module,exports){
+},{"./deadline-editor":4,"./main":8}],2:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 var task_editor_1 = require("./task-editor");
@@ -135,7 +49,7 @@ function init($targetContainer, addTaskModel, mainModel) {
 }
 exports.init = init;
 
-},{"./main":7,"./task-editor":9}],3:[function(require,module,exports){
+},{"./main":8,"./task-editor":10}],3:[function(require,module,exports){
 /// <reference path="./fullcalendar_modified.d.ts" />
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
@@ -295,6 +209,142 @@ exports.init = init;
 },{}],4:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
+// Module-scope variables:
+var $topContainer;
+var doneCallback;
+var SUBTASK_FIELDSET_TEMPLATE = "";
+SUBTASK_FIELDSET_TEMPLATE += "<fieldset class=\"deadline-editor-form-subtask\">";
+SUBTASK_FIELDSET_TEMPLATE += " <legend>SubTask:<\/legend>";
+SUBTASK_FIELDSET_TEMPLATE += " <label>";
+SUBTASK_FIELDSET_TEMPLATE += "     Title";
+SUBTASK_FIELDSET_TEMPLATE += "     <input type=\"text\" class=\"deadline-editor-form-subtask-title-input\" name=\"title\" autofocus=\"true\">";
+SUBTASK_FIELDSET_TEMPLATE += " <\/label>";
+SUBTASK_FIELDSET_TEMPLATE += " <label>";
+SUBTASK_FIELDSET_TEMPLATE += "     Start";
+SUBTASK_FIELDSET_TEMPLATE += "     <input type=\"date\" class=\"deadline-editor-form-subtask-start-date-input\" name=\"start-date\">";
+SUBTASK_FIELDSET_TEMPLATE += " <\/label>";
+SUBTASK_FIELDSET_TEMPLATE += " <input type=\"time\" class=\"deadline-editor-form-subtask-start-time-input\" name=\"start-time\">";
+SUBTASK_FIELDSET_TEMPLATE += " <label>";
+SUBTASK_FIELDSET_TEMPLATE += "     End";
+SUBTASK_FIELDSET_TEMPLATE += "     <input type=\"date\" class=\"deadline-editor-form-subtask-end-date-input\" name=\"end-date\">";
+SUBTASK_FIELDSET_TEMPLATE += " <\/label>";
+SUBTASK_FIELDSET_TEMPLATE += " <input type=\"time\" class=\"deadline-editor-form-subtask-end-time-input\" name=\"end-time\">";
+SUBTASK_FIELDSET_TEMPLATE += " <input type=\"button\" class=\"deadline-editor-form-subtask-remove-button\" value=\"-\">";
+SUBTASK_FIELDSET_TEMPLATE += "<\/fieldset>";
+function toDate(dateWithoutTime, time) {
+    var fullDate = dateWithoutTime + time;
+    return moment(fullDate, "YYYY-MM-DD HH:mm").toDate();
+}
+function toSubTaskJSONWithoutID($fieldset) {
+    var TITLE_SELECTOR = ".deadline-editor-form-subtask-title-input";
+    var START_DATE_WITHOUT_TIME_SELECTOR = ".deadline-editor-form-subtask-start-date-input";
+    var START_TIME_SELECTOR = ".deadline-editor-form-subtask-start-time-input";
+    var END_DATE_WITHOUT_TIME_SELECTOR = ".deadline-editor-form-subtask-end-date-input";
+    var END_TIME_SELECTOR = ".deadline-editor-form-subtask-end-time-input";
+    var title = $fieldset.find(TITLE_SELECTOR).val();
+    var startDateWithoutTime = $fieldset.find(START_DATE_WITHOUT_TIME_SELECTOR).val();
+    var startTime = $fieldset.find(START_TIME_SELECTOR).val();
+    var startDate = toDate(startDateWithoutTime, startTime);
+    var endDateWithoutTime = $fieldset.find(END_DATE_WITHOUT_TIME_SELECTOR).val();
+    var endTime = $fieldset.find(END_TIME_SELECTOR).val();
+    var endDate = toDate(endDateWithoutTime, endTime);
+    var json = {
+        title: title,
+        startEpochMillis: startDate.getTime().toString(),
+        endEpochMillis: endDate.getTime().toString(),
+        isAllDay: "false",
+        isDone: "false"
+    };
+    return json;
+}
+function getFormSubtasksJSONsWithoutID() {
+    var jsons = [];
+    var SUBTASK_FIELDSETS_SELECTOR = ".deadline-editor-form-subtasks .deadline-editor-form-subtask";
+    var $subTaskFieldsets = $topContainer.find(SUBTASK_FIELDSETS_SELECTOR);
+    $subTaskFieldsets.each(function (index, element) {
+        var $currFieldset = $(element);
+        var currJson = toSubTaskJSONWithoutID($currFieldset);
+        jsons.push(currJson);
+    });
+    return jsons;
+}
+function getFormAsJSON() {
+    var TITLE_SELECTOR = ".deadline-editor-form-deadline-title-input";
+    var DATE_WITHOUT_TIME_SELECTOR = ".deadline-editor-form-deadline-start-date-input";
+    var TIME_SELECTOR = ".deadline-editor-form-deadline-start-time-input";
+    var title = $topContainer.find(TITLE_SELECTOR).val();
+    var dateWithoutTime = $topContainer.find(DATE_WITHOUT_TIME_SELECTOR).val();
+    var time = $topContainer.find(TIME_SELECTOR).val();
+    var startDate = toDate(dateWithoutTime, time);
+    var subTasksJsons = getFormSubtasksJSONsWithoutID();
+    var json = {
+        title: title,
+        startEpochMillis: startDate.getTime().toString(),
+        isAllDay: "false",
+        subTasks: subTasksJsons
+    };
+    return json;
+}
+function toDateInputValue(dateTime) {
+    var FORMAT = "YYYY-MM-DD";
+    return moment(parseInt(dateTime)).format(FORMAT);
+}
+function toTimeInputValue(dateTime) {
+    var FORMAT = "HH:mm";
+    return moment(parseInt(dateTime)).format(FORMAT);
+}
+function addSubTaskFieldset() {
+    var $newFieldSet = $($.parseHTML(SUBTASK_FIELDSET_TEMPLATE));
+    var $removeButton = $newFieldSet.find(".deadline-editor-form-subtask-remove-button");
+    $removeButton.click(function (event) {
+        $newFieldSet.remove();
+    });
+    var $addButton = $topContainer.find(".deadline-editor-form-subtask-add-button");
+    $addButton.before($newFieldSet);
+    return $newFieldSet;
+}
+function setFormValues(deadlineJson) {
+    $topContainer.find(".deadline-editor-form-deadline-title-input")
+        .val(deadlineJson.title);
+    $topContainer.find(".deadline-editor-form-deadline-start-date-input")
+        .val(toDateInputValue(deadlineJson.startEpochMillis));
+    $topContainer.find(".deadline-editor-form-deadline-start-time-input")
+        .val(toTimeInputValue(deadlineJson.startEpochMillis));
+    for (var _i = 0, _a = deadlineJson.subTasks; _i < _a.length; _i++) {
+        var subTask = _a[_i];
+        var $newFieldSet = addSubTaskFieldset();
+        $newFieldSet.find(".deadline-editor-form-subtask-title-input")
+            .val(subTask.title);
+        $newFieldSet.find("deadline-editor-form-subtask-start-date-input")
+            .val(toDateInputValue(subTask.startEpochMillis));
+        $newFieldSet.find("deadline-editor-form-subtask-start-time-input")
+            .val(toTimeInputValue(subTask.startEpochMillis));
+        $newFieldSet.find("deadline-editor-form-subtask-end-date-input")
+            .val(toDateInputValue(subTask.endEpochMillis));
+        $newFieldSet.find("deadline-editor-form-subtask-end-time-input")
+            .val(toTimeInputValue(subTask.endEpochMillis));
+    }
+}
+function onFormSubmit(event) {
+    event.preventDefault();
+    var json = getFormAsJSON();
+    doneCallback(json);
+}
+function init($targetContainer, deadlineJson, doneCallbackParam) {
+    "use strict";
+    $topContainer = $targetContainer.find(".deadline-editor");
+    doneCallback = doneCallbackParam;
+    var $editDeadlineForm = $topContainer.find(".deadline-editor-form");
+    $editDeadlineForm.on("submit", function (event) { return onFormSubmit(event); });
+    var $subTaskAddButton = $topContainer.find(".deadline-editor-form-subtask-add-button");
+    $subTaskAddButton.click(function (event) { return addSubTaskFieldset(); });
+    setFormValues(deadlineJson);
+}
+exports.init = init;
+
+},{}],5:[function(require,module,exports){
+/// <reference path="./moment_modified.d.ts" />
+"use strict";
 var item_1 = require("./item");
 var task_editor_1 = require("./task-editor");
 var main = require("./main");
@@ -312,7 +362,7 @@ function init($targetContainer, task, mainModel) {
 }
 exports.init = init;
 
-},{"./item":6,"./main":7,"./task-editor":9}],5:[function(require,module,exports){
+},{"./item":7,"./main":8,"./task-editor":10}],6:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
@@ -557,7 +607,7 @@ function init($targetContainer, indexModel, mainModel) {
 }
 exports.init = init;
 
-},{"./main":7}],6:[function(require,module,exports){
+},{"./main":8}],7:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
@@ -790,7 +840,7 @@ var DeadlineSerializer = (function () {
 }());
 exports.DeadlineSerializer = DeadlineSerializer;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 var AddTask = require("./add-task");
 var EditTask = require("./edit-task");
@@ -1030,7 +1080,7 @@ function main() {
 }
 $(document).ready(main);
 
-},{"./add-deadline":1,"./add-task":2,"./calendar":3,"./edit-task":4,"./index":5,"./item":6,"./nav":8}],8:[function(require,module,exports){
+},{"./add-deadline":1,"./add-task":2,"./calendar":3,"./edit-task":5,"./index":6,"./item":7,"./nav":9}],9:[function(require,module,exports){
 "use strict";
 var main = require("./main");
 // Module-scope variables:
@@ -1084,7 +1134,7 @@ function init($targetContainer, mainModel) {
 }
 exports.init = init;
 
-},{"./main":7}],9:[function(require,module,exports){
+},{"./main":8}],10:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 var TaskEditor = (function () {
@@ -1139,4 +1189,4 @@ var TaskEditor = (function () {
 }());
 exports.TaskEditor = TaskEditor;
 
-},{}]},{},[7]);
+},{}]},{},[8]);

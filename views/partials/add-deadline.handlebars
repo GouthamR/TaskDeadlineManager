@@ -6,23 +6,7 @@
 <!-- body: -->
 <div class="add-deadline">
 	<h1>Add Deadline</h1>
-	<form class="add-deadline-form" action="/add-deadline" method="post">
-		<fieldset class="add-deadline-form-deadline">
-			<legend>Deadline Info:</legend>
-			<label>
-				Title
-				<input type="text" class="add-deadline-form-deadline-title-input" name="title" autofocus="true">
-			</label>
-			<label>
-				Start
-				<input type="date" class="add-deadline-form-deadline-start-date-input" name="start-date">
-			</label>
-			<input type="time" class="add-deadline-form-deadline-start-time-input" name="start-time">
-		</fieldset>
-		<fieldset class="add-deadline-form-subtasks">
-			<legend>SubTask Info:</legend>
-			<input type="button" class="add-deadline-form-subtask-add-button" value="+">
-		</fieldset>
-		<input type="submit" value="Done">
-	</form>
+	<div class="add-deadline-editor">
+		{{> deadline-editor }}
+	</div>
 </div>

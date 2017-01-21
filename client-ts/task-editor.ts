@@ -24,7 +24,6 @@ export class TaskEditor
 
     private setFormValues(taskJSON: TaskJSONWithoutID)
     {
-
         this.$topContainer.find(".task-editor-form-title-input").val(taskJSON.title);
 
         this.$topContainer.find(".task-editor-form-start-date-input")

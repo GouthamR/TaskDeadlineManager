@@ -1,0 +1,27 @@
+{{#section 'links'}}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js"></script>
+{{/section}}
+
+<!-- body: -->
+<div class="deadline-editor">
+	<form class="deadline-editor-form" action="" method="post">
+		<fieldset class="deadline-editor-form-deadline">
+			<legend>Deadline Info:</legend>
+			<label>
+				Title
+				<input type="text" class="deadline-editor-form-deadline-title-input" name="title" autofocus="true">
+			</label>
+			<label>
+				Start
+				<input type="date" class="deadline-editor-form-deadline-start-date-input" name="start-date">
+			</label>
+			<input type="time" class="deadline-editor-form-deadline-start-time-input" name="start-time">
+		</fieldset>
+		<fieldset class="deadline-editor-form-subtasks">
+			<legend>SubTask Info:</legend>
+			<input type="button" class="deadline-editor-form-subtask-add-button" value="+">
+		</fieldset>
+		<input type="submit" value="Done">
+	</form>
+</div>
