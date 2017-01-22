@@ -421,9 +421,8 @@ var ItemLi = (function () {
         this.animateOutOfView();
     };
     ItemLi.prototype.animateOutOfView = function () {
-        this.$li.slideUp({ complete: function () {
-                this.$li.remove();
-            } });
+        var _this = this;
+        this.$li.slideUp({ complete: function () { return _this.$li.remove(); } });
     };
     ItemLi.prototype.onEditTitleClicked = function (event) {
         this.fillLiForTitleEditMode();

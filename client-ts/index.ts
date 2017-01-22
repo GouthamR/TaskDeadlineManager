@@ -38,10 +38,7 @@ abstract class ItemLi
 
     public animateOutOfView()
     {
-        this.$li.slideUp({complete: function()
-        {
-            this.$li.remove();
-        }});
+        this.$li.slideUp({complete: () => this.$li.remove() });
     }
 
     protected abstract onOpenSettingsClicked(event: JQueryEventObject): void;
