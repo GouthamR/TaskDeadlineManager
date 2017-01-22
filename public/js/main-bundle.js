@@ -293,8 +293,28 @@ function toTimeInputValue(dateTime) {
     var FORMAT = "HH:mm";
     return moment(parseInt(dateTime)).format(FORMAT);
 }
+function setSubTaskFieldSetValues($newFieldSet, subTask) {
+    $newFieldSet.find(".deadline-editor-form-subtask-title-input")
+        .val(subTask.title);
+    $newFieldSet.find(".deadline-editor-form-subtask-start-date-input")
+        .val(toDateInputValue(subTask.startEpochMillis));
+    $newFieldSet.find(".deadline-editor-form-subtask-start-time-input")
+        .val(toTimeInputValue(subTask.startEpochMillis));
+    $newFieldSet.find(".deadline-editor-form-subtask-end-date-input")
+        .val(toDateInputValue(subTask.endEpochMillis));
+    $newFieldSet.find(".deadline-editor-form-subtask-end-time-input")
+        .val(toTimeInputValue(subTask.endEpochMillis));
+}
 function addSubTaskFieldset() {
     var $newFieldSet = $($.parseHTML(SUBTASK_FIELDSET_TEMPLATE));
+    var defaultValuesSubTask = {
+        title: "",
+        startEpochMillis: moment().startOf("hour").add(1, 'hours').valueOf().toString(),
+        endEpochMillis: moment().startOf("hour").add(2, 'hours').valueOf().toString(),
+        isAllDay: "false",
+        isDone: "false"
+    };
+    setSubTaskFieldSetValues($newFieldSet, defaultValuesSubTask);
     var $removeButton = $newFieldSet.find(".deadline-editor-form-subtask-remove-button");
     $removeButton.click(function (event) {
         $newFieldSet.remove();
@@ -314,16 +334,7 @@ function setFormValues(deadlineJson) {
     for (var _i = 0, _a = deadlineJson.subTasks; _i < _a.length; _i++) {
         var subTask = _a[_i];
         var $newFieldSet = addSubTaskFieldset();
-        $newFieldSet.find(".deadline-editor-form-subtask-title-input")
-            .val(subTask.title);
-        $newFieldSet.find(".deadline-editor-form-subtask-start-date-input")
-            .val(toDateInputValue(subTask.startEpochMillis));
-        $newFieldSet.find(".deadline-editor-form-subtask-start-time-input")
-            .val(toTimeInputValue(subTask.startEpochMillis));
-        $newFieldSet.find(".deadline-editor-form-subtask-end-date-input")
-            .val(toDateInputValue(subTask.endEpochMillis));
-        $newFieldSet.find(".deadline-editor-form-subtask-end-time-input")
-            .val(toTimeInputValue(subTask.endEpochMillis));
+        setSubTaskFieldSetValues($newFieldSet, subTask);
     }
 }
 function onFormSubmit(event) {
