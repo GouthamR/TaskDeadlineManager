@@ -1,6 +1,7 @@
 import * as AddTask from "./add-task"
 import * as EditTask from "./edit-task"
 import * as AddDeadline from "./add-deadline"
+import * as EditDeadline from "./edit-deadline"
 import * as index from "./index"
 import * as nav from "./nav"
 import * as calendar from "./calendar"
@@ -15,7 +16,7 @@ import { DeadlineSerializer } from "./item";
 
 export enum View
 {
-	Index, AddTask, EditTask, AddDeadline, Calendar
+	Index, AddTask, EditTask, AddDeadline, EditDeadline, Calendar
 }
 
 export class MainModel
@@ -50,6 +51,7 @@ export class MainModel
 			".main-add-task": View.AddTask,
 			".main-edit-task": View.EditTask,
 			".main-add-deadline": View.AddDeadline,
+			".main-edit-deadline": View.EditDeadline,
 			".main-calendar": View.Calendar
 		};
 
@@ -270,6 +272,11 @@ export class IndexModel
 	public initEditTask(task: Task)
 	{
 		EditTask.init($(".main-edit-task"), task, mainModel);
+	}
+
+	public initEditDeadline(deadline: Deadline)
+	{
+		EditDeadline.init($(".main-edit-deadline"), deadline, mainModel);
 	}
 }
 
