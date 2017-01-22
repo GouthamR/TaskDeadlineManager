@@ -144,13 +144,13 @@ function setFormValues(deadlineJson: DeadlineJSONWithoutID)
         let $newFieldSet: JQuery = addSubTaskFieldset();
         $newFieldSet.find(".deadline-editor-form-subtask-title-input")
                     .val(subTask.title);
-        $newFieldSet.find("deadline-editor-form-subtask-start-date-input")
+        $newFieldSet.find(".deadline-editor-form-subtask-start-date-input")
                     .val(toDateInputValue(subTask.startEpochMillis));
-        $newFieldSet.find("deadline-editor-form-subtask-start-time-input")
+        $newFieldSet.find(".deadline-editor-form-subtask-start-time-input")
                     .val(toTimeInputValue(subTask.startEpochMillis));
-        $newFieldSet.find("deadline-editor-form-subtask-end-date-input")
+        $newFieldSet.find(".deadline-editor-form-subtask-end-date-input")
                     .val(toDateInputValue(subTask.endEpochMillis));
-        $newFieldSet.find("deadline-editor-form-subtask-end-time-input")
+        $newFieldSet.find(".deadline-editor-form-subtask-end-time-input")
                     .val(toTimeInputValue(subTask.endEpochMillis));
     }
 }
