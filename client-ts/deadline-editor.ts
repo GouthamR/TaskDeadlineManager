@@ -137,6 +137,8 @@ function setFormValues(deadlineJson: DeadlineJSONWithoutID)
     $topContainer.find(".deadline-editor-form-deadline-start-time-input")
                     .val(toTimeInputValue(deadlineJson.startEpochMillis));
 
+    $topContainer.find(".deadline-editor-form-subtask").remove(); // remove subtasks from previous init, if necessary
+
     for(let subTask of deadlineJson.subTasks)
     {
         let $newFieldSet: JQuery = addSubTaskFieldset();
@@ -171,10 +173,12 @@ export function init($targetContainer: JQuery,
     doneCallback = doneCallbackParam;
 
     let $editDeadlineForm: JQuery = $topContainer.find(".deadline-editor-form");
+    $editDeadlineForm.off(); // remove handlers from previous init, if any
     $editDeadlineForm.on("submit", 
                             (event: JQueryEventObject) => onFormSubmit(event));
 
     let $subTaskAddButton: JQuery = $topContainer.find(".deadline-editor-form-subtask-add-button");
+    $subTaskAddButton.off(); // remove handlers from previous init, if any
     $subTaskAddButton.click((event: JQueryEventObject) => addSubTaskFieldset());
 
     setFormValues(deadlineJson);

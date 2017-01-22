@@ -310,6 +310,7 @@ function setFormValues(deadlineJson) {
         .val(toDateInputValue(deadlineJson.startEpochMillis));
     $topContainer.find(".deadline-editor-form-deadline-start-time-input")
         .val(toTimeInputValue(deadlineJson.startEpochMillis));
+    $topContainer.find(".deadline-editor-form-subtask").remove(); // remove subtasks from previous init, if necessary
     for (var _i = 0, _a = deadlineJson.subTasks; _i < _a.length; _i++) {
         var subTask = _a[_i];
         var $newFieldSet = addSubTaskFieldset();
@@ -335,8 +336,10 @@ function init($targetContainer, deadlineJson, doneCallbackParam) {
     $topContainer = $targetContainer.find(".deadline-editor");
     doneCallback = doneCallbackParam;
     var $editDeadlineForm = $topContainer.find(".deadline-editor-form");
+    $editDeadlineForm.off(); // remove handlers from previous init, if any
     $editDeadlineForm.on("submit", function (event) { return onFormSubmit(event); });
     var $subTaskAddButton = $topContainer.find(".deadline-editor-form-subtask-add-button");
+    $subTaskAddButton.off(); // remove handlers from previous init, if any
     $subTaskAddButton.click(function (event) { return addSubTaskFieldset(); });
     setFormValues(deadlineJson);
 }
@@ -1143,6 +1146,7 @@ var TaskEditor = (function () {
         this.$topContainer = $targetContainer.find(".task-editor");
         this.setFormValues(taskJSON);
         var form = this.$topContainer.find(".task-editor-form");
+        form.off(); // remove event handlers from previous TaskEditor, if any
         form.on("submit", function (event) { return _this.onFormSubmit(event, doneCallback); });
     }
     TaskEditor.prototype.setFormValues = function (taskJSON) {

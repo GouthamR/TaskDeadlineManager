@@ -18,6 +18,7 @@ export class TaskEditor
         this.setFormValues(taskJSON);
 
         let form: JQuery = this.$topContainer.find(".task-editor-form");
+        form.off(); // remove event handlers from previous TaskEditor, if any
         form.on("submit", 
                 (event: JQueryEventObject) => this.onFormSubmit(event, doneCallback));
     }
