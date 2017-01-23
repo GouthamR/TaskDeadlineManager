@@ -5,8 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "build": "tsc && browserify client-ts/main.js -o public/js/main-bundle.js",
-    "postinstall": "npm run build"
+    "build": "tsc && browserify client-ts/main.js -o public/js/main-bundle.js"
   },
   "repository": {
     "type": "git",
