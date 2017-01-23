@@ -93,8 +93,9 @@ var ItemEventObject = (function () {
 var TaskEventObject = (function (_super) {
     __extends(TaskEventObject, _super);
     function TaskEventObject(title, start, allDay, end, task) {
-        _super.call(this, title, start, allDay, task);
-        this.end = end;
+        var _this = _super.call(this, title, start, allDay, task) || this;
+        _this.end = end;
+        return _this;
     }
     TaskEventObject.prototype.updateItemToMatchEvent = function () {
         _super.prototype.updateItemToMatchEvent.call(this);
@@ -110,8 +111,9 @@ var TaskEventObject = (function (_super) {
 var DeadlineEventObject = (function (_super) {
     __extends(DeadlineEventObject, _super);
     function DeadlineEventObject(title, start, allDay, deadline) {
-        _super.call(this, title, start, allDay, deadline);
-        this.color = "green";
+        var _this = _super.call(this, title, start, allDay, deadline) || this;
+        _this.color = "green";
+        return _this;
     }
     DeadlineEventObject.prototype.updateItemOnServer = function () {
         var updatedDeadline = this.item;
@@ -122,8 +124,9 @@ var DeadlineEventObject = (function (_super) {
 var SubTaskEventObject = (function (_super) {
     __extends(SubTaskEventObject, _super);
     function SubTaskEventObject(title, start, allDay, end, deadline, subTask) {
-        _super.call(this, title, start, allDay, end, subTask);
-        this.deadline = deadline;
+        var _this = _super.call(this, title, start, allDay, end, subTask) || this;
+        _this.deadline = deadline;
+        return _this;
     }
     SubTaskEventObject.prototype.updateItemOnServer = function () {
         mainModel.updateDeadlineOnServer(this.deadline);
@@ -133,7 +136,7 @@ var SubTaskEventObject = (function (_super) {
 function clearAndShowLoading() {
     // STUB (does not clear):
     var $fullCalendarDiv = $calendarContainer.find(".calendar-fullcalendar");
-    var $loading = $("<p>", { class: LOADING_CLASS_NAME }).html("Loading...");
+    var $loading = $("<p>", { "class": LOADING_CLASS_NAME }).html("Loading...");
     $fullCalendarDiv.append($loading);
 }
 function removeLoading() {
@@ -449,12 +452,12 @@ var ItemLi = (function () {
     ItemLi.prototype.fillLiForNormalMode = function () {
         var _this = this;
         this.$li.empty();
-        var middle = $("<div>", { class: "item-middle" });
-        var title = $("<p>", { class: "item-title" }).html(this.item.getTitle());
+        var middle = $("<div>", { "class": "item-middle" });
+        var title = $("<p>", { "class": "item-title" }).html(this.item.getTitle());
         var dayTime = $("<p>").html(this.item.getDayTimeString());
         middle.append(title, dayTime);
-        var check = $("<img>", { class: "td-check", src: "img/check.png" });
-        var settings = $("<img>", { class: "td-settings", src: "img/gear.png" });
+        var check = $("<img>", { "class": "td-check", src: "img/check.png" });
+        var settings = $("<img>", { "class": "td-settings", src: "img/gear.png" });
         check.click(function (e) { return _this.onMarkDoneClicked(e); });
         title.click(function (e) { return _this.onEditTitleClicked(e); });
         settings.click(function (e) { return _this.onOpenSettingsClicked(e); });
@@ -465,9 +468,10 @@ var ItemLi = (function () {
 var TaskLi = (function (_super) {
     __extends(TaskLi, _super);
     function TaskLi(task, $targetUl, indexModel, mainModel) {
-        _super.call(this, task, $targetUl, function () { return indexModel.removeTaskFromServer(task); }, function () { return mainModel.updateTaskOnServer(task); });
-        this.indexModel = indexModel;
-        this.mainModel = mainModel;
+        var _this = _super.call(this, task, $targetUl, function () { return indexModel.removeTaskFromServer(task); }, function () { return mainModel.updateTaskOnServer(task); }) || this;
+        _this.indexModel = indexModel;
+        _this.mainModel = mainModel;
+        return _this;
     }
     // Override
     TaskLi.prototype.onOpenSettingsClicked = function (event) {
@@ -479,13 +483,13 @@ var TaskLi = (function (_super) {
 var SubTaskLi = (function (_super) {
     __extends(SubTaskLi, _super);
     function SubTaskLi(subTask, $targetUl, deadline, mainModel, indexModel, animateOutDeadlineLi) {
-        var _this = this;
-        _super.call(this, subTask, $targetUl, function () { return _this.removeSubTaskFromServer(mainModel); }, function () { return mainModel.updateDeadlineOnServer(deadline); });
-        this.deadline = deadline;
-        this.animateOutDeadlineLi = animateOutDeadlineLi;
-        this.removeDeadlineFromServer = function () { return indexModel.removeDeadlineFromServer(deadline); };
-        this.indexModel = indexModel;
-        this.mainModel = mainModel;
+        var _this = _super.call(this, subTask, $targetUl, function () { return _this.removeSubTaskFromServer(mainModel); }, function () { return mainModel.updateDeadlineOnServer(deadline); }) || this;
+        _this.deadline = deadline;
+        _this.animateOutDeadlineLi = animateOutDeadlineLi;
+        _this.removeDeadlineFromServer = function () { return indexModel.removeDeadlineFromServer(deadline); };
+        _this.indexModel = indexModel;
+        _this.mainModel = mainModel;
+        return _this;
     }
     SubTaskLi.prototype.removeSubTaskFromServer = function (mainModel) {
         var subTask = this.getItem();
@@ -512,10 +516,11 @@ var SubTaskLi = (function (_super) {
 var DeadlineLi = (function (_super) {
     __extends(DeadlineLi, _super);
     function DeadlineLi(deadline, $targetUl, mainModel, indexModel, animateOutSubtaskLis) {
-        _super.call(this, deadline, $targetUl, function () { return indexModel.removeDeadlineFromServer(deadline); }, function () { return mainModel.updateDeadlineOnServer(deadline); });
-        this.animateOutSubtaskLis = animateOutSubtaskLis;
-        this.indexModel = indexModel;
-        this.mainModel = mainModel;
+        var _this = _super.call(this, deadline, $targetUl, function () { return indexModel.removeDeadlineFromServer(deadline); }, function () { return mainModel.updateDeadlineOnServer(deadline); }) || this;
+        _this.animateOutSubtaskLis = animateOutSubtaskLis;
+        _this.indexModel = indexModel;
+        _this.mainModel = mainModel;
+        return _this;
     }
     // Override
     DeadlineLi.prototype.onMarkDoneClicked = function (event) {
@@ -569,7 +574,7 @@ var View = (function () {
     View.prototype.clearAndShowLoadingOnContainer = function ($container) {
         var $ul = $container.find("ul");
         $ul.empty();
-        var $loading = $("<p>", { class: "index-loading" }).html("Loading...");
+        var $loading = $("<p>", { "class": "index-loading" }).html("Loading...");
         $ul.append($loading);
     };
     View.prototype.clearAndShowLoadingTasks = function () {
@@ -704,8 +709,9 @@ exports.Item = Item;
 var Task = (function (_super) {
     __extends(Task, _super);
     function Task(title, start, end, isAllDay, id) {
-        _super.call(this, title, start, isAllDay, id);
-        this.end = end;
+        var _this = _super.call(this, title, start, isAllDay, id) || this;
+        _this.end = end;
+        return _this;
     }
     Task.prototype.getEnd = function () { return this.end; };
     Task.prototype.setEnd = function (end) {
@@ -761,9 +767,10 @@ var SubTask = (function (_super) {
     __extends(SubTask, _super);
     function SubTask(title, start, end, isAllDay, id, deadlineId, isDone) {
         if (isDone === void 0) { isDone = false; }
-        _super.call(this, title, start, end, isAllDay, id);
-        this.deadlineId = deadlineId;
-        this.isDone = isDone;
+        var _this = _super.call(this, title, start, end, isAllDay, id) || this;
+        _this.deadlineId = deadlineId;
+        _this.isDone = isDone;
+        return _this;
     }
     SubTask.prototype.getDeadlineID = function () { return this.deadlineId; };
     SubTask.prototype.getIsDone = function () { return this.isDone; };
@@ -809,8 +816,9 @@ exports.SubTaskSerializer = SubTaskSerializer;
 var Deadline = (function (_super) {
     __extends(Deadline, _super);
     function Deadline(title, start, isAllDay, id, subTasks) {
-        _super.call(this, title, start, isAllDay, id);
-        this.subTasks = subTasks;
+        var _this = _super.call(this, title, start, isAllDay, id) || this;
+        _this.subTasks = subTasks;
+        return _this;
     }
     Deadline.prototype.getSubTasks = function () { return this.subTasks; };
     Deadline.prototype.isDone = function () {
@@ -890,6 +898,7 @@ var nav = require("./nav");
 var calendar = require("./calendar");
 var item_1 = require("./item");
 var item_2 = require("./item");
+var View;
 (function (View) {
     View[View["Index"] = 0] = "Index";
     View[View["AddTask"] = 1] = "AddTask";
@@ -897,8 +906,7 @@ var item_2 = require("./item");
     View[View["AddDeadline"] = 3] = "AddDeadline";
     View[View["EditDeadline"] = 4] = "EditDeadline";
     View[View["Calendar"] = 5] = "Calendar";
-})(exports.View || (exports.View = {}));
-var View = exports.View;
+})(View = exports.View || (exports.View = {}));
 var MainModel = (function () {
     function MainModel() {
     }
