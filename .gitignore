@@ -1,3 +1,4 @@
 client-ts/*.js
+public/js/main-bundle.js
 dbConfig.json
 node_modules/
