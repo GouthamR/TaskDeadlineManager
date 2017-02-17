@@ -215,25 +215,6 @@ exports.init = init;
 // Module-scope variables:
 var $topContainer;
 var doneCallback;
-var SUBTASK_FIELDSET_TEMPLATE = "";
-SUBTASK_FIELDSET_TEMPLATE += "<fieldset class=\"deadline-editor-form-subtask\">";
-SUBTASK_FIELDSET_TEMPLATE += " <legend>SubTask:<\/legend>";
-SUBTASK_FIELDSET_TEMPLATE += " <label>";
-SUBTASK_FIELDSET_TEMPLATE += "     Title";
-SUBTASK_FIELDSET_TEMPLATE += "     <input type=\"text\" class=\"deadline-editor-form-subtask-title-input\" name=\"title\" autofocus=\"true\">";
-SUBTASK_FIELDSET_TEMPLATE += " <\/label>";
-SUBTASK_FIELDSET_TEMPLATE += " <label>";
-SUBTASK_FIELDSET_TEMPLATE += "     Start";
-SUBTASK_FIELDSET_TEMPLATE += "     <input type=\"date\" class=\"deadline-editor-form-subtask-start-date-input\" name=\"start-date\">";
-SUBTASK_FIELDSET_TEMPLATE += " <\/label>";
-SUBTASK_FIELDSET_TEMPLATE += " <input type=\"time\" class=\"deadline-editor-form-subtask-start-time-input\" name=\"start-time\">";
-SUBTASK_FIELDSET_TEMPLATE += " <label>";
-SUBTASK_FIELDSET_TEMPLATE += "     End";
-SUBTASK_FIELDSET_TEMPLATE += "     <input type=\"date\" class=\"deadline-editor-form-subtask-end-date-input\" name=\"end-date\">";
-SUBTASK_FIELDSET_TEMPLATE += " <\/label>";
-SUBTASK_FIELDSET_TEMPLATE += " <input type=\"time\" class=\"deadline-editor-form-subtask-end-time-input\" name=\"end-time\">";
-SUBTASK_FIELDSET_TEMPLATE += " <input type=\"button\" class=\"deadline-editor-form-subtask-remove-button\" value=\"-\">";
-SUBTASK_FIELDSET_TEMPLATE += "<\/fieldset>";
 function toDate(dateWithoutTime, time) {
     var fullDate = dateWithoutTime + time;
     return moment(fullDate, "YYYY-MM-DD HH:mm").toDate();
@@ -296,20 +277,24 @@ function toTimeInputValue(dateTime) {
     var FORMAT = "HH:mm";
     return moment(parseInt(dateTime)).format(FORMAT);
 }
-function setSubTaskFieldSetValues($newFieldSet, subTask) {
-    $newFieldSet.find(".deadline-editor-form-subtask-title-input")
-        .val(subTask.title);
-    $newFieldSet.find(".deadline-editor-form-subtask-start-date-input")
-        .val(toDateInputValue(subTask.startEpochMillis));
-    $newFieldSet.find(".deadline-editor-form-subtask-start-time-input")
-        .val(toTimeInputValue(subTask.startEpochMillis));
-    $newFieldSet.find(".deadline-editor-form-subtask-end-date-input")
-        .val(toDateInputValue(subTask.endEpochMillis));
-    $newFieldSet.find(".deadline-editor-form-subtask-end-time-input")
-        .val(toTimeInputValue(subTask.endEpochMillis));
+function addSubTaskFieldset(subTask) {
+    var templateContext = {
+        title: subTask.title,
+        startDate: toDateInputValue(subTask.startEpochMillis),
+        startTime: toTimeInputValue(subTask.startEpochMillis),
+        endDate: toDateInputValue(subTask.endEpochMillis),
+        endTime: toTimeInputValue(subTask.endEpochMillis)
+    };
+    var subTaskFieldSetHTML = Handlebars.templates['deadline-editor-templates'](templateContext);
+    var $newFieldSet = $($.parseHTML(subTaskFieldSetHTML));
+    var $removeButton = $newFieldSet.find(".deadline-editor-form-subtask-remove-button");
+    $removeButton.click(function (event) {
+        $newFieldSet.remove();
+    });
+    var $addButton = $topContainer.find(".deadline-editor-form-subtask-add-button");
+    $addButton.before($newFieldSet);
 }
-function addSubTaskFieldset() {
-    var $newFieldSet = $($.parseHTML(SUBTASK_FIELDSET_TEMPLATE));
+function addSubTaskFieldsetWithDefaults() {
     var defaultValuesSubTask = {
         title: "",
         startEpochMillis: moment().startOf("hour").add(1, 'hours').valueOf().toString(),
@@ -317,14 +302,7 @@ function addSubTaskFieldset() {
         isAllDay: "false",
         isDone: "false"
     };
-    setSubTaskFieldSetValues($newFieldSet, defaultValuesSubTask);
-    var $removeButton = $newFieldSet.find(".deadline-editor-form-subtask-remove-button");
-    $removeButton.click(function (event) {
-        $newFieldSet.remove();
-    });
-    var $addButton = $topContainer.find(".deadline-editor-form-subtask-add-button");
-    $addButton.before($newFieldSet);
-    return $newFieldSet;
+    addSubTaskFieldset(defaultValuesSubTask);
 }
 function setFormValues(deadlineJson) {
     $topContainer.find(".deadline-editor-form-deadline-title-input")
@@ -336,8 +314,7 @@ function setFormValues(deadlineJson) {
     $topContainer.find(".deadline-editor-form-subtask").remove(); // remove subtasks from previous init, if necessary
     for (var _i = 0, _a = deadlineJson.subTasks; _i < _a.length; _i++) {
         var subTask = _a[_i];
-        var $newFieldSet = addSubTaskFieldset();
-        setSubTaskFieldSetValues($newFieldSet, subTask);
+        addSubTaskFieldset(subTask);
     }
 }
 function onFormSubmit(event) {
@@ -354,7 +331,7 @@ function init($targetContainer, deadlineJson, doneCallbackParam) {
     $editDeadlineForm.on("submit", function (event) { return onFormSubmit(event); });
     var $subTaskAddButton = $topContainer.find(".deadline-editor-form-subtask-add-button");
     $subTaskAddButton.off(); // remove handlers from previous init, if any
-    $subTaskAddButton.click(function (event) { return addSubTaskFieldset(); });
+    $subTaskAddButton.click(function (event) { return addSubTaskFieldsetWithDefaults(); });
     setFormValues(deadlineJson);
 }
 exports.init = init;

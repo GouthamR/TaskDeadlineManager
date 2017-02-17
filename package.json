@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "build": "tsc && browserify client-ts/main.js -o public/js/main-bundle.js"
+    "build": "tsc && browserify client-ts/main.js -o public/js/main-bundle.js && handlebars client-ts/ -f public/js/handlebars-templates.js"
   },
   "repository": {
     "type": "git",
@@ -23,8 +23,10 @@
     "mongodb": "^2.2.16"
   },
   "devDependencies": {
+    "@types/handlebars": "^4.0.31",
     "@types/jquery": "^2.0.34",
     "browserify": "^13.3.0",
+    "handlebars": "^4.0.6",
     "typescript": "^2.1.5"
   }
 }
