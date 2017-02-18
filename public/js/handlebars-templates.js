@@ -1,6 +1,6 @@
 (function() {
   var template = Handlebars.template, templates = Handlebars.templates = Handlebars.templates || {};
-templates['deadline-editor-templates'] = template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+templates['deadline-editor-subtask-template'] = template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var helper, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
 
   return "<fieldset class=\"deadline-editor-form-subtask\">\r\n	<legend>SubTask:</legend>\r\n	<label>\r\n	    Title\r\n	    <input type=\"text\" class=\"deadline-editor-form-subtask-title-input\" name=\"title\" autofocus=\"true\" value=\""

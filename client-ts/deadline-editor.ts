@@ -103,7 +103,7 @@ function addSubTaskFieldset(subTask: SubTaskJSONWithoutID)
         endDate: toDateInputValue(subTask.endEpochMillis),
         endTime: toTimeInputValue(subTask.endEpochMillis),
     };
-    let subTaskFieldSetHTML = Handlebars.templates['deadline-editor-templates'](templateContext);
+    let subTaskFieldSetHTML = Handlebars.templates['deadline-editor-subtask-template'](templateContext);
     let $newFieldSet: JQuery = $($.parseHTML(subTaskFieldSetHTML));
 
     let $removeButton: JQuery = $newFieldSet.find(".deadline-editor-form-subtask-remove-button");
