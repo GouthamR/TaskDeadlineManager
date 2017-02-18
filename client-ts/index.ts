@@ -62,34 +62,29 @@ abstract class ItemLi
 
     protected fillLiForTitleEditMode(): void
     {
-        this.$li.empty();
+        let templateContext = 
+        {
+            title: this.item.getTitle()
+        };
+        let editModeHTML = Handlebars.templates['index-edit-mode-template'](templateContext);
+        this.$li.html(editModeHTML);
 
-        let $form = $("<form>");
-        let $titleInput = $("<input>", {type: "text", value: this.item.getTitle()});
-        $form.append($titleInput);
-        let doneButton: JQuery = $("<input>", {type: "submit", value: "Done"});
-        doneButton.click((e) => this.onCloseTitleEditClicked(e));
-        $form.append(doneButton);
-
-        this.$li.append($form);
+        this.$li.find('input[type="submit"]').click((e) => this.onCloseTitleEditClicked(e));
     }
 
     protected fillLiForNormalMode(): void
     {
-        this.$li.empty();
+        let templateContext = 
+        {
+            title: this.item.getTitle(),
+            dayTimeString: this.item.getDayTimeString()
+        };
+        let normalModeHTML = Handlebars.templates['index-normal-mode-template'](templateContext);
+        this.$li.html(normalModeHTML);
 
-        let middle: JQuery = $("<div>", {class: "item-middle"});
-        let title: JQuery = $("<p>", {class: "item-title"}).html(this.item.getTitle());
-        let dayTime: JQuery = $("<p>").html(this.item.getDayTimeString());
-        middle.append(title, dayTime);
-        let check: JQuery = $("<img>", {class: "td-check", src: "img/check.png"});
-        let settings: JQuery = $("<img>", {class: "td-settings", src: "img/gear.png"});
-
-        check.click((e) => this.onMarkDoneClicked(e));
-        title.click((e) => this.onEditTitleClicked(e));
-        settings.click((e) => this.onOpenSettingsClicked(e));
-
-        this.$li.append(check, middle, settings);
+        this.$li.find(".td-check").click((e) => this.onMarkDoneClicked(e));
+        this.$li.find(".item-title").click((e) => this.onEditTitleClicked(e));
+        this.$li.find(".td-settings").click((e) => this.onOpenSettingsClicked(e));
     }
 }
 

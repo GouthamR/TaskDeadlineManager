@@ -417,28 +417,24 @@ var ItemLi = (function () {
     };
     ItemLi.prototype.fillLiForTitleEditMode = function () {
         var _this = this;
-        this.$li.empty();
-        var $form = $("<form>");
-        var $titleInput = $("<input>", { type: "text", value: this.item.getTitle() });
-        $form.append($titleInput);
-        var doneButton = $("<input>", { type: "submit", value: "Done" });
-        doneButton.click(function (e) { return _this.onCloseTitleEditClicked(e); });
-        $form.append(doneButton);
-        this.$li.append($form);
+        var templateContext = {
+            title: this.item.getTitle()
+        };
+        var editModeHTML = Handlebars.templates['index-edit-mode-template'](templateContext);
+        this.$li.html(editModeHTML);
+        this.$li.find('input[type="submit"]').click(function (e) { return _this.onCloseTitleEditClicked(e); });
     };
     ItemLi.prototype.fillLiForNormalMode = function () {
         var _this = this;
-        this.$li.empty();
-        var middle = $("<div>", { "class": "item-middle" });
-        var title = $("<p>", { "class": "item-title" }).html(this.item.getTitle());
-        var dayTime = $("<p>").html(this.item.getDayTimeString());
-        middle.append(title, dayTime);
-        var check = $("<img>", { "class": "td-check", src: "img/check.png" });
-        var settings = $("<img>", { "class": "td-settings", src: "img/gear.png" });
-        check.click(function (e) { return _this.onMarkDoneClicked(e); });
-        title.click(function (e) { return _this.onEditTitleClicked(e); });
-        settings.click(function (e) { return _this.onOpenSettingsClicked(e); });
-        this.$li.append(check, middle, settings);
+        var templateContext = {
+            title: this.item.getTitle(),
+            dayTimeString: this.item.getDayTimeString()
+        };
+        var normalModeHTML = Handlebars.templates['index-normal-mode-template'](templateContext);
+        this.$li.html(normalModeHTML);
+        this.$li.find(".td-check").click(function (e) { return _this.onMarkDoneClicked(e); });
+        this.$li.find(".item-title").click(function (e) { return _this.onEditTitleClicked(e); });
+        this.$li.find(".td-settings").click(function (e) { return _this.onOpenSettingsClicked(e); });
     };
     return ItemLi;
 }());
