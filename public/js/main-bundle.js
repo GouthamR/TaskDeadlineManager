@@ -225,6 +225,7 @@ function toSubTaskJSONWithoutID($fieldset) {
     var START_TIME_SELECTOR = ".deadline-editor-form-subtask-start-time-input";
     var END_DATE_WITHOUT_TIME_SELECTOR = ".deadline-editor-form-subtask-end-date-input";
     var END_TIME_SELECTOR = ".deadline-editor-form-subtask-end-time-input";
+    var IS_DONE_SELECTOR = ".deadline-editor-form-subtask-done-input";
     var title = $fieldset.find(TITLE_SELECTOR).val();
     var startDateWithoutTime = $fieldset.find(START_DATE_WITHOUT_TIME_SELECTOR).val();
     var startTime = $fieldset.find(START_TIME_SELECTOR).val();
@@ -232,12 +233,13 @@ function toSubTaskJSONWithoutID($fieldset) {
     var endDateWithoutTime = $fieldset.find(END_DATE_WITHOUT_TIME_SELECTOR).val();
     var endTime = $fieldset.find(END_TIME_SELECTOR).val();
     var endDate = toDate(endDateWithoutTime, endTime);
+    var isDone = $fieldset.find(IS_DONE_SELECTOR).is(":checked");
     var json = {
         title: title,
         startEpochMillis: startDate.getTime().toString(),
         endEpochMillis: endDate.getTime().toString(),
         isAllDay: "false",
-        isDone: "false"
+        isDone: isDone.toString()
     };
     return json;
 }
@@ -283,7 +285,8 @@ function addSubTaskFieldset(subTask) {
         startDate: toDateInputValue(subTask.startEpochMillis),
         startTime: toTimeInputValue(subTask.startEpochMillis),
         endDate: toDateInputValue(subTask.endEpochMillis),
-        endTime: toTimeInputValue(subTask.endEpochMillis)
+        endTime: toTimeInputValue(subTask.endEpochMillis),
+        isDone: subTask.isDone == "true"
     };
     var subTaskFieldSetHTML = Handlebars.templates['deadline-editor-subtask-template'](templateContext);
     var $newFieldSet = $($.parseHTML(subTaskFieldSetHTML));
@@ -317,10 +320,18 @@ function setFormValues(deadlineJson) {
         addSubTaskFieldset(subTask);
     }
 }
+function deadlineIsDone(json) {
+    return json.subTasks.every(function (s) { return s.isDone == "true"; });
+}
 function onFormSubmit(event) {
     event.preventDefault();
     var json = getFormAsJSON();
-    doneCallback(json);
+    if (deadlineIsDone(json)) {
+        alert("Please include at least one unfinished subtask. You can check off all subtasks from the homepage.");
+    }
+    else {
+        doneCallback(json);
+    }
 }
 function init($targetContainer, deadlineJson, doneCallbackParam) {
     "use strict";

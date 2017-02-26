@@ -22,6 +22,7 @@ function toSubTaskJSONWithoutID($fieldset: JQuery): SubTaskJSONWithoutID
     const START_TIME_SELECTOR: string = ".deadline-editor-form-subtask-start-time-input";
     const END_DATE_WITHOUT_TIME_SELECTOR: string = ".deadline-editor-form-subtask-end-date-input";
     const END_TIME_SELECTOR: string = ".deadline-editor-form-subtask-end-time-input";
+    const IS_DONE_SELECTOR: string = ".deadline-editor-form-subtask-done-input";
 
     let title: string = $fieldset.find(TITLE_SELECTOR).val();
     let startDateWithoutTime: string = $fieldset.find(START_DATE_WITHOUT_TIME_SELECTOR).val();
@@ -30,6 +31,7 @@ function toSubTaskJSONWithoutID($fieldset: JQuery): SubTaskJSONWithoutID
     let endDateWithoutTime: string = $fieldset.find(END_DATE_WITHOUT_TIME_SELECTOR).val();
     let endTime: string = $fieldset.find(END_TIME_SELECTOR).val();
     let endDate: Date = toDate(endDateWithoutTime, endTime);
+    let isDone: boolean = $fieldset.find(IS_DONE_SELECTOR).is(":checked");
 
     let json: SubTaskJSONWithoutID = 
     {
@@ -37,7 +39,7 @@ function toSubTaskJSONWithoutID($fieldset: JQuery): SubTaskJSONWithoutID
         startEpochMillis: startDate.getTime().toString(),
         endEpochMillis: endDate.getTime().toString(),
         isAllDay: "false",
-        isDone: "false"
+        isDone: isDone.toString()
     };
     return json;
 }
@@ -102,6 +104,7 @@ function addSubTaskFieldset(subTask: SubTaskJSONWithoutID)
         startTime: toTimeInputValue(subTask.startEpochMillis),
         endDate: toDateInputValue(subTask.endEpochMillis),
         endTime: toTimeInputValue(subTask.endEpochMillis),
+        isDone: subTask.isDone == "true"
     };
     let subTaskFieldSetHTML = Handlebars.templates['deadline-editor-subtask-template'](templateContext);
     let $newFieldSet: JQuery = $($.parseHTML(subTaskFieldSetHTML));
@@ -147,12 +150,24 @@ function setFormValues(deadlineJson: DeadlineJSONWithoutID)
     }
 }
 
+function deadlineIsDone(json: DeadlineJSONWithoutID): boolean
+{
+    return json.subTasks.every((s: SubTaskJSONWithoutID) => s.isDone == "true");
+}
+
 function onFormSubmit(event: JQueryEventObject)
 {
     event.preventDefault();
 
     let json: DeadlineJSONWithoutID = getFormAsJSON();
-    doneCallback(json);
+    if(deadlineIsDone(json))
+    {
+        alert("Please include at least one unfinished subtask. You can check off all subtasks from the homepage.");
+    }
+    else
+    {
+        doneCallback(json);
+    }
 }
 
 export function init($targetContainer: JQuery,
