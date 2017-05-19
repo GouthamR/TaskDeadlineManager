@@ -33,7 +33,7 @@ var handlebars = require('express-handlebars').create(
 			{
 				this._links = [newLink];
 			}
-			else
+			else if(!this._links.includes(newLink)) // only add each link once - to avoid unnecessary duplicate links
 			{
 				this._links.push(newLink);
 			}
