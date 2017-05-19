@@ -4,6 +4,7 @@ import { Task } from "./item";
 import { TaskJSONWithoutID } from "./item";
 import { TaskSerializer } from "./item";
 import * as main from "./main"
+import * as DateTimeGroupSynchronizer from "./date-time-group-synchronizer";
 
 export class TaskEditor
 {
@@ -21,6 +22,12 @@ export class TaskEditor
         form.off(); // remove event handlers from previous TaskEditor, if any
         form.on("submit", 
                 (event: JQueryEventObject) => this.onFormSubmit(event, doneCallback));
+
+        let $startDateInput: JQuery = this.$topContainer.find(".task-editor-form-start-date-input");
+        let $endDateInput: JQuery = this.$topContainer.find(".task-editor-form-end-date-input");
+        let $startTimeInput: JQuery = this.$topContainer.find(".task-editor-form-start-time-input");
+        let $endTimeInput: JQuery = this.$topContainer.find(".task-editor-form-end-time-input");
+        DateTimeGroupSynchronizer.init($startDateInput, $endDateInput, $startTimeInput, $endTimeInput);
     }
 
     private setFormValues(taskJSON: TaskJSONWithoutID)

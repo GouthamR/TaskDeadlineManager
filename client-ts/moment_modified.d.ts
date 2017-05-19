@@ -1,4 +1,4 @@
-// MODIFIED BY GOUTHAMR, based on type definition included with moment
+// MODIFIED BY GOUTHAMR, based on type definition included with moment.
 // Modified to properly export definitions.
 
 export as namespace moment;

@@ -1,3 +1,4 @@
 client-ts/*.js
 dbConfig.json
 node_modules/
+.vscode/

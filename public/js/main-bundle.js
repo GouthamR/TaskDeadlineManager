@@ -25,7 +25,7 @@ function init($targetContainer, mainModelParam) {
 }
 exports.init = init;
 
-},{"./deadline-editor":4,"./main":9}],2:[function(require,module,exports){
+},{"./deadline-editor":5,"./main":10}],2:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 var task_editor_1 = require("./task-editor");
@@ -49,7 +49,7 @@ function init($targetContainer, addTaskModel, mainModel) {
 }
 exports.init = init;
 
-},{"./main":9,"./task-editor":11}],3:[function(require,module,exports){
+},{"./main":10,"./task-editor":12}],3:[function(require,module,exports){
 /// <reference path="./fullcalendar_modified.d.ts" />
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
@@ -212,6 +212,67 @@ exports.init = init;
 },{}],4:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
+/**
+ * init takes a set of start and end date and time input fields as arguments.
+ * This module synchronizes the start and end input fields, as follows:
+ * When the start date is changed, updates the end date to maintain the same
+ * date duration. Also does the same for the start time and end time.
+ */
+var DATE_FORMAT = "YYYY-MM-DD";
+var TIME_FORMAT = "HH:mm";
+var DateTimeGroupSynchronizer = (function () {
+    function DateTimeGroupSynchronizer($startDateInput, $endDateInput, $startTimeInput, $endTimeInput) {
+        var _this = this;
+        this.$startDateInput = $startDateInput;
+        this.$endDateInput = $endDateInput;
+        this.$startTimeInput = $startTimeInput;
+        this.$endTimeInput = $endTimeInput;
+        this.previousStartDate = this.dateInputToMoment(this.$startDateInput);
+        this.previousStartTime = this.timeInputToMoment(this.$startTimeInput);
+        this.$startDateInput.change(function (e) { return _this.updateEndDate(); });
+        this.$startTimeInput.change(function (e) { return _this.updateEndTime(); });
+    }
+    DateTimeGroupSynchronizer.prototype.dateInputToMoment = function ($dateInput) {
+        var dateString = $dateInput.val();
+        return moment(dateString, DATE_FORMAT);
+    };
+    DateTimeGroupSynchronizer.prototype.timeInputToMoment = function ($timeInput) {
+        var timeString = $timeInput.val();
+        return moment(timeString, TIME_FORMAT);
+    };
+    DateTimeGroupSynchronizer.prototype.setDateInputToMoment = function ($dateInput, dateValue) {
+        $dateInput.val(dateValue.format(DATE_FORMAT));
+    };
+    DateTimeGroupSynchronizer.prototype.setTimeInputToMoment = function ($timeInput, timeValue) {
+        $timeInput.val(timeValue.format(TIME_FORMAT));
+    };
+    DateTimeGroupSynchronizer.prototype.updateEndDate = function () {
+        var newStartDate = this.dateInputToMoment(this.$startDateInput);
+        var startDateDaysIncrement = newStartDate.diff(this.previousStartDate, "days");
+        var newEndDate = this.dateInputToMoment(this.$endDateInput)
+            .add(startDateDaysIncrement, "days");
+        this.setDateInputToMoment(this.$endDateInput, newEndDate);
+        this.previousStartDate = newStartDate;
+    };
+    DateTimeGroupSynchronizer.prototype.updateEndTime = function () {
+        var newStartTime = this.timeInputToMoment(this.$startTimeInput);
+        var startTimeMillisIncrement = newStartTime.diff(this.previousStartTime);
+        var newEndTime = this.timeInputToMoment(this.$endTimeInput)
+            .add(startTimeMillisIncrement, "milliseconds");
+        this.setTimeInputToMoment(this.$endTimeInput, newEndTime);
+        this.previousStartTime = newStartTime;
+    };
+    return DateTimeGroupSynchronizer;
+}());
+function init($startDateInput, $endDateInput, $startTimeInput, $endTimeInput) {
+    new DateTimeGroupSynchronizer($startDateInput, $endDateInput, $startTimeInput, $endTimeInput);
+}
+exports.init = init;
+
+},{}],5:[function(require,module,exports){
+/// <reference path="./moment_modified.d.ts" />
+"use strict";
+var DateTimeGroupSynchronizer = require("./date-time-group-synchronizer");
 // Module-scope variables:
 var $topContainer;
 var doneCallback;
@@ -294,6 +355,11 @@ function addSubTaskFieldset(subTask) {
     $removeButton.click(function (event) {
         $newFieldSet.remove();
     });
+    var $startDateInput = $newFieldSet.find(".deadline-editor-form-subtask-start-date-input");
+    var $endDateInput = $newFieldSet.find(".deadline-editor-form-subtask-end-date-input");
+    var $startTimeInput = $newFieldSet.find(".deadline-editor-form-subtask-start-time-input");
+    var $endTimeInput = $newFieldSet.find(".deadline-editor-form-subtask-end-time-input");
+    DateTimeGroupSynchronizer.init($startDateInput, $endDateInput, $startTimeInput, $endTimeInput);
     var $addButton = $topContainer.find(".deadline-editor-form-subtask-add-button");
     $addButton.before($newFieldSet);
 }
@@ -347,7 +413,7 @@ function init($targetContainer, deadlineJson, doneCallbackParam) {
 }
 exports.init = init;
 
-},{}],5:[function(require,module,exports){
+},{"./date-time-group-synchronizer":4}],6:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 var item_1 = require("./item");
@@ -367,7 +433,7 @@ function init($targetContainer, deadline, mainModel) {
 }
 exports.init = init;
 
-},{"./deadline-editor":4,"./item":8,"./main":9}],6:[function(require,module,exports){
+},{"./deadline-editor":5,"./item":9,"./main":10}],7:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 var item_1 = require("./item");
@@ -387,7 +453,7 @@ function init($targetContainer, task, mainModel) {
 }
 exports.init = init;
 
-},{"./item":8,"./main":9,"./task-editor":11}],7:[function(require,module,exports){
+},{"./item":9,"./main":10,"./task-editor":12}],8:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
@@ -635,7 +701,7 @@ function init($targetContainer, indexModel, mainModel) {
 }
 exports.init = init;
 
-},{"./main":9}],8:[function(require,module,exports){
+},{"./main":10}],9:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
@@ -871,7 +937,7 @@ var DeadlineSerializer = (function () {
 }());
 exports.DeadlineSerializer = DeadlineSerializer;
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 var AddTask = require("./add-task");
 var EditTask = require("./edit-task");
@@ -1117,7 +1183,7 @@ function main() {
 }
 $(document).ready(main);
 
-},{"./add-deadline":1,"./add-task":2,"./calendar":3,"./edit-deadline":5,"./edit-task":6,"./index":7,"./item":8,"./nav":10}],10:[function(require,module,exports){
+},{"./add-deadline":1,"./add-task":2,"./calendar":3,"./edit-deadline":6,"./edit-task":7,"./index":8,"./item":9,"./nav":11}],11:[function(require,module,exports){
 "use strict";
 var main = require("./main");
 // Module-scope variables:
@@ -1171,9 +1237,10 @@ function init($targetContainer, mainModel) {
 }
 exports.init = init;
 
-},{"./main":9}],11:[function(require,module,exports){
+},{"./main":10}],12:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
+var DateTimeGroupSynchronizer = require("./date-time-group-synchronizer");
 var TaskEditor = (function () {
     function TaskEditor($targetContainer, taskJSON, doneCallback) {
         var _this = this;
@@ -1182,6 +1249,11 @@ var TaskEditor = (function () {
         var form = this.$topContainer.find(".task-editor-form");
         form.off(); // remove event handlers from previous TaskEditor, if any
         form.on("submit", function (event) { return _this.onFormSubmit(event, doneCallback); });
+        var $startDateInput = this.$topContainer.find(".task-editor-form-start-date-input");
+        var $endDateInput = this.$topContainer.find(".task-editor-form-end-date-input");
+        var $startTimeInput = this.$topContainer.find(".task-editor-form-start-time-input");
+        var $endTimeInput = this.$topContainer.find(".task-editor-form-end-time-input");
+        DateTimeGroupSynchronizer.init($startDateInput, $endDateInput, $startTimeInput, $endTimeInput);
     }
     TaskEditor.prototype.setFormValues = function (taskJSON) {
         this.$topContainer.find(".task-editor-form-title-input").val(taskJSON.title);
@@ -1227,4 +1299,4 @@ var TaskEditor = (function () {
 }());
 exports.TaskEditor = TaskEditor;
 
-},{}]},{},[9]);
+},{"./date-time-group-synchronizer":4}]},{},[10]);

@@ -4,6 +4,7 @@ import { DeadlineJSONWithoutID } from "./item";
 import { SubTaskJSONWithoutID } from "./item";
 import { DeadlineSerializer } from "./item";
 import * as main from "./main"
+import * as DateTimeGroupSynchronizer from "./date-time-group-synchronizer";
 
 // Module-scope variables:
 let $topContainer: JQuery;
@@ -114,6 +115,12 @@ function addSubTaskFieldset(subTask: SubTaskJSONWithoutID)
     {
         $newFieldSet.remove();
     });
+
+    let $startDateInput: JQuery = $newFieldSet.find(".deadline-editor-form-subtask-start-date-input");
+    let $endDateInput: JQuery = $newFieldSet.find(".deadline-editor-form-subtask-end-date-input");
+    let $startTimeInput: JQuery = $newFieldSet.find(".deadline-editor-form-subtask-start-time-input");
+    let $endTimeInput: JQuery = $newFieldSet.find(".deadline-editor-form-subtask-end-time-input");
+    DateTimeGroupSynchronizer.init($startDateInput, $endDateInput, $startTimeInput, $endTimeInput);
 
     let $addButton: JQuery = $topContainer.find(".deadline-editor-form-subtask-add-button");
     $addButton.before($newFieldSet);
