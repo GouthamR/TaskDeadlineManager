@@ -25,24 +25,32 @@ var handlebars = require('express-handlebars').create(
 	defaultLayout:'main',
 	helpers:
 	{
-		// Implements sections in handlebars - for injecting content into
-		// non-body areas of the template
-		section: function(name, options)
+		// Adds to the _links array, which is used by the printLinks helper.
+		addLink: function(options)
 		{
-			if(!this._sections)
+			var newLink = options.fn(this);
+			if(!this._links)
 			{
-				this._sections = {};
-			}
-
-			if(!this._sections[name])
-			{
-				this._sections[name] = options.fn(this);
+				this._links = [newLink];
 			}
 			else
 			{
-				this._sections[name] += options.fn(this);
+				this._links.push(newLink);
 			}
-			return null;
+			return null; // to prevent the link from being output in the invoking file
+		},
+		// Prints the links in the _links array.
+		printLinks: function(options)
+		{
+			var linksText = "";
+			if(this._links)
+			{
+				this._links.forEach(function(currLink)
+				{
+					linksText += currLink;
+				}, this);
+			}
+			return linksText;
 		}
 	}
 });
