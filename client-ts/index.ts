@@ -10,21 +10,28 @@ abstract class ItemLi
 {
     private item: Item;
     private $li: JQuery;
+    private $targetUl: JQuery;
     private removeFromServer: () => void;
     private updateOnServer: () => void;
 
+    // Note that the constructor does NOT automatically append the Li to the $targetUl.
+    // appendToUl() must be called to do this,
     public constructor(item: Item, $targetUl: JQuery, 
                         removeFromServer: () => void,
                         updateOnServer: () => void)
     {
         this.item = item;
         this.$li = $("<li>");
+        this.$targetUl = $targetUl;
         this.removeFromServer = removeFromServer;
         this.updateOnServer = updateOnServer;
 
         this.fillLiForNormalMode();
+    }
 
-        $targetUl.append(this.$li);
+    public appendToUl(): void
+    {
+        this.$targetUl.append(this.$li);
     }
 
     public getItem(): Item { return this.item; }
@@ -123,18 +130,22 @@ class SubTaskLi extends ItemLi
 
     public constructor(subTask: SubTask, $targetUl: JQuery,
                         deadline: Deadline, mainModel: main.MainModel,
-                        indexModel: main.IndexModel,
-                        animateOutDeadlineLi: () => void)
+                        indexModel: main.IndexModel)
     {
         super(subTask as Item, $targetUl,
                 () => this.removeSubTaskFromServer(mainModel),
                 () => mainModel.updateDeadlineOnServer(deadline));
 
         this.deadline = deadline;
-        this.animateOutDeadlineLi = animateOutDeadlineLi;
+        this.animateOutDeadlineLi = undefined;
         this.removeDeadlineFromServer = () => indexModel.removeDeadlineFromServer(deadline);
         this.indexModel = indexModel;
         this.mainModel = mainModel;
+    }
+
+    public setAnimateOutDeadlineLi(animateOutDeadlineLi: () => void): void
+    {
+        this.animateOutDeadlineLi = animateOutDeadlineLi;
     }
 
     private removeSubTaskFromServer(mainModel: main.MainModel): void
@@ -153,6 +164,11 @@ class SubTaskLi extends ItemLi
     // Override
     protected onMarkDoneClicked(event: JQueryEventObject): void
     {
+        if(!this.animateOutDeadlineLi)
+        {
+            throw new Error("SubTaskLi: setanimateOutDeadlineLi not set");
+        }
+
         super.onMarkDoneClicked(event); // calls removeSubTaskFromServer
 
         if(this.deadline.isDone())
@@ -171,22 +187,26 @@ class SubTaskLi extends ItemLi
 
 class DeadlineLi extends ItemLi
 {
-    private animateOutSubtaskLis: () => void;
+    private animateOutSubtaskLis: (() => void) [];
     private indexModel: main.IndexModel;
     private mainModel: main.MainModel;
 
     public constructor(deadline: Deadline, $targetUl: JQuery,
                         mainModel: main.MainModel,
-                        indexModel: main.IndexModel,
-                        animateOutSubtaskLis: () => void)
+                        indexModel: main.IndexModel)
     {
         super(deadline as Item, $targetUl,
                 () => indexModel.removeDeadlineFromServer(deadline),
                 () => mainModel.updateDeadlineOnServer(deadline));
 
-        this.animateOutSubtaskLis = animateOutSubtaskLis;
+        this.animateOutSubtaskLis = [];
         this.indexModel = indexModel;
         this.mainModel = mainModel;
+    }
+
+    public addAnimateOutSubtaskLi(animateOutSubtaskLi: () => void): void
+    {
+        this.animateOutSubtaskLis.push(animateOutSubtaskLi);
     }
 
     // Override
@@ -194,7 +214,10 @@ class DeadlineLi extends ItemLi
     {
         super.onMarkDoneClicked(event); // calls removeDeadlineFromServer
 
-        this.animateOutSubtaskLis();
+        for(let animateOutSubtaskLi of this.animateOutSubtaskLis)
+        {
+            animateOutSubtaskLi();
+        }
     }
 
     // Override
@@ -202,49 +225,6 @@ class DeadlineLi extends ItemLi
     {
         this.indexModel.initEditDeadline(this.getItem() as Deadline);
         this.mainModel.switchToView(main.View.EditDeadline);
-    }
-}
-
-class DeadlineAndSubTaskLiManager
-{
-    private deadlineLi: DeadlineLi;
-    private subTaskLis: SubTaskLi[];
-
-    public constructor(deadline: Deadline, $targetDeadlineUl: JQuery,
-                        $targetSubTaskUl: JQuery, mainModel: main.MainModel,
-                        indexModel: main.IndexModel)
-    {
-        this.deadlineLi = new DeadlineLi(deadline, $targetDeadlineUl,
-                                            mainModel, indexModel,
-                                            () => this.animateOutSubtaskLis());
-
-        this.subTaskLis = [];
-        for(let subTask of deadline.getUnfinishedSubTasks())
-        {
-            if(subTask.occursToday())
-            {
-                let subTaskLi: SubTaskLi = new SubTaskLi(subTask, 
-                                                            $targetSubTaskUl,
-                                                            deadline,
-                                                            mainModel,
-                                                            indexModel,
-                                                            () => this.animateOutDeadlineLi());
-                this.subTaskLis.push(subTaskLi);
-            }
-        }
-    }
-
-    private animateOutSubtaskLis()
-    {
-        for(let subTaskLi of this.subTaskLis)
-        {
-            subTaskLi.animateOutOfView();
-        }
-    }
-
-    private animateOutDeadlineLi()
-    {
-        this.deadlineLi.animateOutOfView();
     }
 }
 
@@ -334,19 +314,52 @@ class View
         let $taskUl: JQuery = this.$indexContainer.find(".index-task-container ul");
         let $deadlineUl: JQuery = this.$indexContainer.find(".index-deadline-container ul");
 
+        let taskLis: ItemLi[] = [];
+        let deadlineLis: DeadlineLi[] = [];
+
         for(let task of tasks)
         {
             if(task.occursToday())
             {
-                new TaskLi(task, $taskUl, this.indexModel, this.mainModel);
+                taskLis.push(new TaskLi(task, $taskUl, this.indexModel, this.mainModel));
             }
         }
 
         for(let deadline of deadlines)
         {
-            new DeadlineAndSubTaskLiManager(deadline, $deadlineUl, $taskUl, this.mainModel, this.indexModel);
+            let deadlineLi: DeadlineLi = new DeadlineLi(deadline, $deadlineUl,
+                                                        this.mainModel, this.indexModel);
+            
+            deadlineLis.push(deadlineLi);
+
+            for(let subTask of deadline.getUnfinishedSubTasks())
+            {
+                if(subTask.occursToday())
+                {
+                    let subTaskLi: SubTaskLi = new SubTaskLi(subTask, $taskUl, deadline,
+                                                                this.mainModel, this.indexModel);
+                    subTaskLi.setAnimateOutDeadlineLi(() => deadlineLi.animateOutOfView());
+                    deadlineLi.addAnimateOutSubtaskLi(() => subTaskLi.animateOutOfView());
+
+                    taskLis.push(subTaskLi);
+                }
+            }
         }
-        
+
+        let sortFunction: (a: ItemLi, b: ItemLi) => number = (a, b) => moment(a.getItem().getStart()).diff(b.getItem().getStart());
+        taskLis.sort(sortFunction);
+        deadlineLis.sort(sortFunction);
+
+        for(let taskLi of taskLis)
+        {
+            taskLi.appendToUl();
+        }
+
+        for(let deadlineLi of deadlineLis)
+        {
+            deadlineLi.appendToUl();
+        }
+
         this.removeTaskViewLoadingText(); // only remove after loading deadlines because deadlines may contain subtasks
         this.removeDeadlineViewLoadingText();
     }
