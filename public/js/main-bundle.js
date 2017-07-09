@@ -535,20 +535,43 @@ var TaskLi = (function (_super) {
     };
     return TaskLi;
 }(ItemLi));
+var DeadlineAndSubTaskLiManager = (function () {
+    function DeadlineAndSubTaskLiManager() {
+        this.deadlineLi = undefined;
+        this.subTaskLis = [];
+    }
+    DeadlineAndSubTaskLiManager.prototype.registerDeadlineLi = function (deadlineLi) {
+        this.deadlineLi = deadlineLi;
+    };
+    DeadlineAndSubTaskLiManager.prototype.registerSubTaskLi = function (subTaskLi) {
+        this.subTaskLis.push(subTaskLi);
+    };
+    DeadlineAndSubTaskLiManager.prototype.animateOutDeadlineLi = function () {
+        if (!this.deadlineLi) {
+            throw new Error("DeadlineAndSubTaskLiManager: deadlineLi not registered");
+        }
+        this.deadlineLi.animateOutOfView();
+    };
+    DeadlineAndSubTaskLiManager.prototype.animateOutSubTaskLis = function () {
+        for (var _i = 0, _a = this.subTaskLis; _i < _a.length; _i++) {
+            var subTaskLi = _a[_i];
+            subTaskLi.animateOutOfView();
+        }
+    };
+    return DeadlineAndSubTaskLiManager;
+}());
 var SubTaskLi = (function (_super) {
     __extends(SubTaskLi, _super);
-    function SubTaskLi(subTask, $targetUl, deadline, mainModel, indexModel) {
+    function SubTaskLi(subTask, $targetUl, deadline, mainModel, indexModel, deadlineAndSubTaskLiManager) {
         var _this = _super.call(this, subTask, $targetUl, function () { return _this.removeSubTaskFromServer(mainModel); }, function () { return mainModel.updateDeadlineOnServer(deadline); }) || this;
         _this.deadline = deadline;
-        _this.animateOutDeadlineLi = undefined;
+        _this.deadlineAndSubTaskLiManager = deadlineAndSubTaskLiManager;
+        _this.deadlineAndSubTaskLiManager.registerSubTaskLi(_this);
         _this.removeDeadlineFromServer = function () { return indexModel.removeDeadlineFromServer(deadline); };
         _this.indexModel = indexModel;
         _this.mainModel = mainModel;
         return _this;
     }
-    SubTaskLi.prototype.setAnimateOutDeadlineLi = function (animateOutDeadlineLi) {
-        this.animateOutDeadlineLi = animateOutDeadlineLi;
-    };
     SubTaskLi.prototype.removeSubTaskFromServer = function (mainModel) {
         var subTask = this.getItem();
         subTask.markAsDone();
@@ -559,12 +582,9 @@ var SubTaskLi = (function (_super) {
     };
     // Override
     SubTaskLi.prototype.onMarkDoneClicked = function (event) {
-        if (!this.animateOutDeadlineLi) {
-            throw new Error("SubTaskLi: setanimateOutDeadlineLi not set");
-        }
         _super.prototype.onMarkDoneClicked.call(this, event); // calls removeSubTaskFromServer
         if (this.deadline.isDone()) {
-            this.animateOutDeadlineLi();
+            this.deadlineAndSubTaskLiManager.animateOutDeadlineLi();
         }
     };
     // Override
@@ -576,23 +596,18 @@ var SubTaskLi = (function (_super) {
 }(ItemLi));
 var DeadlineLi = (function (_super) {
     __extends(DeadlineLi, _super);
-    function DeadlineLi(deadline, $targetUl, mainModel, indexModel) {
+    function DeadlineLi(deadline, $targetUl, mainModel, indexModel, deadlineAndSubTaskLiManager) {
         var _this = _super.call(this, deadline, $targetUl, function () { return indexModel.removeDeadlineFromServer(deadline); }, function () { return mainModel.updateDeadlineOnServer(deadline); }) || this;
-        _this.animateOutSubtaskLis = [];
         _this.indexModel = indexModel;
         _this.mainModel = mainModel;
+        _this.deadlineAndSubTaskLiManager = deadlineAndSubTaskLiManager;
+        _this.deadlineAndSubTaskLiManager.registerDeadlineLi(_this);
         return _this;
     }
-    DeadlineLi.prototype.addAnimateOutSubtaskLi = function (animateOutSubtaskLi) {
-        this.animateOutSubtaskLis.push(animateOutSubtaskLi);
-    };
     // Override
     DeadlineLi.prototype.onMarkDoneClicked = function (event) {
         _super.prototype.onMarkDoneClicked.call(this, event); // calls removeDeadlineFromServer
-        for (var _i = 0, _a = this.animateOutSubtaskLis; _i < _a.length; _i++) {
-            var animateOutSubtaskLi = _a[_i];
-            animateOutSubtaskLi();
-        }
+        this.deadlineAndSubTaskLiManager.animateOutSubTaskLis();
     };
     // Override
     DeadlineLi.prototype.onOpenSettingsClicked = function (event) {
@@ -665,36 +680,28 @@ var View = (function () {
                 taskLis.push(new TaskLi(task, $taskUl, this.indexModel, this.mainModel));
             }
         }
-        var _loop_1 = function (deadline) {
-            var deadlineLi = new DeadlineLi(deadline, $deadlineUl, this_1.mainModel, this_1.indexModel);
-            deadlineLis.push(deadlineLi);
-            var _loop_2 = function (subTask) {
-                if (subTask.occursToday()) {
-                    var subTaskLi_1 = new SubTaskLi(subTask, $taskUl, deadline, this_1.mainModel, this_1.indexModel);
-                    subTaskLi_1.setAnimateOutDeadlineLi(function () { return deadlineLi.animateOutOfView(); });
-                    deadlineLi.addAnimateOutSubtaskLi(function () { return subTaskLi_1.animateOutOfView(); });
-                    taskLis.push(subTaskLi_1);
-                }
-            };
-            for (var _i = 0, _a = deadline.getUnfinishedSubTasks(); _i < _a.length; _i++) {
-                var subTask = _a[_i];
-                _loop_2(subTask);
-            }
-        };
-        var this_1 = this;
+        var deadlineAndSubTaskLiManager = new DeadlineAndSubTaskLiManager();
         for (var _a = 0, deadlines_1 = deadlines; _a < deadlines_1.length; _a++) {
             var deadline = deadlines_1[_a];
-            _loop_1(deadline);
+            var deadlineLi = new DeadlineLi(deadline, $deadlineUl, this.mainModel, this.indexModel, deadlineAndSubTaskLiManager);
+            deadlineLis.push(deadlineLi);
+            for (var _b = 0, _c = deadline.getUnfinishedSubTasks(); _b < _c.length; _b++) {
+                var subTask = _c[_b];
+                if (subTask.occursToday()) {
+                    var subTaskLi = new SubTaskLi(subTask, $taskUl, deadline, this.mainModel, this.indexModel, deadlineAndSubTaskLiManager);
+                    taskLis.push(subTaskLi);
+                }
+            }
         }
         var sortFunction = function (a, b) { return moment(a.getItem().getStart()).diff(b.getItem().getStart()); };
         taskLis.sort(sortFunction);
         deadlineLis.sort(sortFunction);
-        for (var _b = 0, taskLis_1 = taskLis; _b < taskLis_1.length; _b++) {
-            var taskLi = taskLis_1[_b];
+        for (var _d = 0, taskLis_1 = taskLis; _d < taskLis_1.length; _d++) {
+            var taskLi = taskLis_1[_d];
             taskLi.appendToUl();
         }
-        for (var _c = 0, deadlineLis_1 = deadlineLis; _c < deadlineLis_1.length; _c++) {
-            var deadlineLi = deadlineLis_1[_c];
+        for (var _e = 0, deadlineLis_1 = deadlineLis; _e < deadlineLis_1.length; _e++) {
+            var deadlineLi = deadlineLis_1[_e];
             deadlineLi.appendToUl();
         }
         this.removeTaskViewLoadingText(); // only remove after loading deadlines because deadlines may contain subtasks
