@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "An app to help manage associated tasks and deadlines.",
   "main": "app.js",
+  "engines": {
+    "node": "6.11.1"
+  },
   "scripts": {
     "start": "node app.js",
     "build": "tsc && browserify client-ts/main.js -o public/js/main-bundle.js && handlebars views/templates/ -f public/js/handlebars-templates.js"
