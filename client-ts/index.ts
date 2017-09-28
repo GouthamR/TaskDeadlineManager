@@ -271,7 +271,8 @@ class View
         $addDeadlineButton.click((event: JQueryEventObject) => this.mainModel.switchToView(main.View.AddDeadline));
 
         let $helloHeading = this.$indexContainer.find(".index-name-heading");
-        $helloHeading.html("Hello, " + this.mainModel.getUserName());
+        this.mainModel.loadUserName((n) => $helloHeading.html("Hello, " + n),
+                                    (e) => this.showLoadError(e));
     }
 
     private clearAndShowLoadingOnContainer($container: JQuery): void
@@ -320,15 +321,20 @@ class View
         this.removeLoadingText($deadlineContainer);
     }
 
+    private showLoadError(errorMessage: string): void
+    {
+        let $indexErrorContainer = this.$indexContainer.find(".index-error-container");
+        $indexErrorContainer.append($("<p>").html(errorMessage));
+        $indexErrorContainer.removeClass("hidden");
+    }
+
     // Note: appends error after any existing errors.
-    public showLoadError(errorMessage: string): void
+    public showItemLoadError(errorMessage: string): void
     {
         console.log("loadError!");
         this.removeTaskViewLoadingText();
         this.removeDeadlineViewLoadingText();
-        let $indexErrorContainer = this.$indexContainer.find(".index-error-container");
-        $indexErrorContainer.append($("<p>").html(errorMessage));
-        $indexErrorContainer.removeClass("hidden");
+        this.showLoadError(errorMessage);
     }
 
     public loadView(tasks: Task[], deadlines: Deadline[]): void

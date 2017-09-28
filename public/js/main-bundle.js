@@ -627,7 +627,7 @@ var View = (function () {
         var $addDeadlineButton = this.$indexContainer.find(".index-deadline-container > a");
         $addDeadlineButton.click(function (event) { return _this.mainModel.switchToView(main.View.AddDeadline); });
         var $helloHeading = this.$indexContainer.find(".index-name-heading");
-        $helloHeading.html("Hello, " + this.mainModel.getUserName());
+        this.mainModel.loadUserName(function (n) { return $helloHeading.html("Hello, " + n); }, function (e) { return _this.showLoadError(e); });
     }
     View.prototype.clearAndShowLoadingOnContainer = function ($container) {
         var $ul = $container.find("ul");
@@ -659,14 +659,17 @@ var View = (function () {
         var $deadlineContainer = this.$indexContainer.find(".index-deadline-container");
         this.removeLoadingText($deadlineContainer);
     };
-    // Note: appends error after any existing errors.
     View.prototype.showLoadError = function (errorMessage) {
-        console.log("loadError!");
-        this.removeTaskViewLoadingText();
-        this.removeDeadlineViewLoadingText();
         var $indexErrorContainer = this.$indexContainer.find(".index-error-container");
         $indexErrorContainer.append($("<p>").html(errorMessage));
         $indexErrorContainer.removeClass("hidden");
+    };
+    // Note: appends error after any existing errors.
+    View.prototype.showItemLoadError = function (errorMessage) {
+        console.log("loadError!");
+        this.removeTaskViewLoadingText();
+        this.removeDeadlineViewLoadingText();
+        this.showLoadError(errorMessage);
     };
     View.prototype.loadView = function (tasks, deadlines) {
         this.clearAndShowLoading();
@@ -1025,7 +1028,7 @@ var MainModel = (function () {
             index.reloadFromServer();
         }
     };
-    MainModel.prototype.loadItemDataFromServer = function (route, onSuccess, onFailure) {
+    MainModel.prototype.loadJSONFromServer = function (route, onSuccess, onFailure) {
         $.getJSON(route)
             .done(function (data, textStatus, jqXHR) {
             onSuccess(data);
@@ -1048,7 +1051,7 @@ var MainModel = (function () {
             console.log(tasks);
             onSuccess(tasks);
         }
-        this.loadItemDataFromServer("/load-tasks", onLoadSuccess, onFailure);
+        this.loadJSONFromServer("/load-tasks", onLoadSuccess, onFailure);
     };
     MainModel.prototype.loadDeadlinesFromServer = function (onSuccess, onFailure) {
         function onLoadSuccess(data) {
@@ -1061,7 +1064,7 @@ var MainModel = (function () {
             console.log(deadlines);
             onSuccess(deadlines);
         }
-        this.loadItemDataFromServer("/load-deadlines", onLoadSuccess, onFailure);
+        this.loadJSONFromServer("/load-deadlines", onLoadSuccess, onFailure);
     };
     MainModel.prototype.loadTasksAndDeadlinesFromServer = function (onSuccess, onFailure) {
         var isTasksLoaded = false;
@@ -1132,8 +1135,8 @@ var MainModel = (function () {
             console.log(errorDetails);
         });
     };
-    MainModel.prototype.getUserName = function () {
-        return "Goutham";
+    MainModel.prototype.loadUserName = function (onSuccess, onFailure) {
+        this.loadJSONFromServer('/user/name', function (n) { return onSuccess(n); }, function (e) { return onFailure(e); });
     };
     return MainModel;
 }());

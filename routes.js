@@ -30,6 +30,17 @@ var config = function(app, db)
 		response.render("main");
 	});
 
+	app.get('/user/name', function(request, response)
+	{
+		db.collection("users", function(collection_error, collection)
+		{
+			collection.findOne({}, {}, function(find_err, doc)
+			{
+				response.json(doc.name);
+			});
+		});
+	});
+
 	// Response: TaskJSON[]
 	app.get('/load-tasks', function(request, response)
 	{

@@ -72,8 +72,8 @@ export class MainModel
 	}
 
 
-	private loadItemDataFromServer(route: string, onSuccess: (data) => void, 
-										onFailure: (errorDetails: string) => void): void
+	private loadJSONFromServer(route: string, onSuccess: (data) => void, 
+								onFailure: (errorDetails: string) => void): void
 	{
 		$.getJSON(route)
 	    .done(function(data, textStatus: string, jqXHR: JQueryXHR)
@@ -104,7 +104,7 @@ export class MainModel
 		    onSuccess(tasks);
 		}
 
-		this.loadItemDataFromServer("/load-tasks", onLoadSuccess, onFailure);
+		this.loadJSONFromServer("/load-tasks", onLoadSuccess, onFailure);
 	}
 
 	private loadDeadlinesFromServer(onSuccess: (deadlines: Deadline[]) => void, 
@@ -122,7 +122,7 @@ export class MainModel
 		    onSuccess(deadlines);
 		}
 
-		this.loadItemDataFromServer("/load-deadlines", onLoadSuccess, onFailure);
+		this.loadJSONFromServer("/load-deadlines", onLoadSuccess, onFailure);
 	}
 
 	public loadTasksAndDeadlinesFromServer(onSuccess: (tasks: Task[], deadlines: Deadline[]) => any,
@@ -225,9 +225,10 @@ export class MainModel
 		});
 	}
 
-	public getUserName(): string
+	public loadUserName(onSuccess: (name: string) => void,
+						onFailure: (errorDetails: string) => void): void
 	{
-		return "Goutham";
+		this.loadJSONFromServer('/user/name', (n) => onSuccess(n), (e) => onFailure(e));
 	}
 }
 
