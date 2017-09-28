@@ -6,17 +6,20 @@ var convertIdToMongoObjectId = function(json)
 	return json;
 };
 
-var deadlineJSONWithoutIDToDeadlineJSON = function(deadlineJSONWithoutID)
+var addIDToJSON = function(jsonWithoutID)
 {
-	var deadlineJSON = deadlineJSONWithoutID;
-	deadlineJSON._id = new mongodb.ObjectId();
-	for (var i = 0; i < deadlineJSON.subTasks.length; i++)
+	jsonWithoutID._id = new mongodb.ObjectID();
+};
+
+var addIDToDeadlineJSON = function(deadlineJSONWithoutID)
+{
+	addIDToJSON(deadlineJSONWithoutID);
+	for (var i = 0; i < deadlineJSONWithoutID.subTasks.length; i++)
 	{
-		deadlineJSON.subTasks[i].deadlineId = deadlineJSON._id;
-		deadlineJSON.subTasks[i]._id = new mongodb.ObjectId();
-	};
-	return deadlineJSON;
-}
+		deadlineJSONWithoutID.subTasks[i].deadlineId = deadlineJSONWithoutID._id;
+		addIDToJSON(deadlineJSONWithoutID.subTasks[i]);
+	}
+};
 
 // STUB (does not handle mongodb errors):
 
@@ -30,26 +33,26 @@ var config = function(app, db)
 	// Response: TaskJSON[]
 	app.get('/load-tasks', function(request, response)
 	{
-		db.collection("tasks", function(collection_error, collection)
+		db.collection("users", function(collection_error, collection)
 		{
-			collection.find().toArray(function(array_error, documents)
+			collection.findOne({}, {}, function(find_err, doc)
 			{
 				console.log("Loaded tasks:");
-				console.log(documents);
-				response.json(documents);
+				console.log(doc.tasks);
+				response.json(doc.tasks);
 			});
 		});
 	});
 
 	app.get('/load-deadlines', function(request, response)
 	{
-		db.collection("deadlines", function(collection_error, collection)
+		db.collection("users", function(collection_error, collection)
 		{
-			collection.find().toArray(function(array_error, documents)
+			collection.findOne({}, {}, function(find_err, doc)
 			{
 				console.log("Loaded deadlines:");
-				console.log(documents);
-				response.json(documents);
+				console.log(doc.deadlines);
+				response.json(doc.deadlines);
 			});
 		});
 	});
@@ -58,13 +61,13 @@ var config = function(app, db)
 	app.post('/add-task', function(request, response)
 	{
 		var taskObject = request.body;
+		addIDToJSON(taskObject);
 		console.log("Task to add: ")
 		console.log(taskObject);
-		
-		db.collection("tasks", function(collection_error, collection)
+
+		db.collection("users", function(collection_error, collection)
 		{
-			// insertion automatically adds _id field
-			collection.insert(taskObject, {}, function(insert_error, result)
+			collection.updateOne({}, {$push: {tasks: taskObject}}, {}, function(err, result)
 			{
 				response.json(result);
 			});
@@ -74,20 +77,20 @@ var config = function(app, db)
 	// Argument: DeadlineJSONWithoutID
 	app.post('/add-deadline', function(request, response)
 	{
-		var deadlineObjWithoutId = request.body;
+		var deadlineJSON = request.body;
 		// since an empty array on the client side is passed in the request as undefined, reassign:
-		if(deadlineObjWithoutId.subTasks == undefined)
+		if(deadlineJSON.subTasks == undefined)
 		{
-			deadlineObjWithoutId.subTasks = [];
+			deadlineJSON.subTasks = [];
 		}
-
-		console.log("Deadline to add: ")
-		console.log(deadlineObjWithoutId);
 		
-		db.collection("deadlines", function(collection_error, collection)
+		addIDToDeadlineJSON(deadlineJSON);
+		console.log("Deadline to add: ")
+		console.log(deadlineJSON);
+		
+		db.collection("users", function(collection_error, collection)
 		{
-			var deadlineJSON = deadlineJSONWithoutIDToDeadlineJSON(deadlineObjWithoutId);
-			collection.insert(deadlineJSON, {}, function(insert_error, result)
+			collection.updateOne({}, {$push: {deadlines: deadlineJSON}}, {}, function(err, result)
 			{
 				response.json(result);
 			});
@@ -101,27 +104,9 @@ var config = function(app, db)
 		console.log("Task to update: ")
 		console.log(taskJSON);
 
-		db.collection("tasks", function(collection_error, collection)
+		db.collection("users", function(collection_error, collection)
 		{
-			collection.findOneAndReplace({"_id": taskJSON._id}, taskJSON, {}, 
-											function(replace_error, result)
-			{
-				response.json(result);
-			});
-		});
-	});
-
-	// Argument: TaskJSON
-	app.post('/delete-task', function(request, response)
-	{
-		var taskJSON = convertIdToMongoObjectId(request.body);
-		console.log("Task to delete: ")
-		console.log(taskJSON);
-
-		db.collection("tasks", function(collection_error, collection)
-		{
-			collection.remove({"_id": taskJSON._id}, {}, 
-								function(remove_error, result)
+			collection.updateOne({"tasks._id": taskJSON._id}, {$set: {"tasks.$": taskJSON}}, {}, function(err, result)
 			{
 				response.json(result);
 			});
@@ -135,10 +120,25 @@ var config = function(app, db)
 		console.log("Deadline to update: ")
 		console.log(deadlineJSON);
 
-		db.collection("deadlines", function(collection_error, collection)
+		db.collection("users", function(collection_error, collection)
 		{
-			collection.findOneAndReplace({"_id": deadlineJSON._id}, deadlineJSON, {}, 
-											function(replace_error, result)
+			collection.updateOne({"deadlines._id": deadlineJSON._id}, {$set: {"deadlines.$": deadlineJSON}}, {}, function(err, result)
+			{
+				response.json(result);
+			});
+		});
+	});
+
+	// Argument: TaskJSON
+	app.post('/delete-task', function(request, response)
+	{
+		var taskJSON = convertIdToMongoObjectId(request.body);
+		console.log("Task to delete: ")
+		console.log(taskJSON);
+
+		db.collection("users", function(collection_error, collection)
+		{
+			collection.updateOne({}, {$pull: {tasks: {_id: taskJSON._id}}}, {}, function(err, result)
 			{
 				response.json(result);
 			});
@@ -152,10 +152,9 @@ var config = function(app, db)
 		console.log("Deadline to delete: ")
 		console.log(deadlineJSON);
 
-		db.collection("deadlines", function(collection_error, collection)
+		db.collection("users", function(collection_error, collection)
 		{
-			collection.remove({"_id": deadlineJSON._id}, {}, 
-								function(remove_error, result)
+			collection.updateOne({}, {$pull: {deadlines: {_id: deadlineJSON._id}}}, {}, function(err, result)
 			{
 				response.json(result);
 			});
