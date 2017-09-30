@@ -121,6 +121,7 @@
 
 @media (max-width: 768px) {
     .index .index-taskdeadline-container {
+        height: calc(200vh - 8em);
         flex-direction: column;
     }
 
