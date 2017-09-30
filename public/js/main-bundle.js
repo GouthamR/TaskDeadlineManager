@@ -171,8 +171,6 @@ function getEventsFromServer(start, end, timezone, callback) {
 }
 function onEventChanged(event, delta, revertFunc, jsEvent, ui, view) {
     var itemEvent = event;
-    console.log("Event changed: ");
-    console.log(itemEvent);
     itemEvent.updateItemToMatchEvent();
     itemEvent.updateItemOnServer();
 }
@@ -196,7 +194,6 @@ function initFullCalendar() {
     removeLoading();
 }
 function reloadCalendar() {
-    console.log("Reloading calendar");
     var $fullCalendar = $calendarContainer.find(".calendar-fullcalendar");
     $fullCalendar.fullCalendar("refetchEvents");
 }
@@ -478,7 +475,6 @@ var ItemLi = (function () {
     };
     ItemLi.prototype.getItem = function () { return this.item; };
     ItemLi.prototype.onMarkDoneClicked = function (event) {
-        console.log(this.item.getTitle() + " removed");
         this.removeFromServer();
         this.animateOutOfView();
     };
@@ -493,7 +489,6 @@ var ItemLi = (function () {
         event.preventDefault(); // prevents form submission
         var $titleInput = this.$li.find("input[type='text']");
         this.item.setTitle($titleInput.val());
-        console.log(this.item);
         this.fillLiForNormalMode();
         this.updateOnServer();
     };
@@ -644,7 +639,6 @@ var View = (function () {
         this.clearAndShowLoadingOnContainer($deadlineContainer);
     };
     View.prototype.clearAndShowLoading = function () {
-        console.log("clearViewAndShowLoading");
         this.clearAndShowLoadingTasks();
         this.clearAndShowLoadingDeadlines();
     };
@@ -666,7 +660,6 @@ var View = (function () {
     };
     // Note: appends error after any existing errors.
     View.prototype.showItemLoadError = function (errorMessage) {
-        console.log("loadError!");
         this.removeTaskViewLoadingText();
         this.removeDeadlineViewLoadingText();
         this.showLoadError(errorMessage);
@@ -1048,7 +1041,6 @@ var MainModel = (function () {
                 var task = taskSerializer.fromJSON(taskJson);
                 tasks.push(task);
             }
-            console.log(tasks);
             onSuccess(tasks);
         }
         this.loadJSONFromServer("/load-tasks", onLoadSuccess, onFailure);
@@ -1061,7 +1053,6 @@ var MainModel = (function () {
                 var i = data_2[_i];
                 deadlines.push(deadlineSerializer.fromJSON(i));
             }
-            console.log(deadlines);
             onSuccess(deadlines);
         }
         this.loadJSONFromServer("/load-deadlines", onLoadSuccess, onFailure);
@@ -1098,41 +1089,32 @@ var MainModel = (function () {
         var updatedJSON = new item_1.TaskSerializer().toJSON(updatedTask);
         $.post("update-task", updatedJSON)
             .done(function (data, textStatus, jqXHR) {
-            console.log("Update Task success:");
-            console.log(data);
             calendar.reloadCalendar();
         })
             .fail(function (jqXHR, textStatus, error) {
             var errorDetails = textStatus + ", " + error;
             alert("ERROR: Update Task failed.\nDetails: " + errorDetails);
-            console.log(errorDetails);
         });
     };
     MainModel.prototype.addDeadlineToServer = function (json) {
         $.post("add-deadline", json)
             .done(function (data, textStatus, jqXHR) {
-            console.log("Add Deadline success:");
-            console.log(data);
             index.reloadFromServer();
         })
             .fail(function (jqXHR, textStatus, error) {
             var errorDetails = textStatus + ", " + error;
             alert("ERROR: Add Deadline failed.\nDetails: " + errorDetails);
-            console.log(errorDetails);
         });
     };
     MainModel.prototype.updateDeadlineOnServer = function (updatedDeadline) {
         var updatedJSON = new item_2.DeadlineSerializer().toJSON(updatedDeadline);
         $.post("update-deadline", updatedJSON)
             .done(function (data, textStatus, jqXHR) {
-            console.log("Update Deadline success:");
-            console.log(data);
             calendar.reloadCalendar();
         })
             .fail(function (jqXHR, textStatus, error) {
             var errorDetails = textStatus + ", " + error;
             alert("ERROR: Update Deadline failed.\nDetails: " + errorDetails);
-            console.log(errorDetails);
         });
     };
     MainModel.prototype.loadUserName = function (onSuccess, onFailure) {
@@ -1147,27 +1129,17 @@ var IndexModel = (function () {
     IndexModel.prototype.removeDeadlineFromServer = function (deadlineToRemove) {
         var json = new item_2.DeadlineSerializer().toJSON(deadlineToRemove);
         $.post("delete-deadline", json)
-            .done(function (data, textStatus, jqXHR) {
-            console.log("Remove Deadline success:");
-            console.log(data);
-        })
             .fail(function (jqXHR, textStatus, error) {
             var errorDetails = textStatus + ", " + error;
             alert("ERROR: Remove Deadline failed.\nDetails: " + errorDetails);
-            console.log(errorDetails);
         });
     };
     IndexModel.prototype.removeTaskFromServer = function (taskToRemove) {
         var json = new item_1.TaskSerializer().toJSON(taskToRemove);
         $.post("delete-task", json)
-            .done(function (data, textStatus, jqXHR) {
-            console.log("Remove Task success:");
-            console.log(data);
-        })
             .fail(function (jqXHR, textStatus, error) {
             var errorDetails = textStatus + ", " + error;
             alert("ERROR: Remove Task failed.\nDetails: " + errorDetails);
-            console.log(errorDetails);
         });
     };
     IndexModel.prototype.initEditTask = function (task) {
@@ -1185,14 +1157,11 @@ var AddTaskModel = (function () {
     AddTaskModel.prototype.addTask = function (json) {
         $.post("add-task", json)
             .done(function (data, textStatus, jqXHR) {
-            console.log("Add Task success:");
-            console.log(data);
             index.reloadFromServer();
         })
             .fail(function (jqXHR, textStatus, error) {
             var errorDetails = textStatus + ", " + error;
             alert("ERROR: Add Task failed.\nDetails: " + errorDetails);
-            console.log(errorDetails);
         });
     };
     return AddTaskModel;
@@ -1236,11 +1205,9 @@ var Nav = (function () {
         $navContainer.find(".nav-scheduler-button").click(function (event) { return _this.onSchedulerClicked(event); });
     }
     Nav.prototype.onCalendarClicked = function (event) {
-        console.log("Nav calendar clicked");
         this.mainModel.switchToView(main.View.Calendar);
     };
     Nav.prototype.onSchedulerClicked = function (event) {
-        console.log("Nav scheduler clicked");
         this.mainModel.switchToView(main.View.Index);
     };
     Nav.prototype.toggleSidebarExpansion = function () {
