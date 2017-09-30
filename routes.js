@@ -30,6 +30,11 @@ var config = function(app, db)
 		response.render("main");
 	});
 
+	app.get('/landing', function(request, response)
+	{
+		response.render("landing");
+	});
+
 	app.get('/user/name', function(request, response)
 	{
 		db.collection("users", function(collection_error, collection)
