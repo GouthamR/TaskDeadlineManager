@@ -214,11 +214,12 @@ export class MainModel
 		});
 	}
 
-	public loadUserName(onSuccess: (name: string) => void,
-						onFailure: (errorDetails: string) => void): void
-	{
-		this.loadJSONFromServer('/user/name', (n) => onSuccess(n), (e) => onFailure(e));
-	}
+	// Name currently not displayed anywhere, so commented out:
+	// public loadUserName(onSuccess: (name: string) => void,
+	// 					onFailure: (errorDetails: string) => void): void
+	// {
+	// 	this.loadJSONFromServer('/user/name', (n) => onSuccess(n), (e) => onFailure(e));
+	// }
 }
 
 export class IndexModel

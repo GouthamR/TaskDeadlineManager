@@ -621,8 +621,6 @@ var View = (function () {
         $addTaskButton.click(function (event) { return _this.mainModel.switchToView(main.View.AddTask); });
         var $addDeadlineButton = this.$indexContainer.find(".index-deadline-container > a");
         $addDeadlineButton.click(function (event) { return _this.mainModel.switchToView(main.View.AddDeadline); });
-        var $helloHeading = this.$indexContainer.find(".index-name-heading");
-        this.mainModel.loadUserName(function (n) { return $helloHeading.html("Hello, " + n); }, function (e) { return _this.showLoadError(e); });
     }
     View.prototype.clearAndShowLoadingOnContainer = function ($container) {
         var $ul = $container.find("ul");
@@ -703,15 +701,10 @@ var View = (function () {
         this.removeTaskViewLoadingText(); // only remove after loading deadlines because deadlines may contain subtasks
         this.removeDeadlineViewLoadingText();
     };
-    View.prototype.loadDateHeading = function () {
-        var $dateHeading = this.$indexContainer.find(".index-date-heading");
-        $dateHeading.html(moment().format("MMMM Do, YYYY"));
-    };
     View.prototype.reloadFromServer = function () {
         var _this = this;
         this.clearAndShowLoading();
         this.mainModel.loadTasksAndDeadlinesFromServer(function (t, d) { return _this.loadView(t, d); }, function (e) { return _this.showLoadError(e); });
-        this.loadDateHeading(); // loads date heading on every reload in case date changes (e.g. at midnight)
     };
     return View;
 }());
@@ -1116,9 +1109,6 @@ var MainModel = (function () {
             var errorDetails = textStatus + ", " + error;
             alert("ERROR: Update Deadline failed.\nDetails: " + errorDetails);
         });
-    };
-    MainModel.prototype.loadUserName = function (onSuccess, onFailure) {
-        this.loadJSONFromServer('/user/name', function (n) { return onSuccess(n); }, function (e) { return onFailure(e); });
     };
     return MainModel;
 }());

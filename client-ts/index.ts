@@ -267,10 +267,6 @@ class View
         $addTaskButton.click((event: JQueryEventObject) => this.mainModel.switchToView(main.View.AddTask));
         let $addDeadlineButton: JQuery = this.$indexContainer.find(".index-deadline-container > a");
         $addDeadlineButton.click((event: JQueryEventObject) => this.mainModel.switchToView(main.View.AddDeadline));
-
-        let $helloHeading = this.$indexContainer.find(".index-name-heading");
-        this.mainModel.loadUserName((n) => $helloHeading.html("Hello, " + n),
-                                    (e) => this.showLoadError(e));
     }
 
     private clearAndShowLoadingOnContainer($container: JQuery): void
@@ -390,18 +386,11 @@ class View
         this.removeDeadlineViewLoadingText();
     }
 
-    private loadDateHeading(): void
-    {
-        let $dateHeading = this.$indexContainer.find(".index-date-heading");
-        $dateHeading.html(moment().format("MMMM Do, YYYY"));
-    }
-
     public reloadFromServer(): void
     {
         this.clearAndShowLoading();
         this.mainModel.loadTasksAndDeadlinesFromServer((t: Task[], d: Deadline[]) => this.loadView(t, d),
                                                         (e: string) => this.showLoadError(e));
-        this.loadDateHeading(); // loads date heading on every reload in case date changes (e.g. at midnight)
     }
 }
 
