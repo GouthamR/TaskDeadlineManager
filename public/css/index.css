@@ -49,7 +49,6 @@
 
 .index .index-taskdeadline-container {
     background-color: white;
-    min-height: 30em;
     border: solid #1a6fe6 .15em;
     margin-left: 2em;
     margin-right: 2em;
@@ -59,8 +58,8 @@
 .index .index-taskdeadline-container > div {
     width: 50%;
     height: 27em;
-    margin-top: 1.5em;
-    margin-bottom: 1.5em;
+    margin-top: 1em;
+    margin-bottom: 1em;
     background-color: #ebf0f3;
 }
 
@@ -154,24 +153,16 @@
     .index .index-taskdeadline-container {
         margin-left: 1em;
         margin-right: 1em;
-        min-height: 60em;
         flex-direction: column;
     }
 
     .index .index-taskdeadline-container > div {
-        width: 96%;
-        margin-top: 1em;
-        margin-bottom: 3em;
+        margin: 1em;
+        width: calc(100% - 2em);
         height: 26em;
     }
 
     .index .index-taskdeadline-container li {
         width: 90%;
-    }
-
-    /* need to explicitly specify individually to override individual selectors above: */
-    .index .index-task-container, .index .index-deadline-container {
-        margin-left: 2%;
-        margin-right: 2%;
     }
 }
