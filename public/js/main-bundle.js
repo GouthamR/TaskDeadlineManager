@@ -1110,6 +1110,23 @@ var MainModel = (function () {
             alert("ERROR: Update Deadline failed.\nDetails: " + errorDetails);
         });
     };
+    // Name currently not displayed anywhere, so commented out:
+    // public loadUserName(onSuccess: (name: string) => void,
+    // 					onFailure: (errorDetails: string) => void): void
+    // {
+    // 	this.loadJSONFromServer('/user/name', (n) => onSuccess(n), (e) => onFailure(e));
+    // }
+    MainModel.prototype.logout = function () {
+        $.post('/logout', {}, function (data, status, jqXHR) {
+            if (data.success) {
+                console.log('Logged out successfully');
+                window.location.href = '/';
+            }
+            else {
+                alert('Error: failed to log out.');
+            }
+        });
+    };
     return MainModel;
 }());
 exports.MainModel = MainModel;
@@ -1195,6 +1212,7 @@ var Nav = (function () {
         $navContainer.find(".nav-add-task-button").click(function (e) { return _this.mainModel.switchToView(main.View.AddTask); });
         $navContainer.find(".nav-add-deadline-button").click(function (e) { return _this.mainModel.switchToView(main.View.AddDeadline); });
         $navContainer.find(".nav-calendar-button").click(function (e) { return _this.mainModel.switchToView(main.View.Calendar); });
+        $navContainer.find(".nav-logout-button").click(function (e) { return _this.mainModel.logout(); });
     }
     Nav.prototype.toggleSidebarExpansion = function () {
         var $nav = this.$navContainer.find("nav");

@@ -1,12 +1,13 @@
 {{#addLink}}<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>{{/addLink}}
 {{#addLink}}<link rel="stylesheet" type="text/css" href="css/landing.css">{{/addLink}}
+{{#addLink}}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>{{/addLink}}
 
 <!-- body: -->
 <div class="landing">
     <div class="landing-main">
         <h1 class="landing-main-logo">GR-TDM</h1>
         <h2 class="landing-main-subtitle">Goutham R's Task and Deadline Manager</h2>
-        <a class="landing-main-google-signin" href="/"></a>
+        <a class="landing-main-google-signin"></a>
     </div>
     <div class="landing-info">
         <p class="landing-info-text">Front end written with TypeScript, jQuery, Handlebars, HTML, and CSS.</p>
@@ -17,3 +18,5 @@
         </a>
     </div>
 </div>
+<div hidden id="synchronizer-token-div">{{synchronizerToken}}</div>
+<script src="js/landing-bundle.js"></script>

@@ -220,6 +220,21 @@ export class MainModel
 	// {
 	// 	this.loadJSONFromServer('/user/name', (n) => onSuccess(n), (e) => onFailure(e));
 	// }
+
+	public logout()
+	{
+		$.post('/logout', {}, (data, status, jqXHR) => {
+			if(data.success)
+			{
+                console.log('Logged out successfully');
+                window.location.href = '/';
+			}
+			else
+			{
+                alert('Error: failed to log out.');
+            }
+        });
+	}
 }
 
 export class IndexModel

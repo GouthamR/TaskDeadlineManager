@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node app.js",
     "start-dev": "nodemon app.js",
-    "build": "tsc && browserify client-ts/main.js -o public/js/main-bundle.js && handlebars views/templates/ -f public/js/handlebars-templates.js"
+    "build": "tsc && browserify client-ts/main.js -o public/js/main-bundle.js && browserify client-ts/landing.js -o public/js/landing-bundle.js && handlebars views/templates/ -f public/js/handlebars-templates.js"
   },
   "repository": {
     "type": "git",
@@ -24,7 +24,10 @@
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
     "express-handlebars": "^3.0.0",
-    "mongodb": "^2.2.16"
+    "express-session": "^1.15.6",
+    "jsonwebtoken": "^8.0.1",
+    "mongodb": "^2.2.16",
+    "request": "^2.83.0"
   },
   "devDependencies": {
     "@types/handlebars": "^4.0.31",

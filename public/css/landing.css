@@ -62,6 +62,7 @@ body {
 
 .landing-main-google-signin:hover {
     background-image: url("../img/btn_google_signin_light_focus_web@2x.png");
+    cursor: pointer;
 }
 
 .landing-main-google-signin:active {

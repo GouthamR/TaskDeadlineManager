@@ -1,0 +1,12 @@
+{
+    "sessionSecret": "GrtdmApp_Secret_StringABCDEF",
+    "google":
+    {
+        "clientId": "569758894719-nckf3oe74csme49g49m151pdmcn1fj2e.apps.googleusercontent.com",
+        "clientSecret": "EHAak_UWPWVLbJD8hxE2T13f",
+        "authUri": "https://accounts.google.com/o/oauth2/v2/auth",
+        "tokenUri": "https://www.googleapis.com/oauth2/v4/token",
+        "revokeUri": "https://accounts.google.com/o/oauth2/revoke",
+        "redirectUri": "http://localhost:3000/google-oauth-redirect"
+    }
+}

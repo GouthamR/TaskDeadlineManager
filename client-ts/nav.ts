@@ -26,6 +26,7 @@ class Nav
         $navContainer.find(".nav-add-task-button").click((e: JQueryEventObject) => this.mainModel.switchToView(main.View.AddTask));
         $navContainer.find(".nav-add-deadline-button").click((e: JQueryEventObject) => this.mainModel.switchToView(main.View.AddDeadline));
         $navContainer.find(".nav-calendar-button").click((e: JQueryEventObject) => this.mainModel.switchToView(main.View.Calendar));
+        $navContainer.find(".nav-logout-button").click((e: JQueryEventObject) => this.mainModel.logout());
     }
 
     private toggleSidebarExpansion(): void
