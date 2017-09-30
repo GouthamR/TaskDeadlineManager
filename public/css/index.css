@@ -125,8 +125,6 @@
     }
 
     .index .index-taskdeadline-container > div {
-    }
-
-    .index .index-taskdeadline-container li {
+        width: calc(100% - 2em);
     }
 }
