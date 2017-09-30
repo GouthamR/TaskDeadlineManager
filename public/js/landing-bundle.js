@@ -10,7 +10,7 @@ function getGoogleLoginURL(onSuccess, onFailure) {
                 "client_id": responseConfig.google.clientId,
                 "redirect_uri": responseConfig.google.redirectUri,
                 "response_type": "code",
-                "scope": "https://www.googleapis.com/auth/userinfo.email",
+                "scope": "openid profile",
                 "state": getSynchronizerToken()
             });
             onSuccess(responseConfig.google.authUri + "?" + queryString);

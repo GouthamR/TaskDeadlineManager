@@ -82,7 +82,34 @@ var config = function(app, db, oauthConfig)
 					req.session.accessToken = postBodyObj.access_token;
 					req.session.expiresEpochTimeMillis = new Date().getTime() + postBodyObj.expires_in * 1000;
 					req.session.loginType = LoginType.Google;
-					req.session.email = jwt.decode(postBodyObj.id_token).email;
+					let decodedJWT = jwt.decode(postBodyObj.id_token);
+					req.session.loginId = decodedJWT.sub;
+					let name = decodedJWT.name;
+
+					db.collection("users", function(collection_error, collection)
+					{
+						collection.findOne({loginType: req.session.loginType, loginId: req.session.loginId}, {},
+											function(find_err, doc)
+						{
+							if(!doc)
+							{
+								let newDoc = 
+								{
+									loginId: req.session.loginId,
+									loginType: req.session.loginType,
+									name: name,
+									tasks: [],
+									deadlines: []
+								};
+								collection.insertOne(newDoc, {}, function(insert_err, insert_result)
+								{
+									console.log('inserted new user: ');
+									console.log(insert_result.ops);
+								});
+							}
+						});
+					});
+
 					res.redirect('/');
 				}
 			});
@@ -162,7 +189,8 @@ var config = function(app, db, oauthConfig)
 		{
 			db.collection("users", function(collection_error, collection)
 			{
-				collection.findOne({}, {}, function(find_err, doc)
+				collection.findOne({loginType: req.session.loginType, loginId: req.session.loginId}, {},
+									function(find_err, doc)
 				{
 					res.json(doc.name);
 				});
@@ -181,7 +209,8 @@ var config = function(app, db, oauthConfig)
 		{
 			db.collection("users", function(collection_error, collection)
 			{
-				collection.findOne({}, {}, function(find_err, doc)
+				collection.findOne({loginType: req.session.loginType, loginId: req.session.loginId}, {},
+									function(find_err, doc)
 				{
 					console.log("Loaded tasks:");
 					console.log(doc.tasks);
@@ -201,7 +230,8 @@ var config = function(app, db, oauthConfig)
 		{
 			db.collection("users", function(collection_error, collection)
 			{
-				collection.findOne({}, {}, function(find_err, doc)
+				collection.findOne({loginType: req.session.loginType, loginId: req.session.loginId}, {},
+									function(find_err, doc)
 				{
 					console.log("Loaded deadlines:");
 					console.log(doc.deadlines);
@@ -227,7 +257,9 @@ var config = function(app, db, oauthConfig)
 
 			db.collection("users", function(collection_error, collection)
 			{
-				collection.updateOne({}, {$push: {tasks: taskObject}}, {}, function(err, result)
+				collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId},
+										{$push: {tasks: taskObject}}, {},
+										function(err, result)
 				{
 					res.json(result);
 				});
@@ -257,7 +289,9 @@ var config = function(app, db, oauthConfig)
 			
 			db.collection("users", function(collection_error, collection)
 			{
-				collection.updateOne({}, {$push: {deadlines: deadlineJSON}}, {}, function(err, result)
+				collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId},
+										{$push: {deadlines: deadlineJSON}}, {},
+										function(err, result)
 				{
 					res.json(result);
 				});
@@ -280,7 +314,9 @@ var config = function(app, db, oauthConfig)
 
 			db.collection("users", function(collection_error, collection)
 			{
-				collection.updateOne({"tasks._id": taskJSON._id}, {$set: {"tasks.$": taskJSON}}, {}, function(err, result)
+				collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId, "tasks._id": taskJSON._id},
+										{$set: {"tasks.$": taskJSON}}, {},
+										function(err, result)
 				{
 					res.json(result);
 				});
@@ -303,7 +339,9 @@ var config = function(app, db, oauthConfig)
 
 			db.collection("users", function(collection_error, collection)
 			{
-				collection.updateOne({"deadlines._id": deadlineJSON._id}, {$set: {"deadlines.$": deadlineJSON}}, {}, function(err, result)
+				collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId, "deadlines._id": deadlineJSON._id},
+										{$set: {"deadlines.$": deadlineJSON}}, {},
+										function(err, result)
 				{
 					res.json(result);
 				});
@@ -326,7 +364,9 @@ var config = function(app, db, oauthConfig)
 
 			db.collection("users", function(collection_error, collection)
 			{
-				collection.updateOne({}, {$pull: {tasks: {_id: taskJSON._id}}}, {}, function(err, result)
+				collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId},
+										{$pull: {tasks: {_id: taskJSON._id}}}, {},
+										function(err, result)
 				{
 					res.json(result);
 				});
@@ -349,7 +389,9 @@ var config = function(app, db, oauthConfig)
 
 			db.collection("users", function(collection_error, collection)
 			{
-				collection.updateOne({}, {$pull: {deadlines: {_id: deadlineJSON._id}}}, {}, function(err, result)
+				collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId},
+										{$pull: {deadlines: {_id: deadlineJSON._id}}}, {},
+										function(err, result)
 				{
 					res.json(result);
 				});
