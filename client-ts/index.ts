@@ -38,7 +38,6 @@ abstract class ItemLi
 
     protected onMarkDoneClicked(event: JQueryEventObject): void
     {
-        console.log(this.item.getTitle() + " removed");
         this.removeFromServer();
         this.animateOutOfView();
     }
@@ -61,7 +60,6 @@ abstract class ItemLi
 
         let $titleInput = this.$li.find("input[type='text']");
         this.item.setTitle($titleInput.val());
-        console.log(this.item);
 
         this.fillLiForNormalMode();
         this.updateOnServer();
@@ -299,7 +297,6 @@ class View
 
     public clearAndShowLoading(): void
     {
-        console.log("clearViewAndShowLoading");
         this.clearAndShowLoadingTasks();
         this.clearAndShowLoadingDeadlines();
     }
@@ -331,7 +328,6 @@ class View
     // Note: appends error after any existing errors.
     public showItemLoadError(errorMessage: string): void
     {
-        console.log("loadError!");
         this.removeTaskViewLoadingText();
         this.removeDeadlineViewLoadingText();
         this.showLoadError(errorMessage);

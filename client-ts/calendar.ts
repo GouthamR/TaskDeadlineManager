@@ -189,8 +189,6 @@ function onEventChanged(event: FC.EventObject, delta: moment.Duration,
 						view: FC.ViewObject): void
 {
 	let itemEvent = event as ItemEventObject;
-	console.log("Event changed: ");
-	console.log(itemEvent);
 	
 	itemEvent.updateItemToMatchEvent();
 	itemEvent.updateItemOnServer();
@@ -222,7 +220,6 @@ function initFullCalendar(): void
 
 export function reloadCalendar(): void
 {
-	console.log("Reloading calendar");
 	let $fullCalendar: JQuery = $calendarContainer.find(".calendar-fullcalendar");
 	$fullCalendar.fullCalendar("refetchEvents");
 }

@@ -28,13 +28,11 @@ class Nav
 
     private onCalendarClicked(event: JQueryEventObject): void
     {
-        console.log("Nav calendar clicked");
         this.mainModel.switchToView(main.View.Calendar);
     }
 
     private onSchedulerClicked(event: JQueryEventObject): void
     {
-        console.log("Nav scheduler clicked");
         this.mainModel.switchToView(main.View.Index);
     }
 

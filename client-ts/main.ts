@@ -100,7 +100,6 @@ export class MainModel
 		    	let task: Task = taskSerializer.fromJSON(taskJson);
 		        tasks.push(task);
 		    }
-		    console.log(tasks);
 		    onSuccess(tasks);
 		}
 
@@ -118,7 +117,6 @@ export class MainModel
 		    {
 		        deadlines.push(deadlineSerializer.fromJSON(i));
 		    }
-		    console.log(deadlines);
 		    onSuccess(deadlines);
 		}
 
@@ -177,15 +175,12 @@ export class MainModel
 		$.post("update-task", updatedJSON)
 		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
 		{
-			console.log("Update Task success:");
-			console.log(data);
 			calendar.reloadCalendar();
 		})
 		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
 		{
 			let errorDetails: string = textStatus + ", " + error;
 			alert("ERROR: Update Task failed.\nDetails: " + errorDetails);
-			console.log(errorDetails);
 		});
 	}
 
@@ -194,15 +189,12 @@ export class MainModel
 		$.post("add-deadline", json)
 		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
 		{
-			console.log("Add Deadline success:");
-			console.log(data);
 			index.reloadFromServer();
 		})
 		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
 		{
 			let errorDetails: string = textStatus + ", " + error;
 			alert("ERROR: Add Deadline failed.\nDetails: " + errorDetails);
-			console.log(errorDetails);
 		});
 	}
 
@@ -213,15 +205,12 @@ export class MainModel
 		$.post("update-deadline", updatedJSON)
 		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
 		{
-			console.log("Update Deadline success:");
-			console.log(data);
 			calendar.reloadCalendar();
 		})
 		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
 		{
 			let errorDetails: string = textStatus + ", " + error;
 			alert("ERROR: Update Deadline failed.\nDetails: " + errorDetails);
-			console.log(errorDetails);
 		});
 	}
 
@@ -239,16 +228,10 @@ export class IndexModel
 		let json: DeadlineJSON = new DeadlineSerializer().toJSON(deadlineToRemove);
 
 		$.post("delete-deadline", json)
-		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
-		{
-			console.log("Remove Deadline success:");
-			console.log(data);
-		})
 		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
 		{
 			let errorDetails: string = textStatus + ", " + error;
 			alert("ERROR: Remove Deadline failed.\nDetails: " + errorDetails);
-			console.log(errorDetails);
 		});
 	}
 
@@ -257,16 +240,10 @@ export class IndexModel
 		let json: TaskJSON = new TaskSerializer().toJSON(taskToRemove);
 
 		$.post("delete-task", json)
-		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
-		{
-			console.log("Remove Task success:");
-			console.log(data);
-		})
 		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
 		{
 			let errorDetails: string = textStatus + ", " + error;
 			alert("ERROR: Remove Task failed.\nDetails: " + errorDetails);
-			console.log(errorDetails);
 		});
 	}
 
@@ -288,15 +265,12 @@ export class AddTaskModel
 		$.post("add-task", json)
 		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
 		{
-			console.log("Add Task success:");
-			console.log(data);
 			index.reloadFromServer();
 		})
 		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
 		{
 			let errorDetails: string = textStatus + ", " + error;
 			alert("ERROR: Add Task failed.\nDetails: " + errorDetails);
-			console.log(errorDetails);
 		});
 	}
 }
