@@ -19,13 +19,6 @@
 
 /* ========================== END RESET ========================== */
 
-.index h4 {
-    text-align: center;
-    color: #1a6fe6;
-    font-size: 2.5em;
-    margin-top: .25em;
-}
-
 .index .index-error-container {
     background-color: #FFB6C1;
     text-align: center;
@@ -39,44 +32,29 @@
     min-height: 27em;
     margin: 2em;
     display: flex;
+    justify-content: space-evenly;
+    align-items: center;
 }
 
 .index .index-taskdeadline-container > div {
-    width: 50%;
-    margin-top: 1em;
-    margin-bottom: 1em;
     background-color: #ebf0f3;
-}
-
-.index .index-task-container {
-    margin-left: 1em;
-    margin-right: 0.5em;
-}
-
-.index .index-deadline-container {
-    margin-left: 0.5em;
-    margin-right: 1em;
+    flex: 0 0 calc(50% - 2em);
+    height: calc(100% - 2em);
+    display: flex;
+    flex-direction: column;
+    padding: .25em;
 }
 
 .index .index-taskdeadline-container > div > div {
     overflow-y: scroll;
+    margin-bottom: 1em;
 }
 
-.index .index-taskdeadline-container > div > a {
-    color: white;
-    text-decoration: none;
-    background: #1a6fe6;
+.index .index-taskdeadline-container > div > h4 {
     text-align: center;
-    vertical-align: middle;
-    display: inline-block;
-    width: 90%;
-    height: 2em;
-    line-height: 2em;
-    margin-left: 5%;
-    margin-right: 5%;
-    margin-bottom: 2em;
-    margin-top: 1em;
-    cursor: pointer;
+    color: #1a6fe6;
+    font-size: 2.5em;
+    margin-bottom: 0.25em;
 }
 
 .index .index-taskdeadline-container li {
@@ -91,7 +69,15 @@
     border: solid darkgray .1em;
 }
 
-.index .index-taskdeadline-container li p:nth-child(1) {
+.index .index-taskdeadline-container li:first-child {
+    margin-top: 0;
+}
+
+.index .index-taskdeadline-container li:last-child {
+    margin-bottom: 0;
+}
+
+.index .index-taskdeadline-container li p:first-child {
     font-size: 1.5em;
 }
 
@@ -135,17 +121,12 @@
 
 @media (max-width: 768px) {
     .index .index-taskdeadline-container {
-        margin-left: 1em;
-        margin-right: 1em;
         flex-direction: column;
     }
 
     .index .index-taskdeadline-container > div {
-        margin: 1em;
-        width: calc(100% - 2em);
     }
 
     .index .index-taskdeadline-container li {
-        width: 90%;
     }
 }
