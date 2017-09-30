@@ -50,13 +50,14 @@
 .index .index-taskdeadline-container {
     background-color: white;
     border: solid #1a6fe6 .15em;
+    height: calc(100vh - 8em);
+    min-height: 27em;
     margin: 2em;
     display: flex;
 }
 
 .index .index-taskdeadline-container > div {
     width: 50%;
-    height: 27em;
     margin-top: 1em;
     margin-bottom: 1em;
     background-color: #ebf0f3;
@@ -73,7 +74,6 @@
 }
 
 .index .index-taskdeadline-container > div > div {
-    height: 20em;
     overflow-y: scroll;
 }
 
@@ -158,7 +158,6 @@
     .index .index-taskdeadline-container > div {
         margin: 1em;
         width: calc(100% - 2em);
-        height: 26em;
     }
 
     .index .index-taskdeadline-container li {
