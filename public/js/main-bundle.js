@@ -1201,15 +1201,11 @@ var Nav = (function () {
         $navContainer.find(".nav-pull-link").click(onPullLinkClicked);
         var onWindowResize = function (e) { _this.toggleSidebarVsHeader(); };
         $(window).resize(onWindowResize);
-        $navContainer.find(".nav-calendar-button").click(function (event) { return _this.onCalendarClicked(event); });
-        $navContainer.find(".nav-scheduler-button").click(function (event) { return _this.onSchedulerClicked(event); });
+        $navContainer.find(".nav-grtdm-button").click(function (e) { return _this.mainModel.switchToView(main.View.Index); });
+        $navContainer.find(".nav-add-task-button").click(function (e) { return _this.mainModel.switchToView(main.View.AddTask); });
+        $navContainer.find(".nav-add-deadline-button").click(function (e) { return _this.mainModel.switchToView(main.View.AddDeadline); });
+        $navContainer.find(".nav-calendar-button").click(function (e) { return _this.mainModel.switchToView(main.View.Calendar); });
     }
-    Nav.prototype.onCalendarClicked = function (event) {
-        this.mainModel.switchToView(main.View.Calendar);
-    };
-    Nav.prototype.onSchedulerClicked = function (event) {
-        this.mainModel.switchToView(main.View.Index);
-    };
     Nav.prototype.toggleSidebarExpansion = function () {
         var $nav = this.$navContainer.find("nav");
         var animDirection = this.isOpen ? "-" : "+";

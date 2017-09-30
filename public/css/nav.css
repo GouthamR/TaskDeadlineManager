@@ -42,23 +42,23 @@
     text-decoration: none;
 }
 
-.nav .nav-scheduler-button a {
+.nav .nav-grtdm-button a {
     font-size: 2.5em;
 }
 
-.nav .nav-scheduler-button {
+.nav .nav-grtdm-button {
     width: 17%;
 }
 
-.nav .nav-tasks-button {
+.nav .nav-add-task-button {
     margin-left: 8%;
 }
 
-.nav .nav-tasks-button, .nav .nav-deadlines-button, .nav .nav-calendar-button {
+.nav .nav-add-task-button, .nav .nav-add-deadline-button, .nav .nav-calendar-button {
     width: 16.667%;
 }
 
-.nav .nav-tasks-button a, .nav .nav-deadlines-button a, .nav .nav-calendar-button a {
+.nav .nav-add-task-button a, .nav .nav-add-deadline-button a, .nav .nav-calendar-button a {
     font-size: 1.7em;
 }
 
@@ -118,7 +118,7 @@
     }
 
     /* need to explicitly specify individually to override individual selectors above: */
-    .nav .nav-scheduler-button, .nav .nav-tasks-button, .nav .nav-deadlines-button, 
+    .nav .nav-grtdm-button, .nav .nav-add-task-button, .nav .nav-add-deadline-button, 
     .nav .nav-calendar-button, .nav .nav-settings-button, .nav .nav-logout-button {
         width: 100%;
         height: 3.5em;

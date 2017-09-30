@@ -22,18 +22,10 @@ class Nav
         let onWindowResize = (e: JQueryEventObject) => { this.toggleSidebarVsHeader(); };
         $(window).resize(onWindowResize);
 
-        $navContainer.find(".nav-calendar-button").click((event: JQueryEventObject) => this.onCalendarClicked(event));
-        $navContainer.find(".nav-scheduler-button").click((event: JQueryEventObject) => this.onSchedulerClicked(event));
-    }
-
-    private onCalendarClicked(event: JQueryEventObject): void
-    {
-        this.mainModel.switchToView(main.View.Calendar);
-    }
-
-    private onSchedulerClicked(event: JQueryEventObject): void
-    {
-        this.mainModel.switchToView(main.View.Index);
+        $navContainer.find(".nav-grtdm-button").click((e: JQueryEventObject) => this.mainModel.switchToView(main.View.Index));
+        $navContainer.find(".nav-add-task-button").click((e: JQueryEventObject) => this.mainModel.switchToView(main.View.AddTask));
+        $navContainer.find(".nav-add-deadline-button").click((e: JQueryEventObject) => this.mainModel.switchToView(main.View.AddDeadline));
+        $navContainer.find(".nav-calendar-button").click((e: JQueryEventObject) => this.mainModel.switchToView(main.View.Calendar));
     }
 
     private toggleSidebarExpansion(): void
