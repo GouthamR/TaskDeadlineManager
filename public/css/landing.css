@@ -50,7 +50,6 @@ body {
 }
 
 .landing-main-google-signin {
-    font-size: 1.5em;
     flex: 1 1 60px;
     width: 252px;
     text-align: center;
@@ -104,5 +103,51 @@ body {
 }
 
 .landing-info-view-github > p {
+    font-size: 1.25em;
     margin-left: 0.5rem;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .landing-main {
+        padding: 2rem 1rem;
+    }
+
+    .landing-main-logo, .landing-main-subtitle {
+        margin-bottom: 1rem;
+    }
+    
+    .landing-main-logo {
+        font-size: 4em;
+    }
+    
+    .landing-main-subtitle {
+        font-size: 1.5em;
+    }
+
+    .landing-main-google-signin {
+        flex: 1 1 45px;
+        width: 189px;
+    }
+    
+    .landing-info {
+        padding: 1rem 1rem;
+    }
+
+    .landing-info-text {
+        font-size: 1em;
+    }
+
+    .landing-info-view-github {
+        padding: 0.5rem;
+    }
+
+    .landing-info-view-github > img {
+        flex: 0 0 20px;
+        height: 20px;
+    }
+
+    .landing-info-view-github > p {
+        font-size: .75em;
+    }
 }
