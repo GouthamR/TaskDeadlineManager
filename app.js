@@ -108,7 +108,7 @@ app.use(session({
 	saveUninitialized: false,
 	cookie: {
 		secure: (app.get('env') == 'production'),
-		maxAge: 30 * 1000
+		maxAge: 60 * 60 * 1000 // 1 hour
 	},
 	store: mongoDbStoreObj
 }));
