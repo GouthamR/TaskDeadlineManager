@@ -179,224 +179,169 @@ var config = function(app, db, oauthConfig)
 			res.render("landing", {synchronizerToken: getSynchronizerToken(req.session)});
 	});
 
-	app.get('/user/name', function(req, res)
+	var checkLoggedIn = function(req, res, next)
 	{
 		if(!req.session.accessToken)
-		{
 			res.status(401).json({error: "Not logged in"});
-		}
 		else
+			next();
+	};
+
+	app.get('/user/name', checkLoggedIn, function(req, res)
+	{
+		db.collection("users", function(collection_error, collection)
 		{
-			db.collection("users", function(collection_error, collection)
+			collection.findOne({loginType: req.session.loginType, loginId: req.session.loginId}, {},
+								function(find_err, doc)
 			{
-				collection.findOne({loginType: req.session.loginType, loginId: req.session.loginId}, {},
-									function(find_err, doc)
-				{
-					res.json(doc.name);
-				});
+				res.json(doc.name);
 			});
-		}
+		});
 	});
 
 	// Response: TaskJSON[]
-	app.get('/load-tasks', function(req, res)
+	app.get('/load-tasks', checkLoggedIn, function(req, res)
 	{
-		if(!req.session.accessToken)
+		db.collection("users", function(collection_error, collection)
 		{
-			res.status(401).json({error: "Not logged in"});
-		}
-		else
-		{
-			db.collection("users", function(collection_error, collection)
+			collection.findOne({loginType: req.session.loginType, loginId: req.session.loginId}, {},
+								function(find_err, doc)
 			{
-				collection.findOne({loginType: req.session.loginType, loginId: req.session.loginId}, {},
-									function(find_err, doc)
-				{
-					console.log("Loaded tasks:");
-					console.log(doc.tasks);
-					res.json(doc.tasks);
-				});
+				console.log("Loaded tasks:");
+				console.log(doc.tasks);
+				res.json(doc.tasks);
 			});
-		}
+		});
 	});
 
-	app.get('/load-deadlines', function(req, res)
+	app.get('/load-deadlines', checkLoggedIn, function(req, res)
 	{
-		if(!req.session.accessToken)
+		db.collection("users", function(collection_error, collection)
 		{
-			res.status(401).json({error: "Not logged in"});
-		}
-		else
-		{
-			db.collection("users", function(collection_error, collection)
+			collection.findOne({loginType: req.session.loginType, loginId: req.session.loginId}, {},
+								function(find_err, doc)
 			{
-				collection.findOne({loginType: req.session.loginType, loginId: req.session.loginId}, {},
-									function(find_err, doc)
-				{
-					console.log("Loaded deadlines:");
-					console.log(doc.deadlines);
-					res.json(doc.deadlines);
-				});
+				console.log("Loaded deadlines:");
+				console.log(doc.deadlines);
+				res.json(doc.deadlines);
 			});
-		}
+		});
 	});
 
 	// Argument: TaskJSONWithoutID
-	app.post('/add-task', function(req, res)
+	app.post('/add-task', checkLoggedIn, function(req, res)
 	{
-		if(!req.session.accessToken)
-		{
-			res.status(401).json({error: "Not logged in"});
-		}
-		else
-		{
-			var taskObject = req.body;
-			addIDToJSON(taskObject);
-			console.log("Task to add: ")
-			console.log(taskObject);
+		var taskObject = req.body;
+		addIDToJSON(taskObject);
+		console.log("Task to add: ")
+		console.log(taskObject);
 
-			db.collection("users", function(collection_error, collection)
+		db.collection("users", function(collection_error, collection)
+		{
+			collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId},
+									{$push: {tasks: taskObject}}, {},
+									function(err, result)
 			{
-				collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId},
-										{$push: {tasks: taskObject}}, {},
-										function(err, result)
-				{
-					res.json(result);
-				});
+				res.json(result);
 			});
-		}
+		});
 	});
 
 	// Argument: DeadlineJSONWithoutID
-	app.post('/add-deadline', function(req, res)
+	app.post('/add-deadline', checkLoggedIn, function(req, res)
 	{
-		if(!req.session.accessToken)
+		var deadlineJSON = req.body;
+		// since an empty array on the client side is passed in the request as undefined, reassign:
+		if(deadlineJSON.subTasks == undefined)
 		{
-			res.status(401).json({error: "Not logged in"});
+			deadlineJSON.subTasks = [];
 		}
-		else
+		
+		addIDToDeadlineJSON(deadlineJSON);
+		console.log("Deadline to add: ")
+		console.log(deadlineJSON);
+		
+		db.collection("users", function(collection_error, collection)
 		{
-			var deadlineJSON = req.body;
-			// since an empty array on the client side is passed in the request as undefined, reassign:
-			if(deadlineJSON.subTasks == undefined)
+			collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId},
+									{$push: {deadlines: deadlineJSON}}, {},
+									function(err, result)
 			{
-				deadlineJSON.subTasks = [];
-			}
-			
-			addIDToDeadlineJSON(deadlineJSON);
-			console.log("Deadline to add: ")
-			console.log(deadlineJSON);
-			
-			db.collection("users", function(collection_error, collection)
-			{
-				collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId},
-										{$push: {deadlines: deadlineJSON}}, {},
-										function(err, result)
-				{
-					res.json(result);
-				});
+				res.json(result);
 			});
-		}
+		});
 	});
 
 	// Argument: TaskJSON
-	app.post('/update-task', function(req, res)
+	app.post('/update-task', checkLoggedIn, function(req, res)
 	{
-		if(!req.session.accessToken)
-		{
-			res.status(401).json({error: "Not logged in"});
-		}
-		else
-		{
-			var taskJSON = convertIdToMongoObjectId(req.body);
-			console.log("Task to update: ")
-			console.log(taskJSON);
+		var taskJSON = convertIdToMongoObjectId(req.body);
+		console.log("Task to update: ")
+		console.log(taskJSON);
 
-			db.collection("users", function(collection_error, collection)
+		db.collection("users", function(collection_error, collection)
+		{
+			collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId, "tasks._id": taskJSON._id},
+									{$set: {"tasks.$": taskJSON}}, {},
+									function(err, result)
 			{
-				collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId, "tasks._id": taskJSON._id},
-										{$set: {"tasks.$": taskJSON}}, {},
-										function(err, result)
-				{
-					res.json(result);
-				});
+				res.json(result);
 			});
-		}
+		});
 	});
 
 	// Argument: DeadlineJSON
-	app.post('/update-deadline', function(req, res)
+	app.post('/update-deadline', checkLoggedIn, function(req, res)
 	{
-		if(!req.session.accessToken)
-		{
-			res.status(401).json({error: "Not logged in"});
-		}
-		else
-		{
-			var deadlineJSON = convertIdToMongoObjectId(req.body);
-			console.log("Deadline to update: ")
-			console.log(deadlineJSON);
+		var deadlineJSON = convertIdToMongoObjectId(req.body);
+		console.log("Deadline to update: ")
+		console.log(deadlineJSON);
 
-			db.collection("users", function(collection_error, collection)
+		db.collection("users", function(collection_error, collection)
+		{
+			collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId, "deadlines._id": deadlineJSON._id},
+									{$set: {"deadlines.$": deadlineJSON}}, {},
+									function(err, result)
 			{
-				collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId, "deadlines._id": deadlineJSON._id},
-										{$set: {"deadlines.$": deadlineJSON}}, {},
-										function(err, result)
-				{
-					res.json(result);
-				});
+				res.json(result);
 			});
-		}
+		});
 	});
 
 	// Argument: TaskJSON
-	app.post('/delete-task', function(req, res)
+	app.post('/delete-task', checkLoggedIn, function(req, res)
 	{
-		if(!req.session.accessToken)
-		{
-			res.status(401).json({error: "Not logged in"});
-		}
-		else
-		{
-			var taskJSON = convertIdToMongoObjectId(req.body);
-			console.log("Task to delete: ")
-			console.log(taskJSON);
+		var taskJSON = convertIdToMongoObjectId(req.body);
+		console.log("Task to delete: ")
+		console.log(taskJSON);
 
-			db.collection("users", function(collection_error, collection)
+		db.collection("users", function(collection_error, collection)
+		{
+			collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId},
+									{$pull: {tasks: {_id: taskJSON._id}}}, {},
+									function(err, result)
 			{
-				collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId},
-										{$pull: {tasks: {_id: taskJSON._id}}}, {},
-										function(err, result)
-				{
-					res.json(result);
-				});
+				res.json(result);
 			});
-		}
+		});
 	});
 
 	// Argument: DeadlineJSON
-	app.post('/delete-deadline', function(req, res)
+	app.post('/delete-deadline', checkLoggedIn, function(req, res)
 	{
-		if(!req.session.accessToken)
-		{
-			res.status(401).json({error: "Not logged in"});
-		}
-		else
-		{
-			var deadlineJSON = convertIdToMongoObjectId(req.body);
-			console.log("Deadline to delete: ")
-			console.log(deadlineJSON);
+		var deadlineJSON = convertIdToMongoObjectId(req.body);
+		console.log("Deadline to delete: ")
+		console.log(deadlineJSON);
 
-			db.collection("users", function(collection_error, collection)
+		db.collection("users", function(collection_error, collection)
+		{
+			collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId},
+									{$pull: {deadlines: {_id: deadlineJSON._id}}}, {},
+									function(err, result)
 			{
-				collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId},
-										{$pull: {deadlines: {_id: deadlineJSON._id}}}, {},
-										function(err, result)
-				{
-					res.json(result);
-				});
+				res.json(result);
 			});
-		}
+		});
 	});
 
 	app.use(function(req, res)
