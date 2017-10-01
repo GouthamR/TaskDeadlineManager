@@ -80,7 +80,6 @@ var config = function(app, db, oauthConfig)
 				{
 					let postBodyObj = JSON.parse(postBody);
 					req.session.accessToken = postBodyObj.access_token;
-					req.session.expiresEpochTimeMillis = new Date().getTime() + postBodyObj.expires_in * 1000;
 					req.session.loginType = LoginType.Google;
 					let decodedJWT = jwt.decode(postBodyObj.id_token);
 					req.session.loginId = decodedJWT.sub;
