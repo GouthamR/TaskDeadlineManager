@@ -1,6 +1,7 @@
 var express = require("express");
 var path = require('path');
 var session = require('express-session');
+var MongoDbStore = require('connect-mongodb-session')(session);
 var mongodb = require('mongodb');
 
 var routes = require("./routes");
@@ -90,14 +91,26 @@ app.set("port", process.env.PORT || 3000);
 if(app.get('env') == 'production')
 	app.set('trust proxy', 1);
 
+var mongoDbStoreObj = new MongoDbStore(
+{
+	uri: dbConfig.url,
+	collection: "sessions"
+});
+
+mongoDbStoreObj.on("error", function(err)
+{
+	console.log(err);
+});
+
 app.use(session({
 	secret: oauthConfig.sessionSecret,
 	resave: false,
 	saveUninitialized: false,
 	cookie: {
 		secure: (app.get('env') == 'production'),
-		maxAge: 5 * 60 * 1000 // five minutes. Note: to make cookies persist across server restarts, need to have express session store in e.g. mongodb
-	}
+		maxAge: 30 * 1000
+	},
+	store: mongoDbStoreObj
 }));
 
 mongodb.MongoClient.connect(dbConfig.url, function(error, db)
