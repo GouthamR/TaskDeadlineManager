@@ -120,7 +120,7 @@ var config = function(app, db, oauthConfig)
 	{
 		if(!req.session.accessToken)
 		{
-			res.json({error: "Not logged in"});
+			res.status(401).json({error: "Not logged in"});
 		}
 		else if(req.session.loginType == LoginType.Google)
 		{
@@ -183,7 +183,7 @@ var config = function(app, db, oauthConfig)
 	{
 		if(!req.session.accessToken)
 		{
-			res.json({error: "Not logged in"});
+			res.status(401).json({error: "Not logged in"});
 		}
 		else
 		{
@@ -203,7 +203,7 @@ var config = function(app, db, oauthConfig)
 	{
 		if(!req.session.accessToken)
 		{
-			res.json({error: "Not logged in"});
+			res.status(401).json({error: "Not logged in"});
 		}
 		else
 		{
@@ -224,7 +224,7 @@ var config = function(app, db, oauthConfig)
 	{
 		if(!req.session.accessToken)
 		{
-			res.json({error: "Not logged in"});
+			res.status(401).json({error: "Not logged in"});
 		}
 		else
 		{
@@ -246,7 +246,7 @@ var config = function(app, db, oauthConfig)
 	{
 		if(!req.session.accessToken)
 		{
-			res.json({error: "Not logged in"});
+			res.status(401).json({error: "Not logged in"});
 		}
 		else
 		{
@@ -272,7 +272,7 @@ var config = function(app, db, oauthConfig)
 	{
 		if(!req.session.accessToken)
 		{
-			res.json({error: "Not logged in"});
+			res.status(401).json({error: "Not logged in"});
 		}
 		else
 		{
@@ -304,7 +304,7 @@ var config = function(app, db, oauthConfig)
 	{
 		if(!req.session.accessToken)
 		{
-			res.json({error: "Not logged in"});
+			res.status(401).json({error: "Not logged in"});
 		}
 		else
 		{
@@ -329,7 +329,7 @@ var config = function(app, db, oauthConfig)
 	{
 		if(!req.session.accessToken)
 		{
-			res.json({error: "Not logged in"});
+			res.status(401).json({error: "Not logged in"});
 		}
 		else
 		{
@@ -354,7 +354,7 @@ var config = function(app, db, oauthConfig)
 	{
 		if(!req.session.accessToken)
 		{
-			res.json({error: "Not logged in"});
+			res.status(401).json({error: "Not logged in"});
 		}
 		else
 		{
@@ -379,7 +379,7 @@ var config = function(app, db, oauthConfig)
 	{
 		if(!req.session.accessToken)
 		{
-			res.json({error: "Not logged in"});
+			res.status(401).json({error: "Not logged in"});
 		}
 		else
 		{
