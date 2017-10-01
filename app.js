@@ -113,6 +113,20 @@ app.use(session({
 	store: mongoDbStoreObj
 }));
 
+// Session config above allows only secure cookies in production.
+// So, cookies will only work with https.
+// This middleware redirects to https. This is necessary for Heroku, which can serve both http and https.
+if(app.get('env') == 'production')
+{
+	app.use(function(req, res, next)
+	{
+		if(req.header('x-forwarded-proto') !== 'https')
+			res.redirect(`https://${req.header('host')}${req.url}`);
+		else
+			next();
+	});
+}
+
 mongodb.MongoClient.connect(dbConfig.url, function(error, db)
 {
 	if(error)
