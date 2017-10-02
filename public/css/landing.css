@@ -125,8 +125,18 @@ body {
     }
 
     .landing-main-google-signin {
-        flex: 1 1 45px;
-        width: 189px;
+        flex: 1 1 calc(.5 * 92px);
+        width: calc(.5 * 382px);
+        background-position: calc(.5 * -10px) calc(.5 * -102px);
+        background-size: calc(.5 * 402px) calc(.5 * 306px);
+    }
+    
+    .landing-main-google-signin:hover {
+        background-position: calc(.5 * -10px) calc(.5 * -0px);
+    }
+    
+    .landing-main-google-signin:active {
+        background-position: calc(.5 * -10px) calc(.5 * -204px);
     }
     
     .landing-info {
