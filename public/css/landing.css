@@ -50,22 +50,21 @@ body {
 }
 
 .landing-main-google-signin {
-    flex: 1 1 60px;
-    width: 252px;
-    text-align: center;
-    color: white;
+    flex: 1 1 calc(.65 * 92px);
+    width: calc(.65 * 382px);
+    background-image: url("../img/btn_google_signin_light_sprite_web@2x.png");
+    background-position: calc(.65 * -10px) calc(.65 * -0px);
+    background-size: calc(.65 * 402px) calc(.65 * 306px);
     text-decoration: none;
-    background-image: url("../img/btn_google_signin_light_normal_web@2x.png");
-    background-size: cover;
 }
 
 .landing-main-google-signin:hover {
-    background-image: url("../img/btn_google_signin_light_focus_web@2x.png");
+    background-position: calc(.65 * -10px) calc(.65 * -102px);
     cursor: pointer;
 }
 
 .landing-main-google-signin:active {
-    background-image: url("../img/btn_google_signin_light_pressed_web@2x.png");
+    background-position: calc(.65 * -10px) calc(.65 * -204px);
 }
 
 .landing-info {
