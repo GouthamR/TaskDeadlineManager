@@ -164,7 +164,7 @@ function getEventsFromServer(start, end, timezone, callback) {
         callback(events);
     }
     function onFailure(error) {
-        alert("Failed to load from server. Details: " + error);
+        alert("Error: failed to load tasks and deadlines. Try refreshing the page.");
         callback([]);
     }
     mainModel.loadTasksAndDeadlinesFromServer(onSuccess, onFailure);
@@ -1090,10 +1090,10 @@ var MainModel = (function () {
             }
         }
         function onTasksFailure(errorDetails) {
-            onFailure("Error loading tasks. Details: " + errorDetails);
+            onFailure("Error loading tasks. Try refreshing the page.");
         }
         function onDeadlinesFailure(errorDetails) {
-            onFailure("Error loading deadlines. Details: " + errorDetails);
+            onFailure("Error loading deadlines. Try refreshing the page.");
         }
         this.loadTasksFromServer(onTasksLoaded, onTasksFailure);
         this.loadDeadlinesFromServer(onDeadlinesLoaded, onDeadlinesFailure);
@@ -1105,8 +1105,7 @@ var MainModel = (function () {
             calendar.reloadCalendar();
         })
             .fail(function (jqXHR, textStatus, error) {
-            var errorDetails = textStatus + ", " + error;
-            alert("ERROR: Update Task failed.\nDetails: " + errorDetails);
+            alert("Error: Update Task failed.");
         });
     };
     MainModel.prototype.addDeadlineToServer = function (json) {
@@ -1115,8 +1114,7 @@ var MainModel = (function () {
             index.reloadFromServer();
         })
             .fail(function (jqXHR, textStatus, error) {
-            var errorDetails = textStatus + ", " + error;
-            alert("ERROR: Add Deadline failed.\nDetails: " + errorDetails);
+            alert("Error: Add Deadline failed.");
         });
     };
     MainModel.prototype.updateDeadlineOnServer = function (updatedDeadline) {
@@ -1126,16 +1124,9 @@ var MainModel = (function () {
             calendar.reloadCalendar();
         })
             .fail(function (jqXHR, textStatus, error) {
-            var errorDetails = textStatus + ", " + error;
-            alert("ERROR: Update Deadline failed.\nDetails: " + errorDetails);
+            alert("Error: Update Deadline failed.");
         });
     };
-    // Name currently not displayed anywhere, so commented out:
-    // public loadUserName(onSuccess: (name: string) => void,
-    // 					onFailure: (errorDetails: string) => void): void
-    // {
-    // 	this.loadJSONFromServer('/user/name', (n) => onSuccess(n), (e) => onFailure(e));
-    // }
     MainModel.prototype.logout = function () {
         $.post('/logout', {}, function (data, status, jqXHR) {
             if (data.success) {
@@ -1157,16 +1148,14 @@ var IndexModel = (function () {
         var json = new item_2.DeadlineSerializer().toJSON(deadlineToRemove);
         $.post("delete-deadline", json)
             .fail(function (jqXHR, textStatus, error) {
-            var errorDetails = textStatus + ", " + error;
-            alert("ERROR: Remove Deadline failed.\nDetails: " + errorDetails);
+            alert("Error: Remove Deadline failed.");
         });
     };
     IndexModel.prototype.removeTaskFromServer = function (taskToRemove) {
         var json = new item_1.TaskSerializer().toJSON(taskToRemove);
         $.post("delete-task", json)
             .fail(function (jqXHR, textStatus, error) {
-            var errorDetails = textStatus + ", " + error;
-            alert("ERROR: Remove Task failed.\nDetails: " + errorDetails);
+            alert("Error: Remove Task failed.");
         });
     };
     IndexModel.prototype.initEditTask = function (task) {
@@ -1187,8 +1176,7 @@ var AddTaskModel = (function () {
             index.reloadFromServer();
         })
             .fail(function (jqXHR, textStatus, error) {
-            var errorDetails = textStatus + ", " + error;
-            alert("ERROR: Add Task failed.\nDetails: " + errorDetails);
+            alert("Error: Add Task failed.");
         });
     };
     return AddTaskModel;

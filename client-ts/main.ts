@@ -179,12 +179,12 @@ export class MainModel
 
 		function onTasksFailure(errorDetails: string)
 		{
-			onFailure("Error loading tasks. Details: " + errorDetails);
+			onFailure("Error loading tasks. Try refreshing the page.");
 		}
 
 		function onDeadlinesFailure(errorDetails: string)
 		{
-			onFailure("Error loading deadlines. Details: " + errorDetails);
+			onFailure("Error loading deadlines. Try refreshing the page.");
 		}
 
 		this.loadTasksFromServer(onTasksLoaded, onTasksFailure);
@@ -202,8 +202,7 @@ export class MainModel
 		})
 		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
 		{
-			let errorDetails: string = textStatus + ", " + error;
-			alert("ERROR: Update Task failed.\nDetails: " + errorDetails);
+			alert("Error: Update Task failed.");
 		});
 	}
 
@@ -216,8 +215,7 @@ export class MainModel
 		})
 		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
 		{
-			let errorDetails: string = textStatus + ", " + error;
-			alert("ERROR: Add Deadline failed.\nDetails: " + errorDetails);
+			alert("Error: Add Deadline failed.");
 		});
 	}
 
@@ -232,17 +230,9 @@ export class MainModel
 		})
 		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
 		{
-			let errorDetails: string = textStatus + ", " + error;
-			alert("ERROR: Update Deadline failed.\nDetails: " + errorDetails);
+			alert("Error: Update Deadline failed.");
 		});
 	}
-
-	// Name currently not displayed anywhere, so commented out:
-	// public loadUserName(onSuccess: (name: string) => void,
-	// 					onFailure: (errorDetails: string) => void): void
-	// {
-	// 	this.loadJSONFromServer('/user/name', (n) => onSuccess(n), (e) => onFailure(e));
-	// }
 
 	public logout()
 	{
@@ -269,8 +259,7 @@ export class IndexModel
 		$.post("delete-deadline", json)
 		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
 		{
-			let errorDetails: string = textStatus + ", " + error;
-			alert("ERROR: Remove Deadline failed.\nDetails: " + errorDetails);
+			alert("Error: Remove Deadline failed.");
 		});
 	}
 
@@ -281,8 +270,7 @@ export class IndexModel
 		$.post("delete-task", json)
 		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
 		{
-			let errorDetails: string = textStatus + ", " + error;
-			alert("ERROR: Remove Task failed.\nDetails: " + errorDetails);
+			alert("Error: Remove Task failed.");
 		});
 	}
 
@@ -308,8 +296,7 @@ export class AddTaskModel
 		})
 		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
 		{
-			let errorDetails: string = textStatus + ", " + error;
-			alert("ERROR: Add Task failed.\nDetails: " + errorDetails);
+			alert("Error: Add Task failed.");
 		});
 	}
 }

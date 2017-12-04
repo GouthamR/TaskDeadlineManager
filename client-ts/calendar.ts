@@ -177,7 +177,7 @@ function getEventsFromServer(start: moment.Moment, end: moment.Moment,
 
 	function onFailure (error: string)
 	{
-		alert("Failed to load from server. Details: " + error);
+		alert("Error: failed to load tasks and deadlines. Try refreshing the page.");
 		callback([]);
 	}
 

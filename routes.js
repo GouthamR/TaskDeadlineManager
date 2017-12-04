@@ -42,6 +42,7 @@ var addIDToDeadlineJSON = function(deadlineJSONWithoutID)
 
 var config = function(app, db, oauthConfig)
 {
+	// Note: OAuth was implemented manually (i.e. without using libraries) for learning purposes.
 	app.get('/google-oauth-redirect', function(req, res)
 	{
 		if(req.query.state != getSynchronizerToken(req.session))
