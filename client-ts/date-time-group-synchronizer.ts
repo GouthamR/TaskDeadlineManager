@@ -23,6 +23,10 @@ class DateTimeGroupSynchronizer
         this.previousStartDate = this.dateInputToMoment(this.$startDateInput);
         this.previousStartTime = this.timeInputToMoment(this.$startTimeInput);
 
+        // Removes event handlers from previous DateTimeGroupSynchronizer, if any,
+        // before attaching new handlers:
+        this.$startDateInput.off();
+        this.$startTimeInput.off();
         this.$startDateInput.change((e: JQueryEventObject) => this.updateEndDate());
         this.$startTimeInput.change((e: JQueryEventObject) => this.updateEndTime());
     }

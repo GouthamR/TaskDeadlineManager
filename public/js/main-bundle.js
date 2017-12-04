@@ -226,6 +226,10 @@ var DateTimeGroupSynchronizer = (function () {
         this.$endTimeInput = $endTimeInput;
         this.previousStartDate = this.dateInputToMoment(this.$startDateInput);
         this.previousStartTime = this.timeInputToMoment(this.$startTimeInput);
+        // Removes event handlers from previous DateTimeGroupSynchronizer, if any,
+        // before attaching new handlers:
+        this.$startDateInput.off();
+        this.$startTimeInput.off();
         this.$startDateInput.change(function (e) { return _this.updateEndDate(); });
         this.$startTimeInput.change(function (e) { return _this.updateEndTime(); });
     }
