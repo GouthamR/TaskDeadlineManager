@@ -16,17 +16,48 @@ class Nav
         this.isOpen = false;
         this.mainModel = mainModel;
 
-        let onPullLinkClicked = (e: JQueryEventObject) => { this.toggleSidebarExpansion(); };
-        $navContainer.find(".nav-pull-link").click(onPullLinkClicked);
+        $navContainer.find(".nav-pull-link").click((e: JQueryEventObject) => this.toggleSidebarExpansion());
 
-        let onWindowResize = (e: JQueryEventObject) => { this.toggleSidebarVsHeader(); };
-        $(window).resize(onWindowResize);
+        $(window).resize((e: JQueryEventObject) => this.toggleSidebarVsHeader());
 
-        $navContainer.find(".nav-grtdm-button").click((e: JQueryEventObject) => this.mainModel.switchToView(main.View.Index));
-        $navContainer.find(".nav-add-task-button").click((e: JQueryEventObject) => this.mainModel.switchToView(main.View.AddTask));
-        $navContainer.find(".nav-add-deadline-button").click((e: JQueryEventObject) => this.mainModel.switchToView(main.View.AddDeadline));
-        $navContainer.find(".nav-calendar-button").click((e: JQueryEventObject) => this.mainModel.switchToView(main.View.Calendar));
-        $navContainer.find(".nav-logout-button").click((e: JQueryEventObject) => this.mainModel.logout());
+        $navContainer.find(".nav-grtdm-button").click((e: JQueryEventObject) =>
+        {
+            this.navButtonPreAction();
+            this.mainModel.switchToView(main.View.Index);
+        });
+        $navContainer.find(".nav-add-task-button").click((e: JQueryEventObject) =>
+        {
+            this.navButtonPreAction();
+            this.mainModel.switchToView(main.View.AddTask);
+        });
+        $navContainer.find(".nav-add-deadline-button").click((e: JQueryEventObject) =>
+        {
+            this.navButtonPreAction();
+            this.mainModel.switchToView(main.View.AddDeadline);
+        });
+        $navContainer.find(".nav-calendar-button").click((e: JQueryEventObject) =>
+        {
+            this.navButtonPreAction();
+            this.mainModel.switchToView(main.View.Calendar);
+        });
+        $navContainer.find(".nav-logout-button").click((e: JQueryEventObject) =>
+        {
+            this.navButtonPreAction();
+            this.mainModel.logout();
+        });
+    }
+
+    private navButtonPreAction()
+    {
+        if(!this.isDesktopWindowSize())
+        {
+            this.toggleSidebarExpansion();
+        }
+    }
+
+    private isDesktopWindowSize(): boolean
+    {
+        return $(window).width() > MOBILE_MAX_WIDTH;
     }
 
     private toggleSidebarExpansion(): void
@@ -42,7 +73,7 @@ class Nav
     {
         let $nav: JQuery = this.$navContainer.find("nav");
 
-        let switchToTop: boolean = $(window).width() > MOBILE_MAX_WIDTH;
+        let switchToTop: boolean = this.isDesktopWindowSize();
         if (switchToTop && $nav.position().left < 0)
         {
             this.isOpen = true;

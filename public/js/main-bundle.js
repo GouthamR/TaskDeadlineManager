@@ -1206,16 +1206,37 @@ var Nav = (function () {
         this.$navContainer = $navContainer;
         this.isOpen = false;
         this.mainModel = mainModel;
-        var onPullLinkClicked = function (e) { _this.toggleSidebarExpansion(); };
-        $navContainer.find(".nav-pull-link").click(onPullLinkClicked);
-        var onWindowResize = function (e) { _this.toggleSidebarVsHeader(); };
-        $(window).resize(onWindowResize);
-        $navContainer.find(".nav-grtdm-button").click(function (e) { return _this.mainModel.switchToView(main.View.Index); });
-        $navContainer.find(".nav-add-task-button").click(function (e) { return _this.mainModel.switchToView(main.View.AddTask); });
-        $navContainer.find(".nav-add-deadline-button").click(function (e) { return _this.mainModel.switchToView(main.View.AddDeadline); });
-        $navContainer.find(".nav-calendar-button").click(function (e) { return _this.mainModel.switchToView(main.View.Calendar); });
-        $navContainer.find(".nav-logout-button").click(function (e) { return _this.mainModel.logout(); });
+        $navContainer.find(".nav-pull-link").click(function (e) { return _this.toggleSidebarExpansion(); });
+        $(window).resize(function (e) { return _this.toggleSidebarVsHeader(); });
+        $navContainer.find(".nav-grtdm-button").click(function (e) {
+            _this.navButtonPreAction();
+            _this.mainModel.switchToView(main.View.Index);
+        });
+        $navContainer.find(".nav-add-task-button").click(function (e) {
+            _this.navButtonPreAction();
+            _this.mainModel.switchToView(main.View.AddTask);
+        });
+        $navContainer.find(".nav-add-deadline-button").click(function (e) {
+            _this.navButtonPreAction();
+            _this.mainModel.switchToView(main.View.AddDeadline);
+        });
+        $navContainer.find(".nav-calendar-button").click(function (e) {
+            _this.navButtonPreAction();
+            _this.mainModel.switchToView(main.View.Calendar);
+        });
+        $navContainer.find(".nav-logout-button").click(function (e) {
+            _this.navButtonPreAction();
+            _this.mainModel.logout();
+        });
     }
+    Nav.prototype.navButtonPreAction = function () {
+        if (!this.isDesktopWindowSize()) {
+            this.toggleSidebarExpansion();
+        }
+    };
+    Nav.prototype.isDesktopWindowSize = function () {
+        return $(window).width() > MOBILE_MAX_WIDTH;
+    };
     Nav.prototype.toggleSidebarExpansion = function () {
         var $nav = this.$navContainer.find("nav");
         var animDirection = this.isOpen ? "-" : "+";
@@ -1224,7 +1245,7 @@ var Nav = (function () {
     };
     Nav.prototype.toggleSidebarVsHeader = function () {
         var $nav = this.$navContainer.find("nav");
-        var switchToTop = $(window).width() > MOBILE_MAX_WIDTH;
+        var switchToTop = this.isDesktopWindowSize();
         if (switchToTop && $nav.position().left < 0) {
             this.isOpen = true;
             $nav.css({ left: 0 }); // horizontally center nav (in case collapsed in mobile view)
