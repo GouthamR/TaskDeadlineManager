@@ -14,6 +14,21 @@ import { DeadlineJSONWithoutID } from "./item";
 import { DeadlineJSON } from "./item";
 import { DeadlineSerializer } from "./item";
 
+// Module-scope variables:
+let mainModel: MainModel;
+let indexModel: IndexModel;
+let addTaskModel: AddTaskModel;
+
+function initAddTask()
+{
+	AddTask.init($(".main-add-task"), addTaskModel, mainModel);
+}
+
+function initAddDeadline()
+{
+	AddDeadline.init($(".main-add-deadline"), mainModel);
+}
+
 export enum View
 {
 	Index, AddTask, EditTask, AddDeadline, EditDeadline, Calendar
@@ -68,6 +83,14 @@ export class MainModel
 		else if(newView == View.Index)
 		{
 			index.reloadFromServer();
+		}
+		else if(newView == View.AddTask)
+		{
+			initAddTask();
+		}
+		else if(newView == View.AddDeadline)
+		{
+			initAddDeadline();
 		}
 	}
 
@@ -291,19 +314,12 @@ export class AddTaskModel
 	}
 }
 
-// Module-scope variables:
-let mainModel: MainModel;
-let indexModel: IndexModel;
-let addTaskModel: AddTaskModel;
-
 function main(): void
 {
 	mainModel = new MainModel();
 	indexModel = new IndexModel();
 	addTaskModel = new AddTaskModel();
 
-	AddTask.init($(".main-add-task"), addTaskModel, mainModel);
-	AddDeadline.init($(".main-add-deadline"), mainModel);
 	index.init($(".main-index"), indexModel, mainModel);
 	nav.init($(".main-nav"), mainModel);
 	calendar.init($(".main-calendar"), mainModel);

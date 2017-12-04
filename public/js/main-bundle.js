@@ -967,6 +967,16 @@ var nav = require("./nav");
 var calendar = require("./calendar");
 var item_1 = require("./item");
 var item_2 = require("./item");
+// Module-scope variables:
+var mainModel;
+var indexModel;
+var addTaskModel;
+function initAddTask() {
+    AddTask.init($(".main-add-task"), addTaskModel, mainModel);
+}
+function initAddDeadline() {
+    AddDeadline.init($(".main-add-deadline"), mainModel);
+}
 var View;
 (function (View) {
     View[View["Index"] = 0] = "Index";
@@ -1012,6 +1022,12 @@ var MainModel = (function () {
         }
         else if (newView == View.Index) {
             index.reloadFromServer();
+        }
+        else if (newView == View.AddTask) {
+            initAddTask();
+        }
+        else if (newView == View.AddDeadline) {
+            initAddDeadline();
         }
     };
     MainModel.prototype.loadJSONFromServer = function (route, onSuccess, onFailure) {
@@ -1174,16 +1190,10 @@ var AddTaskModel = (function () {
     return AddTaskModel;
 }());
 exports.AddTaskModel = AddTaskModel;
-// Module-scope variables:
-var mainModel;
-var indexModel;
-var addTaskModel;
 function main() {
     mainModel = new MainModel();
     indexModel = new IndexModel();
     addTaskModel = new AddTaskModel();
-    AddTask.init($(".main-add-task"), addTaskModel, mainModel);
-    AddDeadline.init($(".main-add-deadline"), mainModel);
     index.init($(".main-index"), indexModel, mainModel);
     nav.init($(".main-nav"), mainModel);
     calendar.init($(".main-calendar"), mainModel);
