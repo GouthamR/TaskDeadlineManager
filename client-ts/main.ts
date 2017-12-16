@@ -94,6 +94,15 @@ export class MainModel
 		}
 	}
 
+	public initEditTask(task: Task)
+	{
+		EditTask.init($(".main-edit-task"), task, mainModel);
+	}
+
+	public initEditDeadline(deadline: Deadline)
+	{
+		EditDeadline.init($(".main-edit-deadline"), deadline, mainModel);
+	}
 
 	private loadJSONFromServer(route: string, onSuccess: (data) => void, 
 								onFailure: (errorDetails: string) => void): void
@@ -272,16 +281,6 @@ export class IndexModel
 		{
 			alert("Error: Remove Task failed.");
 		});
-	}
-
-	public initEditTask(task: Task)
-	{
-		EditTask.init($(".main-edit-task"), task, mainModel);
-	}
-
-	public initEditDeadline(deadline: Deadline)
-	{
-		EditDeadline.init($(".main-edit-deadline"), deadline, mainModel);
 	}
 }
 

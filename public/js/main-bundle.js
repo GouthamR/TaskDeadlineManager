@@ -58,6 +58,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var main_1 = require("./main");
 // Module-level variables:
 var LOADING_CLASS_NAME = "calendar-loading";
 var $calendarContainer;
@@ -88,6 +89,9 @@ var ItemEventObject = (function () {
     ItemEventObject.prototype.updateItemOnServer = function () {
         // do nothing. to be implemented by subclasses.
     };
+    ItemEventObject.prototype.switchToEditView = function () {
+        // do nothing. to be implemented by subclasses.
+    };
     return ItemEventObject;
 }());
 var TaskEventObject = (function (_super) {
@@ -106,6 +110,10 @@ var TaskEventObject = (function (_super) {
         var updatedTask = this.item;
         mainModel.updateTaskOnServer(updatedTask);
     };
+    TaskEventObject.prototype.switchToEditView = function () {
+        mainModel.initEditTask(this.item);
+        mainModel.switchToView(main_1.View.EditTask);
+    };
     return TaskEventObject;
 }(ItemEventObject));
 var DeadlineEventObject = (function (_super) {
@@ -119,6 +127,10 @@ var DeadlineEventObject = (function (_super) {
         var updatedDeadline = this.item;
         mainModel.updateDeadlineOnServer(updatedDeadline);
     };
+    DeadlineEventObject.prototype.switchToEditView = function () {
+        mainModel.initEditDeadline(this.item);
+        mainModel.switchToView(main_1.View.EditDeadline);
+    };
     return DeadlineEventObject;
 }(ItemEventObject));
 var SubTaskEventObject = (function (_super) {
@@ -130,6 +142,10 @@ var SubTaskEventObject = (function (_super) {
     }
     SubTaskEventObject.prototype.updateItemOnServer = function () {
         mainModel.updateDeadlineOnServer(this.deadline);
+    };
+    SubTaskEventObject.prototype.switchToEditView = function () {
+        mainModel.initEditDeadline(this.deadline);
+        mainModel.switchToView(main_1.View.EditDeadline);
     };
     return SubTaskEventObject;
 }(TaskEventObject));
@@ -174,6 +190,10 @@ function onEventChanged(event, delta, revertFunc, jsEvent, ui, view) {
     itemEvent.updateItemToMatchEvent();
     itemEvent.updateItemOnServer();
 }
+function onEventClicked(event, jsEvent, view) {
+    var itemEvent = event;
+    itemEvent.switchToEditView();
+}
 function initFullCalendar() {
     $calendarContainer.find(".calendar-fullcalendar").fullCalendar({
         header: {
@@ -187,6 +207,7 @@ function initFullCalendar() {
         events: getEventsFromServer,
         eventDrop: onEventChanged,
         eventResize: onEventChanged,
+        eventClick: onEventClicked,
         forceEventDuration: true,
         defaultTimedEventDuration: '01:00:00',
         defaultAllDayEventDuration: { days: 1 }
@@ -206,7 +227,7 @@ function init($targetContainer, mainModelParam) {
 }
 exports.init = init;
 
-},{}],4:[function(require,module,exports){
+},{"./main":10}],4:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 /**
@@ -529,7 +550,7 @@ var TaskLi = (function (_super) {
     }
     // Override
     TaskLi.prototype.onOpenSettingsClicked = function (event) {
-        this.indexModel.initEditTask(this.getItem());
+        this.mainModel.initEditTask(this.getItem());
         this.mainModel.switchToView(main.View.EditTask);
     };
     return TaskLi;
@@ -588,7 +609,7 @@ var SubTaskLi = (function (_super) {
     };
     // Override
     SubTaskLi.prototype.onOpenSettingsClicked = function (event) {
-        this.indexModel.initEditDeadline(this.deadline);
+        this.mainModel.initEditDeadline(this.deadline);
         this.mainModel.switchToView(main.View.EditDeadline);
     };
     return SubTaskLi;
@@ -610,7 +631,7 @@ var DeadlineLi = (function (_super) {
     };
     // Override
     DeadlineLi.prototype.onOpenSettingsClicked = function (event) {
-        this.indexModel.initEditDeadline(this.getItem());
+        this.mainModel.initEditDeadline(this.getItem());
         this.mainModel.switchToView(main.View.EditDeadline);
     };
     return DeadlineLi;
@@ -1034,6 +1055,12 @@ var MainModel = (function () {
             initAddDeadline();
         }
     };
+    MainModel.prototype.initEditTask = function (task) {
+        EditTask.init($(".main-edit-task"), task, mainModel);
+    };
+    MainModel.prototype.initEditDeadline = function (deadline) {
+        EditDeadline.init($(".main-edit-deadline"), deadline, mainModel);
+    };
     MainModel.prototype.loadJSONFromServer = function (route, onSuccess, onFailure) {
         $.getJSON(route)
             .done(function (data, textStatus, jqXHR) {
@@ -1157,12 +1184,6 @@ var IndexModel = (function () {
             .fail(function (jqXHR, textStatus, error) {
             alert("Error: Remove Task failed.");
         });
-    };
-    IndexModel.prototype.initEditTask = function (task) {
-        EditTask.init($(".main-edit-task"), task, mainModel);
-    };
-    IndexModel.prototype.initEditDeadline = function (deadline) {
-        EditDeadline.init($(".main-edit-deadline"), deadline, mainModel);
     };
     return IndexModel;
 }());

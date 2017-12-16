@@ -113,7 +113,7 @@ class TaskLi extends ItemLi
     // Override
     protected onOpenSettingsClicked(event: JQueryEventObject): void
     {
-        this.indexModel.initEditTask(this.getItem() as Task);
+        this.mainModel.initEditTask(this.getItem() as Task);
         this.mainModel.switchToView(main.View.EditTask);
     }
 }
@@ -209,7 +209,7 @@ class SubTaskLi extends ItemLi
     // Override
     protected onOpenSettingsClicked(event: JQueryEventObject): void
     {
-        this.indexModel.initEditDeadline(this.deadline);
+        this.mainModel.initEditDeadline(this.deadline);
         this.mainModel.switchToView(main.View.EditDeadline);
     }
 }
@@ -245,7 +245,7 @@ class DeadlineLi extends ItemLi
     // Override
     protected onOpenSettingsClicked(event: JQueryEventObject): void
     {
-        this.indexModel.initEditDeadline(this.getItem() as Deadline);
+        this.mainModel.initEditDeadline(this.getItem() as Deadline);
         this.mainModel.switchToView(main.View.EditDeadline);
     }
 }

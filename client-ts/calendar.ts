@@ -6,6 +6,7 @@ import { Task } from "./item";
 import { Deadline } from "./item";
 import { SubTask } from "./item";
 import * as main from "./main"
+import { View } from "./main";
 
 // Module-level variables:
 const LOADING_CLASS_NAME: string = "calendar-loading";
@@ -55,6 +56,11 @@ class ItemEventObject implements FC.EventObject
 	{
 		// do nothing. to be implemented by subclasses.
 	}
+
+	public switchToEditView()
+	{
+		// do nothing. to be implemented by subclasses.
+	}
 }
 
 class TaskEventObject extends ItemEventObject
@@ -81,6 +87,12 @@ class TaskEventObject extends ItemEventObject
 		let updatedTask: Task = this.item as Task;
 		mainModel.updateTaskOnServer(updatedTask);
 	}
+
+	public switchToEditView()
+	{
+		mainModel.initEditTask(this.item as Task);
+		mainModel.switchToView(View.EditTask);
+	}
 }
 
 class DeadlineEventObject extends ItemEventObject
@@ -100,6 +112,12 @@ class DeadlineEventObject extends ItemEventObject
 		let updatedDeadline: Deadline = this.item as Deadline;
 		mainModel.updateDeadlineOnServer(updatedDeadline);
 	}
+
+	public switchToEditView()
+	{
+		mainModel.initEditDeadline(this.item as Deadline);
+		mainModel.switchToView(View.EditDeadline);
+	}
 }
 
 class SubTaskEventObject extends TaskEventObject
@@ -116,6 +134,12 @@ class SubTaskEventObject extends TaskEventObject
 	public updateItemOnServer()
 	{
 		mainModel.updateDeadlineOnServer(this.deadline);
+	}
+
+	public switchToEditView()
+	{
+		mainModel.initEditDeadline(this.deadline);
+		mainModel.switchToView(View.EditDeadline);
 	}
 }
 
@@ -194,6 +218,12 @@ function onEventChanged(event: FC.EventObject, delta: moment.Duration,
 	itemEvent.updateItemOnServer();
 }
 
+function onEventClicked(event: FC.EventObject, jsEvent: MouseEvent, view: FC.ViewObject): void
+{
+	let itemEvent = event as ItemEventObject;
+	itemEvent.switchToEditView();
+}
+
 function initFullCalendar(): void
 {
 	$calendarContainer.find(".calendar-fullcalendar").fullCalendar(
@@ -210,6 +240,7 @@ function initFullCalendar(): void
 		events: getEventsFromServer,
 		eventDrop: onEventChanged,
 		eventResize: onEventChanged,
+		eventClick: onEventClicked,
 		forceEventDuration: true, // to set a default end date when moving to/from all-day. default is based on defaultTimedEventDuration and defaultAllDayEventDuration.
 		defaultTimedEventDuration: '01:00:00',
 		defaultAllDayEventDuration: {days: 1}
