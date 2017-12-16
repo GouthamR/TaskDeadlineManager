@@ -58,7 +58,7 @@ abstract class ItemLi
     {
         event.preventDefault(); // prevents form submission
 
-        let $titleInput = this.$li.find("input[type='text']");
+        let $titleInput = this.$li.find(".index-edit-mode-title");
         this.item.setTitle($titleInput.val());
 
         this.fillLiForNormalMode();

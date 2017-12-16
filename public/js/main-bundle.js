@@ -512,7 +512,7 @@ var ItemLi = (function () {
     };
     ItemLi.prototype.onCloseTitleEditClicked = function (event) {
         event.preventDefault(); // prevents form submission
-        var $titleInput = this.$li.find("input[type='text']");
+        var $titleInput = this.$li.find(".index-edit-mode-title");
         this.item.setTitle($titleInput.val());
         this.fillLiForNormalMode();
         this.updateOnServer();

@@ -117,6 +117,7 @@
 
 .index .item-title {
     cursor: pointer;
+    white-space: pre-wrap;
 }
 
 @media (max-width: 768px) {
