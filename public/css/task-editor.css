@@ -1,0 +1,61 @@
+/* ============================ RESET ============================ */
+
+.task-editor div, .task-editor h1, .task-editor h2, .task-editor h3, .task-editor h4, .task-editor h5, .task-editor h6, 
+.task-editor p, .task-editor a, .task-editor img, .task-editor ol, .task-editor ul, .task-editor li, .task-editor nav {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+
+/* ========================== END RESET ========================== */
+
+.task-editor {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.task-editor .task-editor-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: solid #1a6fe6 .15em;
+    background-color: #ebf0f3;
+    padding: .5em 2em;
+    width: 20em;
+}
+
+.task-editor .task-editor-form-start-datetime-container,
+.task-editor .task-editor-form-end-datetime-container,
+.task-editor .task-editor-form-title-input-container {
+    display: flex;
+    align-items: center;
+}
+
+.task-editor .task-editor-form-start-datetime-container > *,
+.task-editor .task-editor-form-end-datetime-container > *,
+.task-editor .task-editor-form-title-input-container > * {
+    margin: 0 .1em;
+}
+
+.task-editor .task-editor-form > * {
+    margin: .2em 0;
+}
+
+.task-editor textarea, .task-editor input {
+    font-family: 'Open Sans', sans-serif;    
+}
+
+.task-editor-form-submit-button {
+    width: 6em;
+    height: 2em;
+    background-color: #0F51AD;
+    color: white;
+    border: none;
+    font-size: 0.9em;
+    cursor: pointer;
+}

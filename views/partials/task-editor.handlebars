@@ -1,23 +1,24 @@
 {{#addLink}}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>{{/addLink}}
 {{#addLink}}<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js"></script>{{/addLink}}
+{{#addLink}}<link rel="stylesheet" type="text/css" href="css/task-editor.css">{{/addLink}}
 
 <!-- body: -->
 <div class="task-editor">
 	<form class="task-editor-form" action="" method="post">
-		<label>
-			Title
-			<textarea class="task-editor-form-title-input" name="title" autofocus="true"></textarea>
-		</label>
-		<label>
-			Start
-			<input type="date" class="task-editor-form-start-date-input" name="start-date">
-		</label>
-		<input type="time" class="task-editor-form-start-time-input" name="start-time">
-		<label>
-			End
-			<input type="date" class="task-editor-form-end-date-input" name="end-date">
-		</label>
-		<input type="time" class="task-editor-form-end-time-input" name="end-time">
-		<input type="submit" value="Done">
+		<div class="task-editor-form-title-input-container">
+			<label for="task-editor-form-title-input">Title</label>
+			<textarea class="task-editor-form-title-input" id="task-editor-form-title-input" name="title" autofocus="true"></textarea>
+		</div>
+		<div class="task-editor-form-start-datetime-container">
+			<label for="task-editor-form-start-date-input">Start</label>
+			<input type="date" class="task-editor-form-start-date-input" id="task-editor-form-start-date-input" name="start-date">
+			<input type="time" class="task-editor-form-start-time-input" name="start-time">
+		</div>
+		<div class="task-editor-form-end-datetime-container">
+			<label for="task-editor-form-end-date-input">End</label>
+			<input type="date" class="task-editor-form-end-date-input" id="task-editor-form-end-date-input" name="end-date">
+			<input type="time" class="task-editor-form-end-time-input" name="end-time">
+		</div>
+		<input type="submit" class="task-editor-form-submit-button" value="Done">
 	</form>
 </div>
