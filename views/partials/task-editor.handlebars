@@ -5,20 +5,14 @@
 <!-- body: -->
 <div class="task-editor">
 	<form class="task-editor-form" action="" method="post">
-		<div class="task-editor-form-title-input-container">
-			<label for="task-editor-form-title-input">Title</label>
-			<textarea class="task-editor-form-title-input" id="task-editor-form-title-input" name="title" autofocus="true"></textarea>
-		</div>
-		<div class="task-editor-form-start-datetime-container">
-			<label for="task-editor-form-start-date-input">Start</label>
-			<input type="date" class="task-editor-form-start-date-input" id="task-editor-form-start-date-input" name="start-date">
-			<input type="time" class="task-editor-form-start-time-input" name="start-time">
-		</div>
-		<div class="task-editor-form-end-datetime-container">
-			<label for="task-editor-form-end-date-input">End</label>
-			<input type="date" class="task-editor-form-end-date-input" id="task-editor-form-end-date-input" name="end-date">
-			<input type="time" class="task-editor-form-end-time-input" name="end-time">
-		</div>
+		<label class="task-editor-form-title-label" for="task-editor-form-title-input">Title</label>
+		<textarea class="task-editor-form-title-input" id="task-editor-form-title-input" name="title" autofocus="true"></textarea>
+		<label class="task-editor-form-start-date-label" for="task-editor-form-start-date-input">Start</label>
+		<input type="date" class="task-editor-form-start-date-input" id="task-editor-form-start-date-input" name="start-date">
+		<input type="time" class="task-editor-form-start-time-input" name="start-time">
+		<label class="task-editor-form-end-date-label" for="task-editor-form-end-date-input">End</label>
+		<input type="date" class="task-editor-form-end-date-input" id="task-editor-form-end-date-input" name="end-date">
+		<input type="time" class="task-editor-form-end-time-input" name="end-time">
 		<input type="submit" class="task-editor-form-submit-button" value="Done">
 	</form>
 </div>

@@ -19,38 +19,71 @@
 }
 
 .task-editor .task-editor-form {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 2.5em 10em 6em;
+    grid-template-rows: 2fr 1fr 1fr 1fr;
+    grid-gap: .3em .2em;
+    justify-items: stretch;
+    align-items: stretch;
     border: solid #1a6fe6 .15em;
     background-color: #ebf0f3;
-    padding: .5em 2em;
-    width: 20em;
+    padding: 1em 2em;
 }
 
-.task-editor .task-editor-form-start-datetime-container,
-.task-editor .task-editor-form-end-datetime-container,
-.task-editor .task-editor-form-title-input-container {
-    display: flex;
-    align-items: center;
-}
-
-.task-editor .task-editor-form-start-datetime-container > *,
-.task-editor .task-editor-form-end-datetime-container > *,
-.task-editor .task-editor-form-title-input-container > * {
-    margin: 0 .1em;
-}
-
-.task-editor .task-editor-form > * {
-    margin: .2em 0;
+.task-editor label {
+    text-align: center;
+    align-self: center;
 }
 
 .task-editor textarea, .task-editor input {
     font-family: 'Open Sans', sans-serif;    
 }
 
-.task-editor-form-submit-button {
+.task-editor .task-editor-form-title-label {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+}
+
+.task-editor .task-editor-form-title-input {
+    grid-column: 2 / 4;
+    grid-row: 1 / 2;
+    resize: none;
+}
+
+.task-editor .task-editor-form-start-date-label {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+}
+
+.task-editor .task-editor-form-start-date-input {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+}
+
+.task-editor .task-editor-form-start-time-input {
+    grid-column: 3 / 4;
+    grid-row: 2 / 3;
+}
+
+.task-editor .task-editor-form-end-date-label {
+    grid-column: 1 / 2;
+    grid-row: 3 / 4;
+}
+
+.task-editor .task-editor-form-end-date-input {
+    grid-column: 2 / 3;
+    grid-row: 3 / 4;
+}
+
+.task-editor .task-editor-form-end-time-input {
+    grid-column: 3 / 4;
+    grid-row: 3 / 4;
+}
+
+.task-editor .task-editor-form-submit-button {
+    grid-column: 1 / 4;
+    grid-row: 4 / 5;
+    justify-self: center;
     width: 6em;
     height: 2em;
     background-color: #0F51AD;
