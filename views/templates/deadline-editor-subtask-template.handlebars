@@ -1,23 +1,14 @@
-<fieldset class="deadline-editor-form-subtask">
-	<legend>SubTask:</legend>
-	<label>
-	    Title
-	    <textarea class="deadline-editor-form-subtask-title-input" name="title" autofocus="true">{{title}}</textarea>
-	</label>
-	<label>
-	    Start
-	    <input type="date" class="deadline-editor-form-subtask-start-date-input" name="start-date" value="{{startDate}}">
-	</label>
+{{!-- Note: did not use fieldsets and legend because browsers currently do not support display: grid for a fieldset. --}}
+{{!-- Note: did not use label for="...", since cannot have unique ids when the subtask template is used repeatedly. TODO: workaround. --}}
+<div class="deadline-editor-form-subtask">
+	<label class="deadline-editor-form-subtask-title-label">Title</label>
+	<textarea class="deadline-editor-form-subtask-title-input" name="title" autofocus="true">{{title}}</textarea>
+	<label class="deadline-editor-form-subtask-start-date-label">Start</label>
+	<input type="date" class="deadline-editor-form-subtask-start-date-input" name="start-date" value="{{startDate}}">
 	<input type="time" class="deadline-editor-form-subtask-start-time-input" name="start-time" value="{{startTime}}">
-	<label>
-	    End
-	    <input type="date" class="deadline-editor-form-subtask-end-date-input" name="end-date" value="{{endDate}}">
-	</label>
+	<label class="deadline-editor-form-subtask-end-date-label">End</label>
+	<input type="date" class="deadline-editor-form-subtask-end-date-input" name="end-date" value="{{endDate}}">
 	<input type="time" class="deadline-editor-form-subtask-end-time-input" name="end-time" value="{{endTime}}">
-	<input type="checkbox" class="deadline-editor-form-subtask-done-input"
-	{{#if isDone}}
-		checked
-	{{/if}}
-	>
+	<input type="checkbox" class="deadline-editor-form-subtask-done-input" {{#if isDone}}checked{{/if}}>
 	<input type="button" class="deadline-editor-form-subtask-remove-button" value="-">
-</fieldset>
+</div>

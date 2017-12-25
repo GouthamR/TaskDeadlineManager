@@ -1,26 +1,24 @@
 {{#addLink}}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>{{/addLink}}
 {{#addLink}}<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js"></script>{{/addLink}}
 {{#addLink}}<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.6/handlebars.js"></script>{{/addLink}}
+{{#addLink}}<link rel="stylesheet" type="text/css" href="css/deadline-editor.css">{{/addLink}}
 
 <!-- body: -->
 <div class="deadline-editor">
 	<form class="deadline-editor-form" action="" method="post">
-		<fieldset class="deadline-editor-form-deadline">
-			<legend>Deadline Info:</legend>
-			<label>
-				Title
-				<textarea class="deadline-editor-form-deadline-title-input" name="title" autofocus="true"></textarea>
-			</label>
-			<label>
-				Start
-				<input type="date" class="deadline-editor-form-deadline-start-date-input" name="start-date">
-			</label>
+		{{!-- Note: did not use fieldsets and legend because browsers currently do not support display: grid for a fieldset. --}}
+		<label>Deadline Info:</label>
+		<div class="deadline-editor-form-deadline">
+			<label class="deadline-editor-form-deadline-title-label" for="deadline-editor-form-deadline-title-input">Title</label>
+			<textarea class="deadline-editor-form-deadline-title-input" id="deadline-editor-form-deadline-title-input" name="title" autofocus="true"></textarea>
+			<label class="deadline-editor-form-deadline-start-date-label" for="deadline-editor-form-deadline-start-date-input">Due</label>
+			<input type="date" class="deadline-editor-form-deadline-start-date-input" id="deadline-editor-form-deadline-start-date-input" name="start-date">
 			<input type="time" class="deadline-editor-form-deadline-start-time-input" name="start-time">
-		</fieldset>
-		<fieldset class="deadline-editor-form-subtasks">
-			<legend>SubTask Info:</legend>
+		</div>
+		<label class="deadline-editor-form-subtask-info-label">SubTask Info:</label>
+		<div class="deadline-editor-form-subtasks">
 			<input type="button" class="deadline-editor-form-subtask-add-button" value="+">
-		</fieldset>
-		<input type="submit" value="Done">
+		</div>
+		<input class="deadline-editor-form-submit-button" type="submit" value="Done">
 	</form>
 </div>
