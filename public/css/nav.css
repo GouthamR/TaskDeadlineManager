@@ -138,7 +138,7 @@
 
     .nav .nav-pull-link:after {
         content: "";
-        background: url('../img/nav-ham.png') no-repeat;
+        background: url('/img/nav-ham.png') no-repeat;
         background-size: 3.5em 3em;
         width: 3.5em;
         height: 3em;

@@ -52,7 +52,7 @@ body {
 .landing-main-google-signin {
     flex: 1 1 calc(.65 * 92px);
     width: calc(.65 * 382px);
-    background-image: url("../img/btn_google_signin_light_sprite_web@2x.png");
+    background-image: url("/img/btn_google_signin_light_sprite_web@2x.png");
     background-position: calc(.65 * -10px) calc(.65 * -102px);
     background-size: calc(.65 * 402px) calc(.65 * 306px);
     text-decoration: none;
