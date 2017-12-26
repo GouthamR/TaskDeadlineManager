@@ -22,9 +22,9 @@ templates['deadline-editor-subtask-template'] = template({"1":function(container
 templates['index-edit-mode-template'] = template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var helper;
 
-  return "<form>\r\n	<textarea class=\"index-edit-mode-title\">"
+  return "<form class=\"index-edit-mode-form\">\r\n	<textarea class=\"index-edit-mode-form-title\">"
     + container.escapeExpression(((helper = (helper = helpers.title || (depth0 != null ? depth0.title : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : {},{"name":"title","hash":{},"data":data}) : helper)))
-    + "</textarea>\r\n	<input type=\"submit\" value=\"Done\">\r\n</form>";
+    + "</textarea>\r\n	<input class=\"index-edit-mode-form-submit\" type=\"submit\" value=\"Done\">\r\n</form>";
 },"useData":true});
 templates['index-normal-mode-template'] = template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var helper, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;

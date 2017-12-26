@@ -120,6 +120,31 @@
     white-space: pre-wrap;
 }
 
+.index .index-edit-mode-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: .4em 0;
+}
+
+.index .index-edit-mode-form-title {
+    width: 60%;
+    height: 4em;
+    font-family: 'Open Sans', sans-serif;    
+    resize: none;
+}
+
+.index .index-edit-mode-form-submit {
+    width: 5em;
+    height: 2em;
+    background-color: #0F51AD;
+    color: white;
+    border: none;
+    font-size: 0.9em;
+    cursor: pointer;
+    margin-top: .4em;
+}
+
 @media (max-width: 768px) {
     .index .index-taskdeadline-container {
         height: calc(200vh - 8em);
