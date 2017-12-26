@@ -26,64 +26,38 @@
     background-color: #0F51AD;
 }
 
-.nav nav ul li {
-    display: inline-block;
-    /*height and line height must be equal for vertical alignment:*/
+.nav nav ul {
     height: 3.5em;
-    line-height: 3.5em;
-    vertical-align: middle;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+}
+
+.nav nav ul li {
+    flex: 0 1 12em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     white-space: nowrap;
     cursor: pointer;
-}
-
-.nav nav ul li a {
-    color: white;
-    text-decoration: none;
-}
-
-.nav .nav-grtdm-button a {
-    font-size: 2.5em;
-}
-
-.nav .nav-grtdm-button {
-    width: 17%;
-}
-
-.nav .nav-add-task-button {
-    margin-left: 8%;
-}
-
-.nav .nav-add-task-button, .nav .nav-add-deadline-button, .nav .nav-calendar-button {
-    width: 16.667%;
-}
-
-.nav .nav-add-task-button a, .nav .nav-add-deadline-button a, .nav .nav-calendar-button a {
-    font-size: 1.7em;
-}
-
-.nav .nav-settings-button {
-    margin-left: 2%;
-}
-
-.nav .nav-logout-button {
-    margin-left: 3%;
-}
-
-.nav .nav-settings-button, .nav .nav-logout-button {
-    width: 10%;
-}
-
-.nav .nav-settings-button a, .nav .nav-logout-button a{
-    font-size: 1.5em;
+    border-bottom: .1em solid transparent;
 }
 
 .nav nav ul li:hover {
-    background-color: #5781bc;
+    border-color: white;
 }
 
-.nav nav ul li a:hover {
+.nav nav ul .nav-grtdm-button {
+    margin-right: auto;
+}
+
+.nav nav ul .nav-logout-button {
+    margin-left: auto;
+}
+
+.nav nav ul li a {
+    font-size: 1.7em;
     color: white;
+    text-decoration: none;
 }
 
 .nav .nav-pull-link {
@@ -111,20 +85,26 @@
         display: inline-block;
     }
 
-    .nav nav ul li {
-        display: block;
+    .nav nav ul {
         width: 15em;
-        text-align: left;
+        height: 100%;
+        flex-direction: column;
+        justify-content: flex-start;
     }
 
-    /* need to explicitly specify individually to override individual selectors above: */
-    .nav .nav-grtdm-button, .nav .nav-add-task-button, .nav .nav-add-deadline-button, 
-    .nav .nav-calendar-button, .nav .nav-settings-button, .nav .nav-logout-button {
-        width: 100%;
-        height: 3.5em;
-        line-height: 3.5em;
-        margin-left: 0;
-        font-size: 1em;
+    .nav nav ul li {
+        justify-content: flex-start;
+        margin-left: .5em;
+    }
+
+    /* Note: need to override .nav-logout-button margin-left with same value as in @media .nav nav ul li
+       because .nav-logout-button selector outside @media takes precedence over @media .nav nav ul li . */
+    .nav nav ul .nav-logout-button {
+        margin-left: .5em;
+    }
+
+    .nav nav ul .nav-grtdm-button {
+        margin-right: 0;
     }
 
     .nav .nav-pull-link {
