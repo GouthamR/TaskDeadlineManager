@@ -171,14 +171,6 @@ var config = function(app, db, oauthConfig)
 		});
 	});
 
-	app.get('/', function(req, res)
-	{
-		if(req.session.accessToken)
-			res.render('main');
-		else
-			res.render("landing", {synchronizerToken: getSynchronizerToken(req.session)});
-	});
-
 	var checkLoggedIn = function(req, res, next)
 	{
 		if(!req.session.accessToken)
@@ -342,6 +334,14 @@ var config = function(app, db, oauthConfig)
 				res.json(result);
 			});
 		});
+	});
+
+	app.get('/*', function(req, res)
+	{
+		if(req.session.accessToken)
+			res.render('main');
+		else
+			res.render("landing", {synchronizerToken: getSynchronizerToken(req.session)});
 	});
 
 	app.use(function(req, res)

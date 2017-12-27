@@ -34,6 +34,11 @@ export enum View
 	Index, AddTask, EditTask, AddDeadline, EditDeadline, Calendar
 }
 
+interface WindowHistoryState
+{
+	view: View;
+}
+
 export class MainModel
 {
 	private setVisibility(elementClass: string, isVisible: boolean): void
@@ -58,7 +63,7 @@ export class MainModel
 		return valueStrings.map((v) => parseInt(v));
 	}
 
-	public switchToView(newView: View): void
+	public switchToView(newView: View, changeURL=true): void
 	{
 		const CLASS_NAME_TO_VIEW_VALUE_MAP = 
 		{
@@ -74,6 +79,10 @@ export class MainModel
 		{
 			let viewValue = CLASS_NAME_TO_VIEW_VALUE_MAP[className];
 			this.setVisibility(className, viewValue == newView);
+			if(viewValue == newView && changeURL)
+			{
+				this.pushViewURL(newView);
+			}
 		}
 
 		if(newView == View.Calendar)
@@ -92,6 +101,32 @@ export class MainModel
 		{
 			initAddDeadline();
 		}
+	}
+
+	private viewToURL(view: View): string
+	{
+		const VIEW_TO_URL_MAP = 
+		{
+			[View.Index]: "index",
+			[View.AddTask]: "add-task",
+			[View.EditTask]: "edit-task",
+			[View.AddDeadline]: "add-deadline",
+			[View.EditDeadline]: "edit-deadline",
+			[View.Calendar]: "calendar"
+		};
+		return "/" + VIEW_TO_URL_MAP[view];
+	}
+
+	public pushViewURL(view: View)
+	{
+		let state: WindowHistoryState = {view: view};
+		window.history.pushState(state, "", this.viewToURL(view));
+	}
+
+	public replaceViewURL(view: View)
+	{
+		let state: WindowHistoryState = {view: view};
+		window.history.replaceState(state, "", this.viewToURL(view));
 	}
 
 	public initEditTask(task: Task)
@@ -312,7 +347,20 @@ function main(): void
 
 	index.reloadFromServer();
 
-	mainModel.switchToView(View.Index);
+	if(window.history.state)
+	{
+		console.log('has history.state:');
+		console.log(window.history.state);
+		mainModel.switchToView((window.history.state as WindowHistoryState).view, false);
+	}
+	else
+	{
+		console.log('no history state');
+		mainModel.switchToView(View.Index, false);
+		mainModel.replaceViewURL(View.Index);
+	}
+
+	window.onpopstate = ((e) => mainModel.switchToView((e.state as WindowHistoryState).view, false));
 }
 
 $(document).ready(main);

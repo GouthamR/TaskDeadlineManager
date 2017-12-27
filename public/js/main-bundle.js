@@ -1029,7 +1029,8 @@ var MainModel = (function () {
         var valueStrings = Object.keys(e).filter(function (k) { return typeof e[k] === "string"; });
         return valueStrings.map(function (v) { return parseInt(v); });
     };
-    MainModel.prototype.switchToView = function (newView) {
+    MainModel.prototype.switchToView = function (newView, changeURL) {
+        if (changeURL === void 0) { changeURL = true; }
         var CLASS_NAME_TO_VIEW_VALUE_MAP = {
             ".main-index": View.Index,
             ".main-add-task": View.AddTask,
@@ -1041,6 +1042,9 @@ var MainModel = (function () {
         for (var className in CLASS_NAME_TO_VIEW_VALUE_MAP) {
             var viewValue = CLASS_NAME_TO_VIEW_VALUE_MAP[className];
             this.setVisibility(className, viewValue == newView);
+            if (viewValue == newView && changeURL) {
+                this.pushViewURL(newView);
+            }
         }
         if (newView == View.Calendar) {
             calendar.reloadCalendar();
@@ -1054,6 +1058,26 @@ var MainModel = (function () {
         else if (newView == View.AddDeadline) {
             initAddDeadline();
         }
+    };
+    MainModel.prototype.viewToURL = function (view) {
+        var VIEW_TO_URL_MAP = (_a = {},
+            _a[View.Index] = "index",
+            _a[View.AddTask] = "add-task",
+            _a[View.EditTask] = "edit-task",
+            _a[View.AddDeadline] = "add-deadline",
+            _a[View.EditDeadline] = "edit-deadline",
+            _a[View.Calendar] = "calendar",
+            _a);
+        return "/" + VIEW_TO_URL_MAP[view];
+        var _a;
+    };
+    MainModel.prototype.pushViewURL = function (view) {
+        var state = { view: view };
+        window.history.pushState(state, "", this.viewToURL(view));
+    };
+    MainModel.prototype.replaceViewURL = function (view) {
+        var state = { view: view };
+        window.history.replaceState(state, "", this.viewToURL(view));
     };
     MainModel.prototype.initEditTask = function (task) {
         EditTask.init($(".main-edit-task"), task, mainModel);
@@ -1211,7 +1235,17 @@ function main() {
     nav.init($(".main-nav"), mainModel);
     calendar.init($(".main-calendar"), mainModel);
     index.reloadFromServer();
-    mainModel.switchToView(View.Index);
+    if (window.history.state) {
+        console.log('has history.state:');
+        console.log(window.history.state);
+        mainModel.switchToView(window.history.state.view, false);
+    }
+    else {
+        console.log('no history state');
+        mainModel.switchToView(View.Index, false);
+        mainModel.replaceViewURL(View.Index);
+    }
+    window.onpopstate = (function (e) { return mainModel.switchToView(e.state.view, false); });
 }
 $(document).ready(main);
 
