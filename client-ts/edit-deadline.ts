@@ -14,7 +14,7 @@ function onDeadlineEditorSubmit(updatedJsonWithoutID: DeadlineJSONWithoutID,
 
     mainModel.updateDeadlineOnServer(updatedDeadline);
 
-    mainModel.switchToView(main.View.Index);
+    mainModel.switchToIndexView();
 }
 
 export function init($targetContainer: JQuery, 

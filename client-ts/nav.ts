@@ -23,22 +23,22 @@ class Nav
         $navContainer.find(".nav-grtdm-button").click((e: JQueryEventObject) =>
         {
             this.navButtonPreAction();
-            this.mainModel.switchToView(main.View.Index);
+            this.mainModel.switchToIndexView();
         });
         $navContainer.find(".nav-add-task-button").click((e: JQueryEventObject) =>
         {
             this.navButtonPreAction();
-            this.mainModel.switchToView(main.View.AddTask);
+            this.mainModel.switchToAddTaskView();
         });
         $navContainer.find(".nav-add-deadline-button").click((e: JQueryEventObject) =>
         {
             this.navButtonPreAction();
-            this.mainModel.switchToView(main.View.AddDeadline);
+            this.mainModel.switchToAddDeadlineView();
         });
         $navContainer.find(".nav-calendar-button").click((e: JQueryEventObject) =>
         {
             this.navButtonPreAction();
-            this.mainModel.switchToView(main.View.Calendar);
+            this.mainModel.switchToCalendarView();
         });
         $navContainer.find(".nav-logout-button").click((e: JQueryEventObject) =>
         {

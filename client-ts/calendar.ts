@@ -90,8 +90,7 @@ class TaskEventObject extends ItemEventObject
 
 	public switchToEditView()
 	{
-		mainModel.initEditTask(this.item as Task);
-		mainModel.switchToView(View.EditTask);
+		mainModel.switchToEditTaskView((this.item as Task).getID());
 	}
 }
 
@@ -115,8 +114,7 @@ class DeadlineEventObject extends ItemEventObject
 
 	public switchToEditView()
 	{
-		mainModel.initEditDeadline(this.item as Deadline);
-		mainModel.switchToView(View.EditDeadline);
+		mainModel.switchToEditDeadlineView((this.item as Deadline).getID());
 	}
 }
 
@@ -138,8 +136,7 @@ class SubTaskEventObject extends TaskEventObject
 
 	public switchToEditView()
 	{
-		mainModel.initEditDeadline(this.deadline);
-		mainModel.switchToView(View.EditDeadline);
+		mainModel.switchToEditDeadlineView(this.deadline.getID());
 	}
 }
 

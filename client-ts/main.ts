@@ -37,6 +37,7 @@ export enum View
 interface WindowHistoryState
 {
 	view: View;
+	data?: string;
 }
 
 export class MainModel
@@ -63,7 +64,7 @@ export class MainModel
 		return valueStrings.map((v) => parseInt(v));
 	}
 
-	public switchToView(newView: View, changeURL=true): void
+	private switchToView(newView: View, changeURL=true, data?: string): void
 	{
 		const CLASS_NAME_TO_VIEW_VALUE_MAP = 
 		{
@@ -81,29 +82,110 @@ export class MainModel
 			this.setVisibility(className, viewValue == newView);
 			if(viewValue == newView && changeURL)
 			{
-				this.pushViewURL(newView);
+				this.pushViewURL(newView, data);
 			}
-		}
-
-		if(newView == View.Calendar)
-		{
-			calendar.reloadCalendar();
-		}
-		else if(newView == View.Index)
-		{
-			index.reloadFromServer();
-		}
-		else if(newView == View.AddTask)
-		{
-			initAddTask();
-		}
-		else if(newView == View.AddDeadline)
-		{
-			initAddDeadline();
 		}
 	}
 
-	private viewToURL(view: View): string
+	public switchToIndexView(changeURL=true): void
+	{
+		this.switchToView(View.Index, changeURL);
+		index.reloadFromServer();
+	}
+
+	public switchToCalendarView(changeURL=true): void
+	{
+		this.switchToView(View.Calendar, changeURL);
+		calendar.reloadCalendar();
+	}
+
+	public switchToAddTaskView(changeURL=true): void
+	{
+		initAddTask();
+		this.switchToView(View.AddTask, changeURL);
+	}
+
+	public switchToAddDeadlineView(changeURL=true): void
+	{
+		initAddDeadline();
+		this.switchToView(View.AddDeadline, changeURL);
+	}
+
+	// TODO: make more efficient. Currently loads all tasks.
+	private getTaskByID(taskID: string, onSuccess: (task: Task) => void, onFailure: (errorDetails: string) => void): void
+	{
+		function onLoadSuccess(tasks: Task[]): void
+		{
+			let found = false;
+			for(let task of tasks)
+			{
+				if(task.getID() == taskID)
+				{
+					onSuccess(task);
+					found = true;
+				}
+			}
+
+			if(!found)
+			{
+				onFailure("Error: task not found");
+			}
+		}
+
+		this.loadTasksFromServer(onLoadSuccess, onFailure);
+	}
+
+	// TODO: make more efficient. Currently loads all deadlines.
+	private getDeadlineByID(deadlineID: string, onSuccess: (deadline: Deadline) => void, onFailure: (errorDetails: string) => void): void
+	{
+		function onLoadSuccess(deadlines: Deadline[]): void
+		{
+			let found = false;
+			for(let deadline of deadlines)
+			{
+				if(deadline.getID() == deadlineID)
+				{
+					onSuccess(deadline);
+					found = true;
+				}
+			}
+
+			if(!found)
+			{
+				onFailure("Error: deadline not found");
+			}
+		}
+
+		this.loadDeadlinesFromServer(onLoadSuccess, onFailure);
+	}
+
+	// TODO: make more efficient by adding version of this method that takes Task object, for the
+	// cases where the caller already loaded it.
+	public switchToEditTaskView(taskID: string, changeURL=true): void
+	{
+		let onSuccess = (task: Task) => 
+		{
+			this.initEditTask(task);
+			this.switchToView(View.EditTask, changeURL, taskID);
+		}
+
+		this.getTaskByID(taskID, onSuccess, (e) => alert(e));
+	}
+
+	// TODO: make more efficient by adding version of this method that takes Deadline object, for
+	// the cases where the caller already loaded it.
+	public switchToEditDeadlineView(deadlineID: string, changeURL=true): void
+	{
+		let onSuccess = (deadline: Deadline) => 
+		{
+			this.initEditDeadline(deadline);
+			this.switchToView(View.EditDeadline, changeURL, deadlineID);
+		}
+
+		this.getDeadlineByID(deadlineID, onSuccess, (e) => alert(e));
+	}
+
+	private viewToURL(view: View, data?: string): string
 	{
 		const VIEW_TO_URL_MAP = 
 		{
@@ -114,19 +196,19 @@ export class MainModel
 			[View.EditDeadline]: "edit-deadline",
 			[View.Calendar]: "calendar"
 		};
-		return "/" + VIEW_TO_URL_MAP[view];
+		return "/" + VIEW_TO_URL_MAP[view] + (data ? "/" + data : "");
 	}
 
-	public pushViewURL(view: View)
+	public pushViewURL(view: View, data?: string)
 	{
-		let state: WindowHistoryState = {view: view};
-		window.history.pushState(state, "", this.viewToURL(view));
+		let state: WindowHistoryState = {view: view, data: data};
+		window.history.pushState(state, "", this.viewToURL(view, data));
 	}
 
-	public replaceViewURL(view: View)
+	public replaceViewURL(view: View, data?: string)
 	{
-		let state: WindowHistoryState = {view: view};
-		window.history.replaceState(state, "", this.viewToURL(view));
+		let state: WindowHistoryState = {view: view, data: data};
+		window.history.replaceState(state, "", this.viewToURL(view, data));
 	}
 
 	public initEditTask(task: Task)
@@ -335,6 +417,35 @@ export class AddTaskModel
 	}
 }
 
+// Note: does not change url.
+function switchToViewUsingHistoryState(windowHistoryState: WindowHistoryState): void
+{
+	if(windowHistoryState.view == View.Index)
+	{
+		mainModel.switchToIndexView(false);
+	}
+	else if(windowHistoryState.view == View.AddTask)
+	{
+		mainModel.switchToAddTaskView(false);
+	}
+	else if(windowHistoryState.view == View.EditTask)
+	{
+		mainModel.switchToEditTaskView(windowHistoryState.data, false);
+	}
+	else if(windowHistoryState.view == View.AddDeadline)
+	{
+		mainModel.switchToAddDeadlineView(false);
+	}
+	else if(windowHistoryState.view == View.EditDeadline)
+	{
+		mainModel.switchToEditDeadlineView(windowHistoryState.data, false);
+	}
+	else if(windowHistoryState.view == View.Calendar)
+	{
+		mainModel.switchToCalendarView(false);
+	}
+}
+
 function main(): void
 {
 	mainModel = new MainModel();
@@ -351,16 +462,16 @@ function main(): void
 	{
 		console.log('has history.state:');
 		console.log(window.history.state);
-		mainModel.switchToView((window.history.state as WindowHistoryState).view, false);
+		switchToViewUsingHistoryState(window.history.state as WindowHistoryState);
 	}
 	else
 	{
 		console.log('no history state');
-		mainModel.switchToView(View.Index, false);
+		mainModel.switchToIndexView(false);
 		mainModel.replaceViewURL(View.Index);
 	}
 
-	window.onpopstate = ((e) => mainModel.switchToView((e.state as WindowHistoryState).view, false));
+	window.onpopstate = ((e) => switchToViewUsingHistoryState(e.state as WindowHistoryState));
 }
 
 $(document).ready(main);

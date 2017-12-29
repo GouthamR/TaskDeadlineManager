@@ -13,7 +13,7 @@ function onDeadlineEditorSubmit(json: DeadlineJSONWithoutID)
 
     mainModel.addDeadlineToServer(json);
 
-    mainModel.switchToView(main.View.Index);
+    mainModel.switchToIndexView();
 }
 
 export function init($targetContainer: JQuery, mainModelParam: main.MainModel): void

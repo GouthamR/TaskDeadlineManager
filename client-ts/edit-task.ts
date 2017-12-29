@@ -14,7 +14,7 @@ function onTaskEditorSubmit(updatedJsonWithoutID: TaskJSONWithoutID,
 
     mainModel.updateTaskOnServer(updatedTask);
 
-    mainModel.switchToView(main.View.Index);
+    mainModel.switchToIndexView();
 }
 
 export function init($targetContainer: JQuery, 

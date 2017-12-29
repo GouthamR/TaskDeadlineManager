@@ -8,7 +8,7 @@ function onTaskEditorSubmit(json: TaskJSONWithoutID,
                             addTaskModel: main.AddTaskModel,
                             mainModel: main.MainModel)
 {
-    mainModel.switchToView(main.View.Index);
+    mainModel.switchToIndexView();
     
     addTaskModel.addTask(json);
 }

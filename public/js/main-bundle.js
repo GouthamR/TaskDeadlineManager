@@ -2,13 +2,12 @@
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 var DeadlineEditor = require("./deadline-editor");
-var main = require("./main");
 // Module-scope variables:
 var mainModel;
 function onDeadlineEditorSubmit(json) {
     event.preventDefault();
     mainModel.addDeadlineToServer(json);
-    mainModel.switchToView(main.View.Index);
+    mainModel.switchToIndexView();
 }
 function init($targetContainer, mainModelParam) {
     mainModel = mainModelParam;
@@ -25,13 +24,12 @@ function init($targetContainer, mainModelParam) {
 }
 exports.init = init;
 
-},{"./deadline-editor":5,"./main":10}],2:[function(require,module,exports){
+},{"./deadline-editor":5}],2:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 var task_editor_1 = require("./task-editor");
-var main = require("./main");
 function onTaskEditorSubmit(json, addTaskModel, mainModel) {
-    mainModel.switchToView(main.View.Index);
+    mainModel.switchToIndexView();
     addTaskModel.addTask(json);
 }
 function init($targetContainer, addTaskModel, mainModel) {
@@ -49,7 +47,7 @@ function init($targetContainer, addTaskModel, mainModel) {
 }
 exports.init = init;
 
-},{"./main":10,"./task-editor":12}],3:[function(require,module,exports){
+},{"./task-editor":12}],3:[function(require,module,exports){
 /// <reference path="./fullcalendar_modified.d.ts" />
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
@@ -58,7 +56,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var main_1 = require("./main");
 // Module-level variables:
 var LOADING_CLASS_NAME = "calendar-loading";
 var $calendarContainer;
@@ -111,8 +108,7 @@ var TaskEventObject = (function (_super) {
         mainModel.updateTaskOnServer(updatedTask);
     };
     TaskEventObject.prototype.switchToEditView = function () {
-        mainModel.initEditTask(this.item);
-        mainModel.switchToView(main_1.View.EditTask);
+        mainModel.switchToEditTaskView(this.item.getID());
     };
     return TaskEventObject;
 }(ItemEventObject));
@@ -128,8 +124,7 @@ var DeadlineEventObject = (function (_super) {
         mainModel.updateDeadlineOnServer(updatedDeadline);
     };
     DeadlineEventObject.prototype.switchToEditView = function () {
-        mainModel.initEditDeadline(this.item);
-        mainModel.switchToView(main_1.View.EditDeadline);
+        mainModel.switchToEditDeadlineView(this.item.getID());
     };
     return DeadlineEventObject;
 }(ItemEventObject));
@@ -144,8 +139,7 @@ var SubTaskEventObject = (function (_super) {
         mainModel.updateDeadlineOnServer(this.deadline);
     };
     SubTaskEventObject.prototype.switchToEditView = function () {
-        mainModel.initEditDeadline(this.deadline);
-        mainModel.switchToView(main_1.View.EditDeadline);
+        mainModel.switchToEditDeadlineView(this.deadline.getID());
     };
     return SubTaskEventObject;
 }(TaskEventObject));
@@ -227,7 +221,7 @@ function init($targetContainer, mainModelParam) {
 }
 exports.init = init;
 
-},{"./main":10}],4:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 /**
@@ -440,12 +434,11 @@ exports.init = init;
 "use strict";
 var item_1 = require("./item");
 var DeadlineEditor = require("./deadline-editor");
-var main = require("./main");
 function onDeadlineEditorSubmit(updatedJsonWithoutID, origDeadline, mainModel) {
     var updatedJson = $.extend({}, updatedJsonWithoutID, { _id: origDeadline.getID() });
     var updatedDeadline = new item_1.DeadlineSerializer().fromJSON(updatedJson);
     mainModel.updateDeadlineOnServer(updatedDeadline);
-    mainModel.switchToView(main.View.Index);
+    mainModel.switchToIndexView();
 }
 function init($targetContainer, deadline, mainModel) {
     var $topContainer = $targetContainer.find(".edit-deadline");
@@ -455,17 +448,16 @@ function init($targetContainer, deadline, mainModel) {
 }
 exports.init = init;
 
-},{"./deadline-editor":5,"./item":9,"./main":10}],7:[function(require,module,exports){
+},{"./deadline-editor":5,"./item":9}],7:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 var item_1 = require("./item");
 var task_editor_1 = require("./task-editor");
-var main = require("./main");
 function onTaskEditorSubmit(updatedJsonWithoutID, origTask, mainModel) {
     var updatedJson = $.extend({}, updatedJsonWithoutID, { _id: origTask.getID() });
     var updatedTask = new item_1.TaskSerializer().fromJSON(updatedJson);
     mainModel.updateTaskOnServer(updatedTask);
-    mainModel.switchToView(main.View.Index);
+    mainModel.switchToIndexView();
 }
 function init($targetContainer, task, mainModel) {
     var $topContainer = $targetContainer.find(".edit-task");
@@ -475,7 +467,7 @@ function init($targetContainer, task, mainModel) {
 }
 exports.init = init;
 
-},{"./item":9,"./main":10,"./task-editor":12}],8:[function(require,module,exports){
+},{"./item":9,"./task-editor":12}],8:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
@@ -483,7 +475,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var main = require("./main");
 var ItemLi = (function () {
     // Note that the constructor does NOT automatically append the Li to the $targetUl.
     // appendToUl() must be called to do this,
@@ -550,8 +541,7 @@ var TaskLi = (function (_super) {
     }
     // Override
     TaskLi.prototype.onOpenSettingsClicked = function (event) {
-        this.mainModel.initEditTask(this.getItem());
-        this.mainModel.switchToView(main.View.EditTask);
+        this.mainModel.switchToEditTaskView(this.getItem().getID());
     };
     return TaskLi;
 }(ItemLi));
@@ -609,8 +599,7 @@ var SubTaskLi = (function (_super) {
     };
     // Override
     SubTaskLi.prototype.onOpenSettingsClicked = function (event) {
-        this.mainModel.initEditDeadline(this.deadline);
-        this.mainModel.switchToView(main.View.EditDeadline);
+        this.mainModel.switchToEditDeadlineView(this.deadline.getID());
     };
     return SubTaskLi;
 }(ItemLi));
@@ -631,8 +620,7 @@ var DeadlineLi = (function (_super) {
     };
     // Override
     DeadlineLi.prototype.onOpenSettingsClicked = function (event) {
-        this.mainModel.initEditDeadline(this.getItem());
-        this.mainModel.switchToView(main.View.EditDeadline);
+        this.mainModel.switchToEditDeadlineView(this.getItem().getID());
     };
     return DeadlineLi;
 }(ItemLi));
@@ -740,7 +728,7 @@ function init($targetContainer, indexModel, mainModel) {
 }
 exports.init = init;
 
-},{"./main":10}],9:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
@@ -1024,7 +1012,7 @@ var MainModel = (function () {
         var valueStrings = Object.keys(e).filter(function (k) { return typeof e[k] === "string"; });
         return valueStrings.map(function (v) { return parseInt(v); });
     };
-    MainModel.prototype.switchToView = function (newView, changeURL) {
+    MainModel.prototype.switchToView = function (newView, changeURL, data) {
         if (changeURL === void 0) { changeURL = true; }
         var CLASS_NAME_TO_VIEW_VALUE_MAP = {
             ".main-index": View.Index,
@@ -1038,23 +1026,87 @@ var MainModel = (function () {
             var viewValue = CLASS_NAME_TO_VIEW_VALUE_MAP[className];
             this.setVisibility(className, viewValue == newView);
             if (viewValue == newView && changeURL) {
-                this.pushViewURL(newView);
+                this.pushViewURL(newView, data);
             }
         }
-        if (newView == View.Calendar) {
-            calendar.reloadCalendar();
-        }
-        else if (newView == View.Index) {
-            index.reloadFromServer();
-        }
-        else if (newView == View.AddTask) {
-            initAddTask();
-        }
-        else if (newView == View.AddDeadline) {
-            initAddDeadline();
-        }
     };
-    MainModel.prototype.viewToURL = function (view) {
+    MainModel.prototype.switchToIndexView = function (changeURL) {
+        if (changeURL === void 0) { changeURL = true; }
+        this.switchToView(View.Index, changeURL);
+        index.reloadFromServer();
+    };
+    MainModel.prototype.switchToCalendarView = function (changeURL) {
+        if (changeURL === void 0) { changeURL = true; }
+        this.switchToView(View.Calendar, changeURL);
+        calendar.reloadCalendar();
+    };
+    MainModel.prototype.switchToAddTaskView = function (changeURL) {
+        if (changeURL === void 0) { changeURL = true; }
+        initAddTask();
+        this.switchToView(View.AddTask, changeURL);
+    };
+    MainModel.prototype.switchToAddDeadlineView = function (changeURL) {
+        if (changeURL === void 0) { changeURL = true; }
+        initAddDeadline();
+        this.switchToView(View.AddDeadline, changeURL);
+    };
+    // TODO: make more efficient. Currently loads all tasks.
+    MainModel.prototype.getTaskByID = function (taskID, onSuccess, onFailure) {
+        function onLoadSuccess(tasks) {
+            var found = false;
+            for (var _i = 0, tasks_1 = tasks; _i < tasks_1.length; _i++) {
+                var task = tasks_1[_i];
+                if (task.getID() == taskID) {
+                    onSuccess(task);
+                    found = true;
+                }
+            }
+            if (!found) {
+                onFailure("Error: task not found");
+            }
+        }
+        this.loadTasksFromServer(onLoadSuccess, onFailure);
+    };
+    // TODO: make more efficient. Currently loads all deadlines.
+    MainModel.prototype.getDeadlineByID = function (deadlineID, onSuccess, onFailure) {
+        function onLoadSuccess(deadlines) {
+            var found = false;
+            for (var _i = 0, deadlines_1 = deadlines; _i < deadlines_1.length; _i++) {
+                var deadline = deadlines_1[_i];
+                if (deadline.getID() == deadlineID) {
+                    onSuccess(deadline);
+                    found = true;
+                }
+            }
+            if (!found) {
+                onFailure("Error: deadline not found");
+            }
+        }
+        this.loadDeadlinesFromServer(onLoadSuccess, onFailure);
+    };
+    // TODO: make more efficient by adding version of this method that takes Task object, for the
+    // cases where the caller already loaded it.
+    MainModel.prototype.switchToEditTaskView = function (taskID, changeURL) {
+        var _this = this;
+        if (changeURL === void 0) { changeURL = true; }
+        var onSuccess = function (task) {
+            _this.initEditTask(task);
+            _this.switchToView(View.EditTask, changeURL, taskID);
+        };
+        this.getTaskByID(taskID, onSuccess, function (e) { return alert(e); });
+    };
+    // TODO: make more efficient by adding version of this method that takes Deadline object, for
+    // the cases where the caller already loaded it.
+    MainModel.prototype.switchToEditDeadlineView = function (deadlineID, changeURL) {
+        var _this = this;
+        if (changeURL === void 0) { changeURL = true; }
+        var onSuccess = function (deadline) {
+            _this.initEditDeadline(deadline);
+            _this.switchToView(View.EditDeadline, changeURL, deadlineID);
+        };
+        this.getDeadlineByID(deadlineID, onSuccess, function (e) { return alert(e); });
+    };
+    MainModel.prototype.viewToURL = function (view, data) {
         var VIEW_TO_URL_MAP = (_a = {},
             _a[View.Index] = "index",
             _a[View.AddTask] = "add-task",
@@ -1063,16 +1115,16 @@ var MainModel = (function () {
             _a[View.EditDeadline] = "edit-deadline",
             _a[View.Calendar] = "calendar",
             _a);
-        return "/" + VIEW_TO_URL_MAP[view];
+        return "/" + VIEW_TO_URL_MAP[view] + (data ? "/" + data : "");
         var _a;
     };
-    MainModel.prototype.pushViewURL = function (view) {
-        var state = { view: view };
-        window.history.pushState(state, "", this.viewToURL(view));
+    MainModel.prototype.pushViewURL = function (view, data) {
+        var state = { view: view, data: data };
+        window.history.pushState(state, "", this.viewToURL(view, data));
     };
-    MainModel.prototype.replaceViewURL = function (view) {
-        var state = { view: view };
-        window.history.replaceState(state, "", this.viewToURL(view));
+    MainModel.prototype.replaceViewURL = function (view, data) {
+        var state = { view: view, data: data };
+        window.history.replaceState(state, "", this.viewToURL(view, data));
     };
     MainModel.prototype.initEditTask = function (task) {
         EditTask.init($(".main-edit-task"), task, mainModel);
@@ -1222,6 +1274,27 @@ var AddTaskModel = (function () {
     return AddTaskModel;
 }());
 exports.AddTaskModel = AddTaskModel;
+// Note: does not change url.
+function switchToViewUsingHistoryState(windowHistoryState) {
+    if (windowHistoryState.view == View.Index) {
+        mainModel.switchToIndexView(false);
+    }
+    else if (windowHistoryState.view == View.AddTask) {
+        mainModel.switchToAddTaskView(false);
+    }
+    else if (windowHistoryState.view == View.EditTask) {
+        mainModel.switchToEditTaskView(windowHistoryState.data, false);
+    }
+    else if (windowHistoryState.view == View.AddDeadline) {
+        mainModel.switchToAddDeadlineView(false);
+    }
+    else if (windowHistoryState.view == View.EditDeadline) {
+        mainModel.switchToEditDeadlineView(windowHistoryState.data, false);
+    }
+    else if (windowHistoryState.view == View.Calendar) {
+        mainModel.switchToCalendarView(false);
+    }
+}
 function main() {
     mainModel = new MainModel();
     indexModel = new IndexModel();
@@ -1233,20 +1306,19 @@ function main() {
     if (window.history.state) {
         console.log('has history.state:');
         console.log(window.history.state);
-        mainModel.switchToView(window.history.state.view, false);
+        switchToViewUsingHistoryState(window.history.state);
     }
     else {
         console.log('no history state');
-        mainModel.switchToView(View.Index, false);
+        mainModel.switchToIndexView(false);
         mainModel.replaceViewURL(View.Index);
     }
-    window.onpopstate = (function (e) { return mainModel.switchToView(e.state.view, false); });
+    window.onpopstate = (function (e) { return switchToViewUsingHistoryState(e.state); });
 }
 $(document).ready(main);
 
 },{"./add-deadline":1,"./add-task":2,"./calendar":3,"./edit-deadline":6,"./edit-task":7,"./index":8,"./item":9,"./nav":11}],11:[function(require,module,exports){
 "use strict";
-var main = require("./main");
 // Module-scope variables:
 var MOBILE_MAX_WIDTH = 768; // pixels
 var ANIM_TIME = 350; // milliseconds
@@ -1260,19 +1332,19 @@ var Nav = (function () {
         $(window).resize(function (e) { return _this.toggleSidebarVsHeader(); });
         $navContainer.find(".nav-grtdm-button").click(function (e) {
             _this.navButtonPreAction();
-            _this.mainModel.switchToView(main.View.Index);
+            _this.mainModel.switchToIndexView();
         });
         $navContainer.find(".nav-add-task-button").click(function (e) {
             _this.navButtonPreAction();
-            _this.mainModel.switchToView(main.View.AddTask);
+            _this.mainModel.switchToAddTaskView();
         });
         $navContainer.find(".nav-add-deadline-button").click(function (e) {
             _this.navButtonPreAction();
-            _this.mainModel.switchToView(main.View.AddDeadline);
+            _this.mainModel.switchToAddDeadlineView();
         });
         $navContainer.find(".nav-calendar-button").click(function (e) {
             _this.navButtonPreAction();
-            _this.mainModel.switchToView(main.View.Calendar);
+            _this.mainModel.switchToCalendarView();
         });
         $navContainer.find(".nav-logout-button").click(function (e) {
             _this.navButtonPreAction();
@@ -1314,7 +1386,7 @@ function init($targetContainer, mainModel) {
 }
 exports.init = init;
 
-},{"./main":10}],12:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /// <reference path="./moment_modified.d.ts" />
 "use strict";
 var DateTimeGroupSynchronizer = require("./date-time-group-synchronizer");
