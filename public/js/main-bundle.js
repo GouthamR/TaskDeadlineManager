@@ -638,14 +638,9 @@ var DeadlineLi = (function (_super) {
 }(ItemLi));
 var View = (function () {
     function View($targetContainer, indexModel, mainModel) {
-        var _this = this;
         this.$indexContainer = $targetContainer.find(".index");
         this.indexModel = indexModel;
         this.mainModel = mainModel;
-        var $addTaskButton = this.$indexContainer.find(".index-task-container > a");
-        $addTaskButton.click(function (event) { return _this.mainModel.switchToView(main.View.AddTask); });
-        var $addDeadlineButton = this.$indexContainer.find(".index-deadline-container > a");
-        $addDeadlineButton.click(function (event) { return _this.mainModel.switchToView(main.View.AddDeadline); });
     }
     View.prototype.clearAndShowLoadingOnContainer = function ($container) {
         var $ul = $container.find("ul");
