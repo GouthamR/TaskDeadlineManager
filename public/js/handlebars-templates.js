@@ -29,10 +29,10 @@ templates['index-edit-mode-template'] = template({"compiler":[7,">= 4.0.0"],"mai
 templates['index-normal-mode-template'] = template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var helper, alias1=depth0 != null ? depth0 : {}, alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
 
-  return "<img class=\"td-check\" src=\"img/check.png\">\r\n<div class=\"item-middle\">\r\n	<p class=\"item-title\">"
+  return "<img class=\"td-check\" src=\"/img/check.png\">\r\n<div class=\"item-middle\">\r\n	<p class=\"item-title\">"
     + alias4(((helper = (helper = helpers.title || (depth0 != null ? depth0.title : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"title","hash":{},"data":data}) : helper)))
     + "</p>\r\n	<p>"
     + alias4(((helper = (helper = helpers.dayTimeString || (depth0 != null ? depth0.dayTimeString : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"dayTimeString","hash":{},"data":data}) : helper)))
-    + "</p>\r\n</div>\r\n<img class=\"td-settings\" src=\"img/gear.png\">";
+    + "</p>\r\n</div>\r\n<img class=\"td-settings\" src=\"/img/gear.png\">";
 },"useData":true});
 })();
