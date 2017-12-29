@@ -93,6 +93,7 @@
     }
 
     .nav nav ul li {
+        flex: 0 0 3em;
         justify-content: flex-start;
         margin-left: .5em;
     }
