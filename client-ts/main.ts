@@ -321,7 +321,7 @@ export class MainModel
 	{
 		let updatedJSON: TaskJSON = new TaskSerializer().toJSON(updatedTask);
 		
-		$.post("update-task", updatedJSON)
+		$.post("/update-task", updatedJSON)
 		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
 		{
 			calendar.reloadCalendar();
@@ -334,7 +334,7 @@ export class MainModel
 
 	public addDeadlineToServer(json: DeadlineJSONWithoutID): void
 	{
-		$.post("add-deadline", json)
+		$.post("/add-deadline", json)
 		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
 		{
 			index.reloadFromServer();
@@ -349,7 +349,7 @@ export class MainModel
 	{
 		let updatedJSON: DeadlineJSON = new DeadlineSerializer().toJSON(updatedDeadline);
 		
-		$.post("update-deadline", updatedJSON)
+		$.post("/update-deadline", updatedJSON)
 		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
 		{
 			calendar.reloadCalendar();
@@ -382,7 +382,7 @@ export class IndexModel
 	{
 		let json: DeadlineJSON = new DeadlineSerializer().toJSON(deadlineToRemove);
 
-		$.post("delete-deadline", json)
+		$.post("/delete-deadline", json)
 		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
 		{
 			alert("Error: Remove Deadline failed.");
@@ -393,7 +393,7 @@ export class IndexModel
 	{
 		let json: TaskJSON = new TaskSerializer().toJSON(taskToRemove);
 
-		$.post("delete-task", json)
+		$.post("/delete-task", json)
 		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
 		{
 			alert("Error: Remove Task failed.");
@@ -405,7 +405,7 @@ export class AddTaskModel
 {
 	public addTask(json: TaskJSONWithoutID)
 	{
-		$.post("add-task", json)
+		$.post("/add-task", json)
 		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
 		{
 			index.reloadFromServer();

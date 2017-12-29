@@ -1198,7 +1198,7 @@ var MainModel = (function () {
     };
     MainModel.prototype.updateTaskOnServer = function (updatedTask) {
         var updatedJSON = new item_1.TaskSerializer().toJSON(updatedTask);
-        $.post("update-task", updatedJSON)
+        $.post("/update-task", updatedJSON)
             .done(function (data, textStatus, jqXHR) {
             calendar.reloadCalendar();
         })
@@ -1207,7 +1207,7 @@ var MainModel = (function () {
         });
     };
     MainModel.prototype.addDeadlineToServer = function (json) {
-        $.post("add-deadline", json)
+        $.post("/add-deadline", json)
             .done(function (data, textStatus, jqXHR) {
             index.reloadFromServer();
         })
@@ -1217,7 +1217,7 @@ var MainModel = (function () {
     };
     MainModel.prototype.updateDeadlineOnServer = function (updatedDeadline) {
         var updatedJSON = new item_2.DeadlineSerializer().toJSON(updatedDeadline);
-        $.post("update-deadline", updatedJSON)
+        $.post("/update-deadline", updatedJSON)
             .done(function (data, textStatus, jqXHR) {
             calendar.reloadCalendar();
         })
@@ -1244,14 +1244,14 @@ var IndexModel = (function () {
     }
     IndexModel.prototype.removeDeadlineFromServer = function (deadlineToRemove) {
         var json = new item_2.DeadlineSerializer().toJSON(deadlineToRemove);
-        $.post("delete-deadline", json)
+        $.post("/delete-deadline", json)
             .fail(function (jqXHR, textStatus, error) {
             alert("Error: Remove Deadline failed.");
         });
     };
     IndexModel.prototype.removeTaskFromServer = function (taskToRemove) {
         var json = new item_1.TaskSerializer().toJSON(taskToRemove);
-        $.post("delete-task", json)
+        $.post("/delete-task", json)
             .fail(function (jqXHR, textStatus, error) {
             alert("Error: Remove Task failed.");
         });
@@ -1263,7 +1263,7 @@ var AddTaskModel = (function () {
     function AddTaskModel() {
     }
     AddTaskModel.prototype.addTask = function (json) {
-        $.post("add-task", json)
+        $.post("/add-task", json)
             .done(function (data, textStatus, jqXHR) {
             index.reloadFromServer();
         })
