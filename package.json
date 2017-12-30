@@ -9,7 +9,9 @@
   "scripts": {
     "start": "node app.js",
     "start-dev": "nodemon app.js",
-    "build": "tsc -p tsconfig-files/tsconfig-main.json && tsc -p tsconfig-files/tsconfig-landing.json && handlebars views/templates/ -f public/js/handlebars-templates.js"
+    "build": "tsc -p tsconfig-files/tsconfig-main.json && tsc -p tsconfig-files/tsconfig-landing.json && handlebars views/templates/ -f public/js/handlebars-templates.js",
+    "build-dev": "concurrently \"tsc -w -p tsconfig-files/tsconfig-main.json\" \"tsc -w -p tsconfig-files/tsconfig-landing.json\" \"npm run handlebars-dev\"",
+    "handlebars-dev": "watch \"handlebars views/templates/ -f public/js/handlebars-templates.js\" views/templates"
   },
   "repository": {
     "type": "git",
@@ -33,8 +35,10 @@
   "devDependencies": {
     "@types/handlebars": "^4.0.31",
     "@types/jquery": "^2.0.34",
+    "concurrently": "^3.5.1",
     "handlebars": "^4.0.6",
     "nodemon": "^1.12.1",
-    "typescript": "^2.1.5"
+    "typescript": "^2.1.5",
+    "watch": "^1.0.2"
   }
 }
