@@ -85,6 +85,9 @@ export class MainModel
 			".main-edit-deadline": View.EditDeadline,
 			".main-calendar": View.Calendar
 		};
+		const MAIN_LOADING_CLASS_NAME = ".main-loading";
+
+		this.setVisibility(MAIN_LOADING_CLASS_NAME, false);
 
 		for(let className in CLASS_NAME_TO_VIEW_VALUE_MAP)
 		{

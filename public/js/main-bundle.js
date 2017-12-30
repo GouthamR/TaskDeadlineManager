@@ -210,6 +210,7 @@ function initFullCalendar() {
 }
 function reloadCalendar() {
     var $fullCalendar = $calendarContainer.find(".calendar-fullcalendar");
+    $fullCalendar.fullCalendar('render'); // ensures calendar renders properly if parent div was previously display: none
     $fullCalendar.fullCalendar("refetchEvents");
 }
 exports.reloadCalendar = reloadCalendar;
@@ -1030,6 +1031,8 @@ var MainModel = (function () {
             ".main-edit-deadline": View.EditDeadline,
             ".main-calendar": View.Calendar
         };
+        var MAIN_LOADING_CLASS_NAME = ".main-loading";
+        this.setVisibility(MAIN_LOADING_CLASS_NAME, false);
         for (var className in CLASS_NAME_TO_VIEW_VALUE_MAP) {
             var viewValue = CLASS_NAME_TO_VIEW_VALUE_MAP[className];
             this.setVisibility(className, viewValue == newView);

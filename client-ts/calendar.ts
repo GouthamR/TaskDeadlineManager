@@ -249,6 +249,7 @@ function initFullCalendar(): void
 export function reloadCalendar(): void
 {
 	let $fullCalendar: JQuery = $calendarContainer.find(".calendar-fullcalendar");
+	$fullCalendar.fullCalendar('render'); // ensures calendar renders properly if parent div was previously display: none
 	$fullCalendar.fullCalendar("refetchEvents");
 }
 
