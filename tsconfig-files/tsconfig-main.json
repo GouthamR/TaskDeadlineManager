@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "module": "system",
+        "outFile": "../public/js/main-bundle.js",
+        "removeComments": true
+    },
+    "files": [
+        "../client-ts/main.ts"
+    ]
+}

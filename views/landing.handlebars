@@ -19,4 +19,9 @@
     </div>
 </div>
 <div hidden id="synchronizer-token-div">{{synchronizerToken}}</div>
+{{!-- No modules in landing-bundle.js, so SystemJS not required. Uncomment SystemJS code if multiple modules in landing-bundle.js . --}}
+{{!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.20.19/system-production.js" integrity="sha256-hK82DZVd/r46W9ckSgpLzzCQgB3bDM1XBgAHovX6FHI=" crossorigin="anonymous"></script> --}}
 <script src="/js/landing-bundle.js"></script>
+{{!-- <script>
+	SystemJS.import("landing");
+</script> --}}

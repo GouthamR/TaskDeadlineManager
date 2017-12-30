@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node app.js",
     "start-dev": "nodemon app.js",
-    "build": "tsc && browserify client-ts/main.js -o public/js/main-bundle.js && browserify client-ts/landing.js -o public/js/landing-bundle.js && handlebars views/templates/ -f public/js/handlebars-templates.js"
+    "build": "tsc -p tsconfig-files/tsconfig-main.json && tsc -p tsconfig-files/tsconfig-landing.json && handlebars views/templates/ -f public/js/handlebars-templates.js"
   },
   "repository": {
     "type": "git",
@@ -33,7 +33,6 @@
   "devDependencies": {
     "@types/handlebars": "^4.0.31",
     "@types/jquery": "^2.0.34",
-    "browserify": "^13.3.0",
     "handlebars": "^4.0.6",
     "nodemon": "^1.12.1",
     "typescript": "^2.1.5"

@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "module": "system",
+        "outFile": "../public/js/landing-bundle.js",
+        "removeComments": true
+    },
+    "files": [
+        "../client-ts/landing.ts"
+    ]
+}
