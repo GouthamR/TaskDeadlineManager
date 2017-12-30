@@ -994,6 +994,14 @@ var View;
     View[View["EditDeadline"] = 4] = "EditDeadline";
     View[View["Calendar"] = 5] = "Calendar";
 })(View = exports.View || (exports.View = {}));
+var VIEW_TO_URL_MAP = (_a = {},
+    _a[View.Index] = "index",
+    _a[View.AddTask] = "add-task",
+    _a[View.EditTask] = "edit-task",
+    _a[View.AddDeadline] = "add-deadline",
+    _a[View.EditDeadline] = "edit-deadline",
+    _a[View.Calendar] = "calendar",
+    _a);
 var MainModel = (function () {
     function MainModel() {
     }
@@ -1107,16 +1115,7 @@ var MainModel = (function () {
         this.getDeadlineByID(deadlineID, onSuccess, function (e) { return alert(e); });
     };
     MainModel.prototype.viewToURL = function (view, data) {
-        var VIEW_TO_URL_MAP = (_a = {},
-            _a[View.Index] = "index",
-            _a[View.AddTask] = "add-task",
-            _a[View.EditTask] = "edit-task",
-            _a[View.AddDeadline] = "add-deadline",
-            _a[View.EditDeadline] = "edit-deadline",
-            _a[View.Calendar] = "calendar",
-            _a);
         return "/" + VIEW_TO_URL_MAP[view] + (data ? "/" + data : "");
-        var _a;
     };
     MainModel.prototype.pushViewURL = function (view, data) {
         var state = { view: view, data: data };
@@ -1295,6 +1294,44 @@ function switchToViewUsingHistoryState(windowHistoryState) {
         mainModel.switchToCalendarView(false);
     }
 }
+function parseWindowHistoryStateFromURLPathname(pathname) {
+    var pathnameGetSuffix = function (routeName) {
+        // Roughly equivalent to pathname.startsWith . See https://stackoverflow.com/a/4579228
+        var pathnameStartsWith = function (other) {
+            return pathname.lastIndexOf(other, 0) == 0;
+        };
+        var routeWithSlashes = "/" + routeName + "/";
+        if (pathnameStartsWith(routeWithSlashes)) {
+            var suffix = pathname.substring(routeWithSlashes.length);
+            if (suffix != "") {
+                return suffix;
+            }
+        }
+        return undefined;
+    };
+    var pathnameMatches = function (routeName) {
+        return pathname == ("/" + routeName);
+    };
+    if (pathnameMatches(VIEW_TO_URL_MAP[View.AddTask])) {
+        return { view: View.AddTask };
+    }
+    var taskID = pathnameGetSuffix(VIEW_TO_URL_MAP[View.EditTask]);
+    if (taskID) {
+        return { view: View.EditTask, data: taskID };
+    }
+    if (pathnameMatches(VIEW_TO_URL_MAP[View.AddDeadline])) {
+        return { view: View.AddDeadline };
+    }
+    var deadlineID = pathnameGetSuffix(VIEW_TO_URL_MAP[View.EditDeadline]);
+    if (deadlineID) {
+        return { view: View.EditDeadline, data: deadlineID };
+    }
+    if (pathnameMatches(VIEW_TO_URL_MAP[View.Calendar])) {
+        return { view: View.Calendar };
+    }
+    // If index path, or not matching any of the known paths, go to index:
+    return { view: View.Index };
+}
 function main() {
     mainModel = new MainModel();
     indexModel = new IndexModel();
@@ -1310,12 +1347,14 @@ function main() {
     }
     else {
         console.log('no history state');
-        mainModel.switchToIndexView(false);
-        mainModel.replaceViewURL(View.Index);
+        var windowHistoryState = parseWindowHistoryStateFromURLPathname(window.location.pathname);
+        switchToViewUsingHistoryState(windowHistoryState);
+        mainModel.replaceViewURL(windowHistoryState.view, windowHistoryState.data);
     }
     window.onpopstate = (function (e) { return switchToViewUsingHistoryState(e.state); });
 }
 $(document).ready(main);
+var _a;
 
 },{"./add-deadline":1,"./add-task":2,"./calendar":3,"./edit-deadline":6,"./edit-task":7,"./index":8,"./item":9,"./nav":11}],11:[function(require,module,exports){
 "use strict";

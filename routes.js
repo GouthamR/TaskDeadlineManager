@@ -336,12 +336,20 @@ var config = function(app, db, oauthConfig)
 		});
 	});
 
-	app.get('/*', function(req, res)
+	app.get("/", function(req, res)
 	{
 		if(req.session.accessToken)
 			res.render('main');
 		else
 			res.render("landing", {synchronizerToken: getSynchronizerToken(req.session)});
+	});
+
+	app.get('/*', function(req, res)
+	{
+		if(req.session.accessToken)
+			res.render('main');
+		else
+			res.redirect("/"); // to render landing with "/" url (instead of the given url, e.g. "/calendar")
 	});
 
 	app.use(function(req, res)

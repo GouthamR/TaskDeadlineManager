@@ -40,6 +40,16 @@ interface WindowHistoryState
 	data?: string;
 }
 
+const VIEW_TO_URL_MAP = 
+{
+	[View.Index]: "index",
+	[View.AddTask]: "add-task",
+	[View.EditTask]: "edit-task",
+	[View.AddDeadline]: "add-deadline",
+	[View.EditDeadline]: "edit-deadline",
+	[View.Calendar]: "calendar"
+};
+
 export class MainModel
 {
 	private setVisibility(elementClass: string, isVisible: boolean): void
@@ -187,15 +197,6 @@ export class MainModel
 
 	private viewToURL(view: View, data?: string): string
 	{
-		const VIEW_TO_URL_MAP = 
-		{
-			[View.Index]: "index",
-			[View.AddTask]: "add-task",
-			[View.EditTask]: "edit-task",
-			[View.AddDeadline]: "add-deadline",
-			[View.EditDeadline]: "edit-deadline",
-			[View.Calendar]: "calendar"
-		};
 		return "/" + VIEW_TO_URL_MAP[view] + (data ? "/" + data : "");
 	}
 
@@ -446,6 +447,65 @@ function switchToViewUsingHistoryState(windowHistoryState: WindowHistoryState): 
 	}
 }
 
+function parseWindowHistoryStateFromURLPathname(pathname: string): WindowHistoryState
+{
+	let pathnameGetSuffix = (routeName: string) => 
+	{
+		// Roughly equivalent to pathname.startsWith . See https://stackoverflow.com/a/4579228
+		let pathnameStartsWith = (other: string) => 
+		{
+			return pathname.lastIndexOf(other, 0) == 0;
+		};
+
+		let routeWithSlashes = "/" + routeName + "/";
+		if(pathnameStartsWith(routeWithSlashes))
+		{
+			let suffix = pathname.substring(routeWithSlashes.length);
+			if(suffix != "")
+			{
+				return suffix;
+			}
+		}
+
+		return undefined;
+	};
+
+	let pathnameMatches = (routeName: string) => 
+	{
+		return pathname == ("/" + routeName);
+	};
+
+	if(pathnameMatches(VIEW_TO_URL_MAP[View.AddTask]))
+	{
+		return {view: View.AddTask};
+	}
+
+	let taskID = pathnameGetSuffix(VIEW_TO_URL_MAP[View.EditTask]);
+	if(taskID)
+	{
+		return {view: View.EditTask, data: taskID};
+	}
+	
+	if(pathnameMatches(VIEW_TO_URL_MAP[View.AddDeadline]))
+	{
+		return {view: View.AddDeadline};
+	}
+	
+	let deadlineID = pathnameGetSuffix(VIEW_TO_URL_MAP[View.EditDeadline]);
+	if(deadlineID)
+	{
+		return {view: View.EditDeadline, data: deadlineID};
+	}
+
+	if(pathnameMatches(VIEW_TO_URL_MAP[View.Calendar]))
+	{
+		return {view: View.Calendar};
+	}
+
+	// If index path, or not matching any of the known paths, go to index:
+	return {view: View.Index};
+}
+
 function main(): void
 {
 	mainModel = new MainModel();
@@ -467,8 +527,9 @@ function main(): void
 	else
 	{
 		console.log('no history state');
-		mainModel.switchToIndexView(false);
-		mainModel.replaceViewURL(View.Index);
+		let windowHistoryState = parseWindowHistoryStateFromURLPathname(window.location.pathname);
+		switchToViewUsingHistoryState(windowHistoryState);
+		mainModel.replaceViewURL(windowHistoryState.view, windowHistoryState.data);
 	}
 
 	window.onpopstate = ((e) => switchToViewUsingHistoryState(e.state as WindowHistoryState));
