@@ -87,9 +87,10 @@
 
     .nav nav ul {
         width: 15em;
-        height: 100%;
+        height: calc(100% - 3.5em);
         flex-direction: column;
         justify-content: flex-start;
+        overflow: scroll;
     }
 
     .nav nav ul li {
@@ -126,11 +127,5 @@
         margin-top: .25em;
         margin-left: .25em;
         display: inline-block;
-    }
-
-    @media (max-height: 25em) {
-        .nav nav {
-            overflow: scroll;
-        }
     }
 }
