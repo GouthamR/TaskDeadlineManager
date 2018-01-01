@@ -181,8 +181,6 @@ export function init($targetContainer: JQuery,
                         deadlineJson: DeadlineJSONWithoutID,
                         doneCallbackParam: (d: DeadlineJSONWithoutID) => void): void
 {
-    "use strict";
-
     $topContainer = $targetContainer.find(".deadline-editor");
     doneCallback = doneCallbackParam;
 

@@ -3,6 +3,7 @@
 import { Task, TaskJSON, TaskJSONWithoutID, TaskSerializer } from "./item";
 import { TaskEditor } from "./task-editor"
 import * as main from "./main"
+import * as viewSwitcher from "./view-switcher";
 
 function onTaskEditorSubmit(updatedJsonWithoutID: TaskJSONWithoutID, 
                             origTask: Task,
@@ -14,7 +15,7 @@ function onTaskEditorSubmit(updatedJsonWithoutID: TaskJSONWithoutID,
 
     mainModel.updateTaskOnServer(updatedTask);
 
-    mainModel.switchToIndexView();
+    viewSwitcher.switchToIndexView();
 }
 
 export function init($targetContainer: JQuery, 

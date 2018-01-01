@@ -1,14 +1,15 @@
 /// <reference path="./moment_modified.d.ts" />
 
 import { TaskJSONWithoutID } from "./item";
-import { TaskEditor } from "./task-editor"
-import * as main from "./main"
+import { TaskEditor } from "./task-editor";
+import * as main from "./main";
+import * as viewSwitcher from "./view-switcher";
 
 function onTaskEditorSubmit(json: TaskJSONWithoutID, 
                             addTaskModel: main.AddTaskModel,
                             mainModel: main.MainModel)
 {
-    mainModel.switchToIndexView();
+    viewSwitcher.switchToIndexView();
     
     addTaskModel.addTask(json);
 }

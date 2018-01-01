@@ -5,6 +5,7 @@ import { Task } from "./item";
 import { Deadline } from "./item";
 import { SubTask } from "./item";
 import * as main from "./main"
+import * as viewSwitcher from "./view-switcher";
 
 abstract class ItemLi
 {
@@ -113,7 +114,7 @@ class TaskLi extends ItemLi
     // Override
     protected onOpenSettingsClicked(event: JQueryEventObject): void
     {
-        this.mainModel.switchToEditTaskView((this.getItem() as Task).getID());
+        viewSwitcher.switchToEditTaskView((this.getItem() as Task).getID());
     }
 }
 
@@ -208,7 +209,7 @@ class SubTaskLi extends ItemLi
     // Override
     protected onOpenSettingsClicked(event: JQueryEventObject): void
     {
-        this.mainModel.switchToEditDeadlineView(this.deadline.getID());
+        viewSwitcher.switchToEditDeadlineView(this.deadline.getID());
     }
 }
 
@@ -243,7 +244,7 @@ class DeadlineLi extends ItemLi
     // Override
     protected onOpenSettingsClicked(event: JQueryEventObject): void
     {
-        this.mainModel.switchToEditDeadlineView((this.getItem() as Deadline).getID());
+        viewSwitcher.switchToEditDeadlineView((this.getItem() as Deadline).getID());
     }
 }
 
@@ -397,7 +398,5 @@ export function reloadFromServer(): void
 export function init($targetContainer: JQuery, indexModel: main.IndexModel,
                         mainModel: main.MainModel): void
 {
-    "use strict";
-
     view = new View($targetContainer, indexModel, mainModel);
 }

@@ -3,6 +3,7 @@
 import { Deadline, DeadlineJSON, DeadlineJSONWithoutID, DeadlineSerializer } from "./item";
 import * as DeadlineEditor from "./deadline-editor"
 import * as main from "./main"
+import * as viewSwitcher from "./view-switcher";
 
 function onDeadlineEditorSubmit(updatedJsonWithoutID: DeadlineJSONWithoutID, 
                                 origDeadline: Deadline,
@@ -14,7 +15,7 @@ function onDeadlineEditorSubmit(updatedJsonWithoutID: DeadlineJSONWithoutID,
 
     mainModel.updateDeadlineOnServer(updatedDeadline);
 
-    mainModel.switchToIndexView();
+    viewSwitcher.switchToIndexView();
 }
 
 export function init($targetContainer: JQuery, 

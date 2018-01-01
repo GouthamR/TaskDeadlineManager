@@ -1,8 +1,9 @@
 /// <reference path="./moment_modified.d.ts" />
 
 import { DeadlineJSONWithoutID } from "./item";
-import * as DeadlineEditor from "./deadline-editor"
-import * as main from "./main"
+import * as DeadlineEditor from "./deadline-editor";
+import * as main from "./main";
+import * as viewSwitcher from "./view-switcher";
 
 // Module-scope variables:
 let mainModel: main.MainModel;
@@ -13,7 +14,7 @@ function onDeadlineEditorSubmit(json: DeadlineJSONWithoutID)
 
     mainModel.addDeadlineToServer(json);
 
-    mainModel.switchToIndexView();
+    viewSwitcher.switchToIndexView();
 }
 
 export function init($targetContainer: JQuery, mainModelParam: main.MainModel): void

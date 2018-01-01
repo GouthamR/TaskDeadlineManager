@@ -1,4 +1,5 @@
 import * as main from "./main"
+import * as viewSwitcher from "./view-switcher";
 
 // Module-scope variables:
 const MOBILE_MAX_WIDTH: number = 768; // pixels
@@ -23,22 +24,22 @@ class Nav
         $navContainer.find(".nav-grtdm-button").click((e: JQueryEventObject) =>
         {
             this.navButtonPreAction();
-            this.mainModel.switchToIndexView();
+            viewSwitcher.switchToIndexView();
         });
         $navContainer.find(".nav-add-task-button").click((e: JQueryEventObject) =>
         {
             this.navButtonPreAction();
-            this.mainModel.switchToAddTaskView();
+            viewSwitcher.switchToAddTaskView();
         });
         $navContainer.find(".nav-add-deadline-button").click((e: JQueryEventObject) =>
         {
             this.navButtonPreAction();
-            this.mainModel.switchToAddDeadlineView();
+            viewSwitcher.switchToAddDeadlineView();
         });
         $navContainer.find(".nav-calendar-button").click((e: JQueryEventObject) =>
         {
             this.navButtonPreAction();
-            this.mainModel.switchToCalendarView();
+            viewSwitcher.switchToCalendarView();
         });
         $navContainer.find(".nav-logout-button").click((e: JQueryEventObject) =>
         {

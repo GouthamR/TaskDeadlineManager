@@ -6,7 +6,7 @@ import { Task } from "./item";
 import { Deadline } from "./item";
 import { SubTask } from "./item";
 import * as main from "./main"
-import { View } from "./main";
+import * as viewSwitcher from "./view-switcher";
 
 // Module-level variables:
 const LOADING_CLASS_NAME: string = "calendar-loading";
@@ -90,7 +90,7 @@ class TaskEventObject extends ItemEventObject
 
 	public switchToEditView()
 	{
-		mainModel.switchToEditTaskView((this.item as Task).getID());
+		viewSwitcher.switchToEditTaskView((this.item as Task).getID());
 	}
 }
 
@@ -114,7 +114,7 @@ class DeadlineEventObject extends ItemEventObject
 
 	public switchToEditView()
 	{
-		mainModel.switchToEditDeadlineView((this.item as Deadline).getID());
+		viewSwitcher.switchToEditDeadlineView((this.item as Deadline).getID());
 	}
 }
 
@@ -136,7 +136,7 @@ class SubTaskEventObject extends TaskEventObject
 
 	public switchToEditView()
 	{
-		mainModel.switchToEditDeadlineView(this.deadline.getID());
+		viewSwitcher.switchToEditDeadlineView(this.deadline.getID());
 	}
 }
 
