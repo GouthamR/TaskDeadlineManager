@@ -6,7 +6,7 @@ function getSynchronizerToken(): string
 function getGoogleLoginURL(onSuccess: (url: string) => void, onFailure: () => void)
 {
     // STUB: need to handle get request errors.
-    $.get('/oauth-client-config', function(responseConfig)
+    $.get('/oauth-client-config', (responseConfig) => 
     {
 		if(responseConfig.google)
 		{

@@ -51,7 +51,7 @@ function getFormSubtasksJSONsWithoutID(): SubTaskJSONWithoutID[]
 
     const SUBTASK_FIELDSETS_SELECTOR: string  = ".deadline-editor-form-subtasks .deadline-editor-form-subtask";
     let $subTaskFieldsets: JQuery = $topContainer.find(SUBTASK_FIELDSETS_SELECTOR);
-    $subTaskFieldsets.each(function(index: number, element: Element)
+    $subTaskFieldsets.each((index: number, element: Element) =>
     {
         let $currFieldset: JQuery = $(element);
         let currJson: SubTaskJSONWithoutID = toSubTaskJSONWithoutID($currFieldset);
@@ -111,7 +111,7 @@ function addSubTaskFieldset(subTask: SubTaskJSONWithoutID)
     let $newFieldSet: JQuery = $($.parseHTML(subTaskFieldSetHTML));
 
     let $removeButton: JQuery = $newFieldSet.find(".deadline-editor-form-subtask-remove-button");
-    $removeButton.click(function(event: JQueryEventObject)
+    $removeButton.click((event: JQueryEventObject) => 
     {
         $newFieldSet.remove();
     });

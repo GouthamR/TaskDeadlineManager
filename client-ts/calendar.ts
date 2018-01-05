@@ -160,7 +160,7 @@ function getEventsFromServer(start: moment.Moment, end: moment.Moment,
 								timezone: string | boolean, 
 								callback: (events: FC.EventObject[]) => void): void
 {
-	function onSuccess (tasks: Task[], deadlines: Deadline[])
+	let onSuccess = (tasks: Task[], deadlines: Deadline[]) =>
 	{
 		let events: ItemEventObject[] = [];
 
@@ -194,13 +194,13 @@ function getEventsFromServer(start: moment.Moment, end: moment.Moment,
 		}
 
 		callback(events);
-	}
+	};
 
-	function onFailure (error: string)
+	let onFailure = (error: string) =>
 	{
 		alert("Error: failed to load tasks and deadlines. Try refreshing the page.");
 		callback([]);
-	}
+	};
 
 	mainModel.loadTasksAndDeadlinesFromServer(onSuccess, onFailure);
 }

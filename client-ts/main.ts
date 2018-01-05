@@ -55,15 +55,8 @@ export class MainModel
 								onFailure: (errorDetails: string) => void): void
 	{
 		$.getJSON(route)
-	    .done(function(data, textStatus: string, jqXHR: JQueryXHR)
-	    {
-	    	onSuccess(data);
-	    })
-	    .fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
-	    {
-	        let errorDetails: string = textStatus + ", " + error;
-	        onFailure(errorDetails);
-	    });
+	    .done((data, textStatus: string, jqXHR: JQueryXHR) => onSuccess(data))
+	    .fail((jqXHR: JQueryXHR, textStatus: string, error: string) => onFailure(textStatus + ", " + error));
 	}
 
 	public loadTasks(onSuccess: (tasks: Task[]) => void, 
@@ -127,7 +120,7 @@ export class MainModel
 		let tasks: Task[] = [];
 		let deadlines: Deadline[] = [];
 
-		function onTasksLoaded(loadedTasks: Task[])
+		let onTasksLoaded = (loadedTasks: Task[]) =>
 		{
 			tasks = loadedTasks;
 			isTasksLoaded = true;
@@ -136,9 +129,9 @@ export class MainModel
 			{
 				onSuccess(tasks, deadlines);
 			}
-		}
+		};
 
-		function onDeadlinesLoaded(loadedDeadlines: Deadline[])
+		let onDeadlinesLoaded = (loadedDeadlines: Deadline[]) =>
 		{
 			deadlines = loadedDeadlines;
 			isDeadlinesLoaded = true;
@@ -147,17 +140,11 @@ export class MainModel
 			{
 				onSuccess(tasks, deadlines);
 			}
-		}
+		};
 
-		function onTasksFailure(errorDetails: string)
-		{
-			onFailure("Error loading tasks. Try refreshing the page.");
-		}
+		let onTasksFailure = (errorDetails: string) => onFailure("Error loading tasks. Try refreshing the page.");
 
-		function onDeadlinesFailure(errorDetails: string)
-		{
-			onFailure("Error loading deadlines. Try refreshing the page.");
-		}
+		let onDeadlinesFailure = (errorDetails: string) => onFailure("Error loading deadlines. Try refreshing the page.");
 
 		this.loadTasks(onTasksLoaded, onTasksFailure);
 		this.loadDeadlines(onDeadlinesLoaded, onDeadlinesFailure);
@@ -166,14 +153,9 @@ export class MainModel
 	public addTaskToServer(json: TaskJSONWithoutID)
 	{
 		$.post("/add-task", json)
-		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
-		{
-			index.reloadFromServer();
-		})
-		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
-		{
-			alert("Error: Add Task failed.");
-		});
+		.done((data, textStatus: string, jqXHR: JQueryXHR) => index.reloadFromServer())
+		.fail((jqXHR: JQueryXHR, textStatus: string, error: string) => alert("Error: Add Task failed."));
+		
 		this.cachedTasks = undefined;
 	}
 
@@ -182,28 +164,18 @@ export class MainModel
 		let updatedJSON: TaskJSON = new TaskSerializer().toJSON(updatedTask);
 		
 		$.post("/update-task", updatedJSON)
-		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
-		{
-			calendar.reloadCalendar();
-		})
-		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
-		{
-			alert("Error: Update Task failed.");
-		});
+		.done((data, textStatus: string, jqXHR: JQueryXHR) => calendar.reloadCalendar())
+		.fail((jqXHR: JQueryXHR, textStatus: string, error: string) => alert("Error: Update Task failed."));
+
 		this.cachedTasks = undefined;
 	}
 
 	public addDeadlineToServer(json: DeadlineJSONWithoutID): void
 	{
 		$.post("/add-deadline", json)
-		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
-		{
-			index.reloadFromServer();
-		})
-		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
-		{
-			alert("Error: Add Deadline failed.");
-		});
+		.done((data, textStatus: string, jqXHR: JQueryXHR) => index.reloadFromServer())
+		.fail((jqXHR: JQueryXHR, textStatus: string, error: string) => alert("Error: Add Deadline failed."));
+		
 		this.cachedDeadlines = undefined;
 	}
 
@@ -212,20 +184,16 @@ export class MainModel
 		let updatedJSON: DeadlineJSON = new DeadlineSerializer().toJSON(updatedDeadline);
 		
 		$.post("/update-deadline", updatedJSON)
-		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
-		{
-			calendar.reloadCalendar();
-		})
-		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
-		{
-			alert("Error: Update Deadline failed.");
-		});
+		.done((data, textStatus: string, jqXHR: JQueryXHR) => calendar.reloadCalendar())
+		.fail((jqXHR: JQueryXHR, textStatus: string, error: string) => alert("Error: Update Deadline failed."));
+		
 		this.cachedDeadlines = undefined;
 	}
 
 	public logout()
 	{
-		$.post('/logout', {}, (data, status, jqXHR) => {
+		$.post('/logout', {}, (data, status, jqXHR) =>
+		{
 			if(data.success)
 			{
                 console.log('Logged out successfully');
@@ -246,10 +214,7 @@ export class IndexModel
 		let json: DeadlineJSON = new DeadlineSerializer().toJSON(deadlineToRemove);
 
 		$.post("/delete-deadline", json)
-		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
-		{
-			alert("Error: Remove Deadline failed.");
-		});
+		.fail((jqXHR: JQueryXHR, textStatus: string, error: string) => alert("Error: Remove Deadline failed."));
 	}
 
 	public removeTaskFromServer(taskToRemove: Task): void
@@ -257,10 +222,7 @@ export class IndexModel
 		let json: TaskJSON = new TaskSerializer().toJSON(taskToRemove);
 
 		$.post("/delete-task", json)
-		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
-		{
-			alert("Error: Remove Task failed.");
-		});
+		.fail((jqXHR: JQueryXHR, textStatus: string, error: string) => alert("Error: Remove Task failed."));
 	}
 }
 

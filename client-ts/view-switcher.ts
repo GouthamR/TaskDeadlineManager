@@ -124,7 +124,7 @@ class ViewSwitcher
 	// TODO: make more efficient. Currently loads all tasks.
 	private getTaskByID(taskID: string, onSuccess: (task: Task) => void, onFailure: (errorDetails: string) => void): void
 	{
-		function onLoadSuccess(tasks: Task[]): void
+		let onLoadSuccess = (tasks: Task[]) =>
 		{
 			let found = false;
 			for(let task of tasks)
@@ -140,7 +140,7 @@ class ViewSwitcher
 			{
 				onFailure("Error: task not found");
 			}
-		}
+		};
 
 		this.mainModel.loadTasks(onLoadSuccess, onFailure);
 	}
@@ -148,7 +148,7 @@ class ViewSwitcher
 	// TODO: make more efficient. Currently loads all deadlines.
 	private getDeadlineByID(deadlineID: string, onSuccess: (deadline: Deadline) => void, onFailure: (errorDetails: string) => void): void
 	{
-		function onLoadSuccess(deadlines: Deadline[]): void
+		let onLoadSuccess = (deadlines: Deadline[]) =>
 		{
 			let found = false;
 			for(let deadline of deadlines)
@@ -164,7 +164,7 @@ class ViewSwitcher
 			{
 				onFailure("Error: deadline not found");
 			}
-		}
+		};
 
 		this.mainModel.loadDeadlines(onLoadSuccess, onFailure);
 	}
