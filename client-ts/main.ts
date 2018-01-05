@@ -21,6 +21,16 @@ let indexModel: IndexModel;
 
 export class MainModel
 {
+	// Value of undefined indicates that needs to be updated from server:
+	private cachedTasks: Task[];
+	private cachedDeadlines: Deadline[];
+
+	public constructor()
+	{
+		this.cachedTasks = undefined;
+		this.cachedDeadlines = undefined;
+	}
+
 	public initAddTask()
 	{
 		AddTask.init($(".main-add-task"), mainModel);
@@ -56,40 +66,56 @@ export class MainModel
 	    });
 	}
 
-	public loadTasksFromServer(onSuccess: (tasks: Task[]) => void, 
-								onFailure: (errorDetails: string) => void): void
+	public loadTasks(onSuccess: (tasks: Task[]) => void, 
+						onFailure: (errorDetails: string) => void): void
 	{
-		function onLoadSuccess(data): void
+		if(this.cachedTasks)
 		{
-			let tasks: Task[] = [];
-		    let taskSerializer: TaskSerializer = new TaskSerializer();
-		    for(let i of data)
-		    {
-		    	let taskJson: TaskJSON = i as TaskJSON;
-		    	let task: Task = taskSerializer.fromJSON(taskJson);
-		        tasks.push(task);
-		    }
-		    onSuccess(tasks);
+			onSuccess(this.cachedTasks);
 		}
+		else
+		{
+			let onLoadSuccess = (data) =>
+			{
+				let tasks: Task[] = [];
+				let taskSerializer: TaskSerializer = new TaskSerializer();
+				for(let i of data)
+				{
+					let taskJson: TaskJSON = i as TaskJSON;
+					let task: Task = taskSerializer.fromJSON(taskJson);
+					tasks.push(task);
+				}
+				this.cachedTasks = tasks;
+				onSuccess(tasks);
+			}
 
-		this.loadJSONFromServer("/load-tasks", onLoadSuccess, onFailure);
+			this.loadJSONFromServer("/load-tasks", onLoadSuccess, onFailure);
+		}
 	}
 
-	public loadDeadlinesFromServer(onSuccess: (deadlines: Deadline[]) => void, 
-									onFailure: (errorDetails: string) => void): void
+	public loadDeadlines(onSuccess: (deadlines: Deadline[]) => void, 
+							onFailure: (errorDetails: string) => void): void
 	{
-		function onLoadSuccess(data): void
+		if(this.cachedDeadlines)
 		{
-			let deadlines: Deadline[] = [];
-		    let deadlineSerializer: DeadlineSerializer = new DeadlineSerializer();
-		    for(let i of data)
-		    {
-		        deadlines.push(deadlineSerializer.fromJSON(i));
-		    }
-		    onSuccess(deadlines);
+			onSuccess(this.cachedDeadlines);
 		}
+		else
+		{
+			let onLoadSuccess = (data) =>
+			{
+				let deadlines: Deadline[] = [];
+				let deadlineSerializer: DeadlineSerializer = new DeadlineSerializer();
+				for(let i of data)
+				{
+					deadlines.push(deadlineSerializer.fromJSON(i));
+				}
+				this.cachedDeadlines = deadlines;
+				onSuccess(deadlines);
+			}
 
-		this.loadJSONFromServer("/load-deadlines", onLoadSuccess, onFailure);
+			this.loadJSONFromServer("/load-deadlines", onLoadSuccess, onFailure);
+		}
 	}
 
 	public loadTasksAndDeadlinesFromServer(onSuccess: (tasks: Task[], deadlines: Deadline[]) => any,
@@ -133,8 +159,8 @@ export class MainModel
 			onFailure("Error loading deadlines. Try refreshing the page.");
 		}
 
-		this.loadTasksFromServer(onTasksLoaded, onTasksFailure);
-		this.loadDeadlinesFromServer(onDeadlinesLoaded, onDeadlinesFailure);
+		this.loadTasks(onTasksLoaded, onTasksFailure);
+		this.loadDeadlines(onDeadlinesLoaded, onDeadlinesFailure);
 	}
 
 	public addTaskToServer(json: TaskJSONWithoutID)
@@ -148,6 +174,7 @@ export class MainModel
 		{
 			alert("Error: Add Task failed.");
 		});
+		this.cachedTasks = undefined;
 	}
 
 	public updateTaskOnServer(updatedTask: Task): void
@@ -163,6 +190,7 @@ export class MainModel
 		{
 			alert("Error: Update Task failed.");
 		});
+		this.cachedTasks = undefined;
 	}
 
 	public addDeadlineToServer(json: DeadlineJSONWithoutID): void
@@ -176,6 +204,7 @@ export class MainModel
 		{
 			alert("Error: Add Deadline failed.");
 		});
+		this.cachedDeadlines = undefined;
 	}
 
 	public updateDeadlineOnServer(updatedDeadline: Deadline): void
@@ -191,6 +220,7 @@ export class MainModel
 		{
 			alert("Error: Update Deadline failed.");
 		});
+		this.cachedDeadlines = undefined;
 	}
 
 	public logout()

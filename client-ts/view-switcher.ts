@@ -142,7 +142,7 @@ class ViewSwitcher
 			}
 		}
 
-		this.mainModel.loadTasksFromServer(onLoadSuccess, onFailure);
+		this.mainModel.loadTasks(onLoadSuccess, onFailure);
 	}
 
 	// TODO: make more efficient. Currently loads all deadlines.
@@ -166,7 +166,7 @@ class ViewSwitcher
 			}
 		}
 
-		this.mainModel.loadDeadlinesFromServer(onLoadSuccess, onFailure);
+		this.mainModel.loadDeadlines(onLoadSuccess, onFailure);
 	}
 
 	private viewToURL(view: View, data?: string): string
