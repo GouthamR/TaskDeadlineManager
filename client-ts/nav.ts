@@ -17,7 +17,7 @@ class Nav
         this.isOpen = false;
         this.mainModel = mainModel;
 
-        $navContainer.find(".nav-pull-link").click((e: JQueryEventObject) => this.toggleSidebarExpansion());
+        $navContainer.find(".nav-pull-header-link").click((e: JQueryEventObject) => this.toggleSidebarExpansion());
 
         $(window).resize((e: JQueryEventObject) => this.toggleSidebarVsHeader());
 

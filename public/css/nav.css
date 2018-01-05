@@ -60,7 +60,7 @@
     text-decoration: none;
 }
 
-.nav .nav-pull-link {
+.nav .nav-pull-header {
     display: none;
 }
 
@@ -109,7 +109,7 @@
         margin-right: 0;
     }
 
-    .nav .nav-pull-link {
+    .nav .nav-pull-header {
         position: fixed;
         z-index: 2000; /* needs to be high enough to be above third-party z-indices */
         background-color: #0F51AD;
@@ -118,8 +118,7 @@
         width: 100%;
     }
 
-    .nav .nav-pull-link:after {
-        content: "";
+    .nav .nav-pull-header-link {
         background: url('/img/nav-ham.png') no-repeat;
         background-size: 3.5em 3em;
         width: 3.5em;
