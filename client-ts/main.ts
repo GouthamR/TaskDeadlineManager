@@ -18,13 +18,12 @@ import { DeadlineSerializer } from "./item";
 // Module-scope variables:
 let mainModel: MainModel;
 let indexModel: IndexModel;
-let addTaskModel: AddTaskModel;
 
 export class MainModel
 {
 	public initAddTask()
 	{
-		AddTask.init($(".main-add-task"), addTaskModel, mainModel);
+		AddTask.init($(".main-add-task"), mainModel);
 	}
 
 	public initAddDeadline()
@@ -138,6 +137,19 @@ export class MainModel
 		this.loadDeadlinesFromServer(onDeadlinesLoaded, onDeadlinesFailure);
 	}
 
+	public addTaskToServer(json: TaskJSONWithoutID)
+	{
+		$.post("/add-task", json)
+		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
+		{
+			index.reloadFromServer();
+		})
+		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
+		{
+			alert("Error: Add Task failed.");
+		});
+	}
+
 	public updateTaskOnServer(updatedTask: Task): void
 	{
 		let updatedJSON: TaskJSON = new TaskSerializer().toJSON(updatedTask);
@@ -222,27 +234,10 @@ export class IndexModel
 	}
 }
 
-export class AddTaskModel
-{
-	public addTask(json: TaskJSONWithoutID)
-	{
-		$.post("/add-task", json)
-		.done(function(data, textStatus: string, jqXHR: JQueryXHR)
-		{
-			index.reloadFromServer();
-		})
-		.fail(function(jqXHR: JQueryXHR, textStatus: string, error: string)
-		{
-			alert("Error: Add Task failed.");
-		});
-	}
-}
-
 function main(): void
 {
 	mainModel = new MainModel();
 	indexModel = new IndexModel();
-	addTaskModel = new AddTaskModel();
 
 	index.init($(".main-index"), indexModel, mainModel);
 	nav.init($(".main-nav"), mainModel);

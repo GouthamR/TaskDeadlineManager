@@ -6,16 +6,14 @@ import * as main from "./main";
 import * as viewSwitcher from "./view-switcher";
 
 function onTaskEditorSubmit(json: TaskJSONWithoutID, 
-                            addTaskModel: main.AddTaskModel,
                             mainModel: main.MainModel)
 {
     viewSwitcher.switchToIndexView();
     
-    addTaskModel.addTask(json);
+    mainModel.addTaskToServer(json);
 }
 
 export function init($targetContainer: JQuery, 
-                        addTaskModel: main.AddTaskModel,
                         mainModel: main.MainModel): void
 {
     let $addTaskContainer = $targetContainer.find(".add-task");
@@ -32,5 +30,5 @@ export function init($targetContainer: JQuery,
 
     let $taskEditorTarget: JQuery = $addTaskContainer.find(".add-task-editor");
     new TaskEditor($taskEditorTarget, taskJSON,
-                    (t: TaskJSONWithoutID) => onTaskEditorSubmit(t, addTaskModel, mainModel));
+                    (t: TaskJSONWithoutID) => onTaskEditorSubmit(t, mainModel));
 }
