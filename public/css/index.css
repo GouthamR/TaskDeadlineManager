@@ -46,7 +46,7 @@
 }
 
 .index .index-taskdeadline-container > div > div {
-    overflow-y: scroll;
+    overflow-y: auto;
     margin-bottom: 1em;
 }
 
