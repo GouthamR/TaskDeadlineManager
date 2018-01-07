@@ -17,7 +17,6 @@ import { DeadlineSerializer } from "./item";
 
 // Module-scope variables:
 let mainModel: MainModel;
-let indexModel: IndexModel;
 
 export class MainModel
 {
@@ -170,6 +169,14 @@ export class MainModel
 		this.cachedTasks = undefined;
 	}
 
+	public removeTaskFromServer(taskToRemove: Task): void
+	{
+		let json: TaskJSON = new TaskSerializer().toJSON(taskToRemove);
+
+		$.post("/delete-task", json)
+		.fail((jqXHR: JQueryXHR, textStatus: string, error: string) => alert("Error: Remove Task failed."));
+	}
+
 	public addDeadlineToServer(json: DeadlineJSONWithoutID): void
 	{
 		$.post("/add-deadline", json)
@@ -190,6 +197,14 @@ export class MainModel
 		this.cachedDeadlines = undefined;
 	}
 
+	public removeDeadlineFromServer(deadlineToRemove: Deadline): void
+	{
+		let json: DeadlineJSON = new DeadlineSerializer().toJSON(deadlineToRemove);
+
+		$.post("/delete-deadline", json)
+		.fail((jqXHR: JQueryXHR, textStatus: string, error: string) => alert("Error: Remove Deadline failed."));
+	}
+
 	public logout()
 	{
 		$.post('/logout', {}, (data, status, jqXHR) =>
@@ -207,31 +222,11 @@ export class MainModel
 	}
 }
 
-export class IndexModel
-{
-	public removeDeadlineFromServer(deadlineToRemove: Deadline): void
-	{
-		let json: DeadlineJSON = new DeadlineSerializer().toJSON(deadlineToRemove);
-
-		$.post("/delete-deadline", json)
-		.fail((jqXHR: JQueryXHR, textStatus: string, error: string) => alert("Error: Remove Deadline failed."));
-	}
-
-	public removeTaskFromServer(taskToRemove: Task): void
-	{
-		let json: TaskJSON = new TaskSerializer().toJSON(taskToRemove);
-
-		$.post("/delete-task", json)
-		.fail((jqXHR: JQueryXHR, textStatus: string, error: string) => alert("Error: Remove Task failed."));
-	}
-}
-
 function main(): void
 {
 	mainModel = new MainModel();
-	indexModel = new IndexModel();
 
-	index.init($(".main-index"), indexModel, mainModel);
+	index.init($(".main-index"), mainModel);
 	nav.init($(".main-nav"), mainModel);
 	calendar.init($(".main-calendar"), mainModel);
 

@@ -96,18 +96,15 @@ abstract class ItemLi
 
 class TaskLi extends ItemLi
 {
-    private indexModel: main.IndexModel;
     private mainModel: main.MainModel;
 
     public constructor (task: Task, $targetUl: JQuery,
-                        indexModel: main.IndexModel,
                         mainModel: main.MainModel)
     {
         super(task as Item, $targetUl, 
-                () => indexModel.removeTaskFromServer(task),
+                () => mainModel.removeTaskFromServer(task),
                 () => mainModel.updateTaskOnServer(task));
 
-        this.indexModel = indexModel;
         this.mainModel = mainModel;
     }
 
@@ -163,11 +160,10 @@ class SubTaskLi extends ItemLi
     private deadline: Deadline;
     private deadlineAndSubTaskLiManager: DeadlineAndSubTaskLiManager;
     private removeDeadlineFromServer: () => void;
-    private indexModel: main.IndexModel;
     private mainModel: main.MainModel;
 
     public constructor(subTask: SubTask, $targetUl: JQuery, deadline: Deadline,
-                        mainModel: main.MainModel, indexModel: main.IndexModel,
+                        mainModel: main.MainModel,
                         deadlineAndSubTaskLiManager: DeadlineAndSubTaskLiManager)
     {
         super(subTask as Item, $targetUl,
@@ -177,8 +173,7 @@ class SubTaskLi extends ItemLi
         this.deadline = deadline;
         this.deadlineAndSubTaskLiManager = deadlineAndSubTaskLiManager;
         this.deadlineAndSubTaskLiManager.registerSubTaskLi(this);        
-        this.removeDeadlineFromServer = () => indexModel.removeDeadlineFromServer(deadline);
-        this.indexModel = indexModel;
+        this.removeDeadlineFromServer = () => mainModel.removeDeadlineFromServer(deadline);
         this.mainModel = mainModel;
     }
 
@@ -215,19 +210,17 @@ class SubTaskLi extends ItemLi
 
 class DeadlineLi extends ItemLi
 {
-    private indexModel: main.IndexModel;
     private mainModel: main.MainModel;
     private deadlineAndSubTaskLiManager: DeadlineAndSubTaskLiManager;
 
     public constructor(deadline: Deadline, $targetUl: JQuery,
-                        mainModel: main.MainModel, indexModel: main.IndexModel,
+                        mainModel: main.MainModel,
                         deadlineAndSubTaskLiManager: DeadlineAndSubTaskLiManager)
     {
         super(deadline as Item, $targetUl,
-                () => indexModel.removeDeadlineFromServer(deadline),
+                () => mainModel.removeDeadlineFromServer(deadline),
                 () => mainModel.updateDeadlineOnServer(deadline));
 
-        this.indexModel = indexModel;
         this.mainModel = mainModel;
         this.deadlineAndSubTaskLiManager = deadlineAndSubTaskLiManager;
         this.deadlineAndSubTaskLiManager.registerDeadlineLi(this);
@@ -251,14 +244,11 @@ class DeadlineLi extends ItemLi
 class View
 {
     private $indexContainer: JQuery;
-    private indexModel: main.IndexModel;
     private mainModel: main.MainModel;
 
-    public constructor($targetContainer: JQuery, indexModel: main.IndexModel,
-                        mainModel: main.MainModel)
+    public constructor($targetContainer: JQuery, mainModel: main.MainModel)
     {
         this.$indexContainer = $targetContainer.find(".index");
-        this.indexModel = indexModel;
         this.mainModel = mainModel;
     }
 
@@ -336,7 +326,7 @@ class View
         {
             if(task.occursToday())
             {
-                taskLis.push(new TaskLi(task, $taskUl, this.indexModel, this.mainModel));
+                taskLis.push(new TaskLi(task, $taskUl, this.mainModel));
             }
         }
 
@@ -345,7 +335,7 @@ class View
         for(let deadline of deadlines)
         {
             let deadlineLi: DeadlineLi = new DeadlineLi(deadline, $deadlineUl,
-                                                        this.mainModel, this.indexModel, 
+                                                        this.mainModel,
                                                         deadlineAndSubTaskLiManager);
             deadlineLis.push(deadlineLi);
 
@@ -354,7 +344,7 @@ class View
                 if(subTask.occursToday())
                 {
                     let subTaskLi: SubTaskLi = new SubTaskLi(subTask, $taskUl, deadline,
-                                                                this.mainModel, this.indexModel,
+                                                                this.mainModel,
                                                                 deadlineAndSubTaskLiManager);
                     taskLis.push(subTaskLi);
                 }
@@ -395,8 +385,7 @@ export function reloadFromServer(): void
     view.reloadFromServer();
 }
 
-export function init($targetContainer: JQuery, indexModel: main.IndexModel,
-                        mainModel: main.MainModel): void
+export function init($targetContainer: JQuery, mainModel: main.MainModel): void
 {
-    view = new View($targetContainer, indexModel, mainModel);
+    view = new View($targetContainer, mainModel);
 }
