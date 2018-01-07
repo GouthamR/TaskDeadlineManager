@@ -314,13 +314,10 @@ export function init(mainModel: main.MainModel): void
 
     if(window.history.state)
 	{
-		console.log('has history.state:');
-		console.log(window.history.state);
 		viewSwitcher.switchToViewUsingHistoryState(window.history.state as WindowHistoryState);
 	}
 	else
 	{
-		console.log('no history state');
 		let windowHistoryState = parseWindowHistoryStateFromURLPathname(window.location.pathname);
 		viewSwitcher.switchToViewUsingHistoryState(windowHistoryState);
 		viewSwitcher.replaceViewURL(windowHistoryState.view, windowHistoryState.data);

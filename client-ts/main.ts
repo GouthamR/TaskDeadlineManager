@@ -215,7 +215,6 @@ export class MainModel
 		{
 			if(data.success)
 			{
-                console.log('Logged out successfully');
                 window.location.href = '/';
 			}
 			else
