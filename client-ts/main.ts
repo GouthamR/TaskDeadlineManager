@@ -175,6 +175,8 @@ export class MainModel
 
 		$.post("/delete-task", json)
 		.fail((jqXHR: JQueryXHR, textStatus: string, error: string) => alert("Error: Remove Task failed."));
+		
+		this.cachedTasks = undefined;
 	}
 
 	public addDeadlineToServer(json: DeadlineJSONWithoutID): void
@@ -203,6 +205,8 @@ export class MainModel
 
 		$.post("/delete-deadline", json)
 		.fail((jqXHR: JQueryXHR, textStatus: string, error: string) => alert("Error: Remove Deadline failed."));
+
+		this.cachedDeadlines = undefined;
 	}
 
 	public logout()
