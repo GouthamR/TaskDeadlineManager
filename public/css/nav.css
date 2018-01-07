@@ -39,11 +39,10 @@
     justify-content: center;
     white-space: nowrap;
     cursor: pointer;
-    border-bottom: .1em solid transparent;
 }
 
 .nav nav ul li:hover {
-    border-color: white;
+    background-color: #3a6db3;
 }
 
 .nav nav ul .nav-grtdm-button {
