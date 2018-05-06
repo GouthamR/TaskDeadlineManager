@@ -322,10 +322,9 @@ class View
             }
         }
 
-        let deadlineAndSubTaskLiManager: DeadlineAndSubTaskLiManager = new DeadlineAndSubTaskLiManager();
-
         for(let deadline of deadlines)
         {
+            let deadlineAndSubTaskLiManager: DeadlineAndSubTaskLiManager = new DeadlineAndSubTaskLiManager();
             let deadlineLi: DeadlineLi = new DeadlineLi(deadline, this.mainModel,
                                                         deadlineAndSubTaskLiManager);
             deadlineLis.push(deadlineLi);
