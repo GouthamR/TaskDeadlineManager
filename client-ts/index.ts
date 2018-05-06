@@ -11,28 +11,23 @@ abstract class ItemLi
 {
     private item: Item;
     private $li: JQuery;
-    private $targetUl: JQuery;
     private removeFromServer: () => void;
     private updateOnServer: () => void;
 
-    // Note that the constructor does NOT automatically append the Li to the $targetUl.
-    // appendToUl() must be called to do this,
-    public constructor(item: Item, $targetUl: JQuery, 
-                        removeFromServer: () => void,
+    public constructor(item: Item, removeFromServer: () => void,
                         updateOnServer: () => void)
     {
         this.item = item;
         this.$li = $("<li>");
-        this.$targetUl = $targetUl;
         this.removeFromServer = removeFromServer;
         this.updateOnServer = updateOnServer;
 
         this.fillLiForNormalMode();
     }
 
-    public appendToUl(): void
+    public appendTo($targetUl: JQuery): void
     {
-        this.$targetUl.append(this.$li);
+        $targetUl.append(this.$li);
     }
 
     public getItem(): Item { return this.item; }
@@ -98,10 +93,9 @@ class TaskLi extends ItemLi
 {
     private mainModel: main.MainModel;
 
-    public constructor (task: Task, $targetUl: JQuery,
-                        mainModel: main.MainModel)
+    public constructor (task: Task, mainModel: main.MainModel)
     {
-        super(task as Item, $targetUl, 
+        super(task as Item,
                 () => mainModel.removeTaskFromServer(task),
                 () => mainModel.updateTaskOnServer(task));
 
@@ -162,11 +156,10 @@ class SubTaskLi extends ItemLi
     private removeDeadlineFromServer: () => void;
     private mainModel: main.MainModel;
 
-    public constructor(subTask: SubTask, $targetUl: JQuery, deadline: Deadline,
-                        mainModel: main.MainModel,
+    public constructor(subTask: SubTask, deadline: Deadline, mainModel: main.MainModel,
                         deadlineAndSubTaskLiManager: DeadlineAndSubTaskLiManager)
     {
-        super(subTask as Item, $targetUl,
+        super(subTask as Item,
                 () => this.removeSubTaskFromServer(mainModel),
                 () => mainModel.updateDeadlineOnServer(deadline));
 
@@ -213,11 +206,10 @@ class DeadlineLi extends ItemLi
     private mainModel: main.MainModel;
     private deadlineAndSubTaskLiManager: DeadlineAndSubTaskLiManager;
 
-    public constructor(deadline: Deadline, $targetUl: JQuery,
-                        mainModel: main.MainModel,
+    public constructor(deadline: Deadline, mainModel: main.MainModel,
                         deadlineAndSubTaskLiManager: DeadlineAndSubTaskLiManager)
     {
-        super(deadline as Item, $targetUl,
+        super(deadline as Item,
                 () => mainModel.removeDeadlineFromServer(deadline),
                 () => mainModel.updateDeadlineOnServer(deadline));
 
@@ -326,7 +318,7 @@ class View
         {
             if(task.occursToday())
             {
-                taskLis.push(new TaskLi(task, $taskUl, this.mainModel));
+                taskLis.push(new TaskLi(task, this.mainModel));
             }
         }
 
@@ -334,8 +326,7 @@ class View
 
         for(let deadline of deadlines)
         {
-            let deadlineLi: DeadlineLi = new DeadlineLi(deadline, $deadlineUl,
-                                                        this.mainModel,
+            let deadlineLi: DeadlineLi = new DeadlineLi(deadline, this.mainModel,
                                                         deadlineAndSubTaskLiManager);
             deadlineLis.push(deadlineLi);
 
@@ -343,8 +334,7 @@ class View
             {
                 if(subTask.occursToday())
                 {
-                    let subTaskLi: SubTaskLi = new SubTaskLi(subTask, $taskUl, deadline,
-                                                                this.mainModel,
+                    let subTaskLi: SubTaskLi = new SubTaskLi(subTask, deadline, this.mainModel,
                                                                 deadlineAndSubTaskLiManager);
                     taskLis.push(subTaskLi);
                 }
@@ -357,12 +347,12 @@ class View
 
         for(let taskLi of taskLis)
         {
-            taskLi.appendToUl();
+            taskLi.appendTo($taskUl);
         }
 
         for(let deadlineLi of deadlineLis)
         {
-            deadlineLi.appendToUl();
+            deadlineLi.appendTo($deadlineUl);
         }
 
         this.removeTaskViewLoadingText(); // only remove after loading deadlines because deadlines may contain subtasks
