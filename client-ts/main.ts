@@ -163,7 +163,6 @@ export class MainModel
 		let updatedJSON: TaskJSON = new TaskSerializer().toJSON(updatedTask);
 		
 		$.post("/update-task", updatedJSON)
-		.done((data, textStatus: string, jqXHR: JQueryXHR) => calendar.reloadCalendar())
 		.fail((jqXHR: JQueryXHR, textStatus: string, error: string) => alert("Error: Update Task failed."));
 
 		this.cachedTasks = undefined;
@@ -193,7 +192,6 @@ export class MainModel
 		let updatedJSON: DeadlineJSON = new DeadlineSerializer().toJSON(updatedDeadline);
 		
 		$.post("/update-deadline", updatedJSON)
-		.done((data, textStatus: string, jqXHR: JQueryXHR) => calendar.reloadCalendar())
 		.fail((jqXHR: JQueryXHR, textStatus: string, error: string) => alert("Error: Update Deadline failed."));
 		
 		this.cachedDeadlines = undefined;
