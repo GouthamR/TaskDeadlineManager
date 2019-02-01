@@ -103,8 +103,7 @@ var config = function(app, db, oauthConfig)
 								};
 								collection.insertOne(newDoc, {}, function(insert_err, insert_result)
 								{
-									console.log('inserted new user: ');
-									console.log(insert_result.ops);
+									// Do nothing.
 								});
 							}
 						});
@@ -199,8 +198,6 @@ var config = function(app, db, oauthConfig)
 			collection.findOne({loginType: req.session.loginType, loginId: req.session.loginId}, {},
 								function(find_err, doc)
 			{
-				console.log("Loaded tasks:");
-				console.log(doc.tasks);
 				res.json(doc.tasks);
 			});
 		});
@@ -213,8 +210,6 @@ var config = function(app, db, oauthConfig)
 			collection.findOne({loginType: req.session.loginType, loginId: req.session.loginId}, {},
 								function(find_err, doc)
 			{
-				console.log("Loaded deadlines:");
-				console.log(doc.deadlines);
 				res.json(doc.deadlines);
 			});
 		});
@@ -225,8 +220,6 @@ var config = function(app, db, oauthConfig)
 	{
 		var taskObject = req.body;
 		addIDToJSON(taskObject);
-		console.log("Task to add: ")
-		console.log(taskObject);
 
 		db.collection("users", function(collection_error, collection)
 		{
@@ -250,8 +243,6 @@ var config = function(app, db, oauthConfig)
 		}
 		
 		addIDToDeadlineJSON(deadlineJSON);
-		console.log("Deadline to add: ")
-		console.log(deadlineJSON);
 		
 		db.collection("users", function(collection_error, collection)
 		{
@@ -268,8 +259,6 @@ var config = function(app, db, oauthConfig)
 	app.post('/update-task', checkLoggedIn, function(req, res)
 	{
 		var taskJSON = convertIdToMongoObjectId(req.body);
-		console.log("Task to update: ")
-		console.log(taskJSON);
 
 		db.collection("users", function(collection_error, collection)
 		{
@@ -286,8 +275,6 @@ var config = function(app, db, oauthConfig)
 	app.post('/update-deadline', checkLoggedIn, function(req, res)
 	{
 		var deadlineJSON = convertIdToMongoObjectId(req.body);
-		console.log("Deadline to update: ")
-		console.log(deadlineJSON);
 
 		db.collection("users", function(collection_error, collection)
 		{
@@ -304,8 +291,6 @@ var config = function(app, db, oauthConfig)
 	app.post('/delete-task', checkLoggedIn, function(req, res)
 	{
 		var taskJSON = convertIdToMongoObjectId(req.body);
-		console.log("Task to delete: ")
-		console.log(taskJSON);
 
 		db.collection("users", function(collection_error, collection)
 		{
@@ -322,8 +307,6 @@ var config = function(app, db, oauthConfig)
 	app.post('/delete-deadline', checkLoggedIn, function(req, res)
 	{
 		var deadlineJSON = convertIdToMongoObjectId(req.body);
-		console.log("Deadline to delete: ")
-		console.log(deadlineJSON);
 
 		db.collection("users", function(collection_error, collection)
 		{
