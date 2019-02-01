@@ -38,8 +38,6 @@ var addIDToDeadlineJSON = function(deadlineJSONWithoutID)
 	}
 };
 
-// STUB (does not handle mongodb errors):
-
 var config = function(app, db, oauthConfig)
 {
 	// Note: OAuth was implemented manually (i.e. without using libraries) for learning purposes.
@@ -88,25 +86,43 @@ var config = function(app, db, oauthConfig)
 
 					db.collection("users", function(collection_error, collection)
 					{
-						collection.findOne({loginType: req.session.loginType, loginId: req.session.loginId}, {},
-											function(find_err, doc)
+						if(collection_error)
 						{
-							if(!doc)
+							console.log(collection_error);
+							res.json({error: "Failed to access database"});
+						}
+						else
+						{
+							collection.findOne({loginType: req.session.loginType, loginId: req.session.loginId}, {},
+											function(find_err, doc)
 							{
-								let newDoc = 
+								if(find_err)
 								{
-									loginId: req.session.loginId,
-									loginType: req.session.loginType,
-									name: name,
-									tasks: [],
-									deadlines: []
-								};
-								collection.insertOne(newDoc, {}, function(insert_err, insert_result)
+									console.log(find_err);
+									res.json({error: "Failed to access database"});
+								}
+								else if(!doc)
 								{
-									// Do nothing.
-								});
-							}
-						});
+									let newDoc = 
+									{
+										loginId: req.session.loginId,
+										loginType: req.session.loginType,
+										name: name,
+										tasks: [],
+										deadlines: []
+									};
+									collection.insertOne(newDoc, {}, function(insert_err, insert_result)
+									{
+										if(insert_err)
+										{
+											console.log("Failed to insert user:");
+											console.log(insert_err);
+											res.json({error: "Failed to add new user"});
+										}
+									});
+								}
+							});
+						}
 					});
 
 					res.redirect('/');
@@ -182,11 +198,27 @@ var config = function(app, db, oauthConfig)
 	{
 		db.collection("users", function(collection_error, collection)
 		{
-			collection.findOne({loginType: req.session.loginType, loginId: req.session.loginId}, {},
-								function(find_err, doc)
+			if(collection_error)
 			{
-				res.json(doc.name);
-			});
+				console.log(collection_error);
+				res.json({error: "Failed to access database"});
+			}
+			else
+			{
+				collection.findOne({loginType: req.session.loginType, loginId: req.session.loginId}, {},
+									function(find_err, doc)
+				{
+					if(find_err)
+					{
+						console.log(find_err);
+						res.json({error: "Failed to access database"});
+					}
+					else
+					{
+						res.json(doc.name);
+					}
+				});
+			}
 		});
 	});
 
@@ -195,11 +227,27 @@ var config = function(app, db, oauthConfig)
 	{
 		db.collection("users", function(collection_error, collection)
 		{
-			collection.findOne({loginType: req.session.loginType, loginId: req.session.loginId}, {},
-								function(find_err, doc)
+			if(collection_error)
 			{
-				res.json(doc.tasks);
-			});
+				console.log(collection_error);
+				res.json({error: "Failed to access database"});
+			}
+			else
+			{
+				collection.findOne({loginType: req.session.loginType, loginId: req.session.loginId}, {},
+									function(find_err, doc)
+				{
+					if(find_err)
+					{
+						console.log(find_err);
+						res.json({error: "Failed to access database"});
+					}
+					else
+					{
+						res.json(doc.tasks);
+					}
+				});
+			}
 		});
 	});
 
@@ -207,11 +255,27 @@ var config = function(app, db, oauthConfig)
 	{
 		db.collection("users", function(collection_error, collection)
 		{
-			collection.findOne({loginType: req.session.loginType, loginId: req.session.loginId}, {},
-								function(find_err, doc)
+			if(collection_error)
 			{
-				res.json(doc.deadlines);
-			});
+				console.log(collection_error);
+				res.json({error: "Failed to access database"});
+			}
+			else
+			{
+				collection.findOne({loginType: req.session.loginType, loginId: req.session.loginId}, {},
+									function(find_err, doc)
+				{
+					if(find_err)
+					{
+						console.log(find_err);
+						res.json({error: "Failed to access database"});
+					}
+					else
+					{
+						res.json(doc.deadlines);
+					}
+				});
+			}
 		});
 	});
 
@@ -223,12 +287,28 @@ var config = function(app, db, oauthConfig)
 
 		db.collection("users", function(collection_error, collection)
 		{
-			collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId},
-									{$push: {tasks: taskObject}}, {},
-									function(err, result)
+			if(collection_error)
 			{
-				res.json(result);
-			});
+				console.log(collection_error);
+				res.json({error: "Failed to access database"});
+			}
+			else
+			{
+				collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId},
+										{$push: {tasks: taskObject}}, {},
+										function(err, result)
+				{
+					if(err)
+					{
+						console.log(err);
+						res.json({error: "Failed to update database"});
+					}
+					else
+					{
+						res.json(result);
+					}
+				});
+			}
 		});
 	});
 
@@ -246,12 +326,28 @@ var config = function(app, db, oauthConfig)
 		
 		db.collection("users", function(collection_error, collection)
 		{
-			collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId},
-									{$push: {deadlines: deadlineJSON}}, {},
-									function(err, result)
+			if(collection_error)
 			{
-				res.json(result);
-			});
+				console.log(collection_error);
+				res.json({error: "Failed to access database"});
+			}
+			else
+			{
+				collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId},
+										{$push: {deadlines: deadlineJSON}}, {},
+										function(err, result)
+				{
+					if(err)
+					{
+						console.log(err);
+						res.json({error: "Failed to update database"});
+					}
+					else
+					{
+						res.json(result);
+					}
+				});
+			}
 		});
 	});
 
@@ -262,12 +358,28 @@ var config = function(app, db, oauthConfig)
 
 		db.collection("users", function(collection_error, collection)
 		{
-			collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId, "tasks._id": taskJSON._id},
-									{$set: {"tasks.$": taskJSON}}, {},
-									function(err, result)
+			if(collection_error)
 			{
-				res.json(result);
-			});
+				console.log(collection_error);
+				res.json({error: "Failed to access database"});
+			}
+			else
+			{
+				collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId, "tasks._id": taskJSON._id},
+										{$set: {"tasks.$": taskJSON}}, {},
+										function(err, result)
+				{
+					if(err)
+					{
+						console.log(err);
+						res.json({error: "Failed to update database"});
+					}
+					else
+					{
+						res.json(result);
+					}
+				});
+			}
 		});
 	});
 
@@ -278,12 +390,28 @@ var config = function(app, db, oauthConfig)
 
 		db.collection("users", function(collection_error, collection)
 		{
-			collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId, "deadlines._id": deadlineJSON._id},
-									{$set: {"deadlines.$": deadlineJSON}}, {},
-									function(err, result)
+			if(collection_error)
 			{
-				res.json(result);
-			});
+				console.log(collection_error);
+				res.json({error: "Failed to access database"});
+			}
+			else
+			{
+				collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId, "deadlines._id": deadlineJSON._id},
+										{$set: {"deadlines.$": deadlineJSON}}, {},
+										function(err, result)
+				{
+					if(err)
+					{
+						console.log(err);
+						res.json({error: "Failed to update database"});
+					}
+					else
+					{
+						res.json(result);
+					}
+				});
+			}
 		});
 	});
 
@@ -294,12 +422,28 @@ var config = function(app, db, oauthConfig)
 
 		db.collection("users", function(collection_error, collection)
 		{
-			collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId},
-									{$pull: {tasks: {_id: taskJSON._id}}}, {},
-									function(err, result)
+			if(collection_error)
 			{
-				res.json(result);
-			});
+				console.log(collection_error);
+				res.json({error: "Failed to access database"});
+			}
+			else
+			{
+				collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId},
+										{$pull: {tasks: {_id: taskJSON._id}}}, {},
+										function(err, result)
+				{
+					if(err)
+					{
+						console.log(err);
+						res.json({error: "Failed to update database"});
+					}
+					else
+					{
+						res.json(result);
+					}
+				});
+			}
 		});
 	});
 
@@ -310,12 +454,28 @@ var config = function(app, db, oauthConfig)
 
 		db.collection("users", function(collection_error, collection)
 		{
-			collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId},
-									{$pull: {deadlines: {_id: deadlineJSON._id}}}, {},
-									function(err, result)
+			if(collection_error)
 			{
-				res.json(result);
-			});
+				console.log(collection_error);
+				res.json({error: "Failed to access database"});
+			}
+			else
+			{
+				collection.updateOne({loginType: req.session.loginType, loginId: req.session.loginId},
+										{$pull: {deadlines: {_id: deadlineJSON._id}}}, {},
+										function(err, result)
+				{
+					if(err)
+					{
+						console.log(err);
+						res.json({error: "Failed to update database"});
+					}
+					else
+					{
+						res.json(result);
+					}
+				});
+			}
 		});
 	});
 
